@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Designing APIs for AI Agents &amp; MCP Tools (2026) — OpenAPI Best Practices</title>
+  <meta name="description" content="Make OpenAPI 3.1 APIs deterministic for AI agents and MCP tools: unique operationId, strict enums, realistic examples, Idempotency-Key retries, and RFC 9457 error recovery." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/ai-agent-ready-api-design.html" />
+  <meta property="og:title" content="Designing APIs for AI Agents &amp; MCP Tools (2026)" />
+  <meta property="og:description" content="OpenAPI design rules that prevent hallucinated tool calls in LLM agents and Model Context Protocol (MCP) bridges." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/ai-agent-ready-api-design.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Designing APIs for AI Agents & MCP Tools (2026)",
+    "datePublished": "2026-11-16",
+    "dateModified": "2026-11-16",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/ai-agent-ready-api-design.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "AI-Agent & MCP Ready APIs", "item": "https://api-design-tools.github.io/api-design-principles/ai-agent-ready-api-design.html" }
+    ]
+  }
+  </script>
+  <style>
+    :root { --bg:#080d1a; --surface:#111c33; --surface-alt:#182644; --border:#263554; --text:#f8fafc; --muted:#94a3b8; --blue:#38bdf8; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.65;overflow-x:clip}
+    .container{max-width:1080px;margin:0 auto;padding:26px 20px 72px}
+    nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:32px;flex-wrap:wrap;gap:12px}
+    .brand{font-weight:700;color:var(--text);text-decoration:none}
+    .nav-links{display:flex;gap:16px;font-size:14px;flex-wrap:wrap}
+    .nav-links a{color:var(--muted);text-decoration:none} .nav-links a:hover{color:var(--text)}
+    h1{font-size:clamp(26px,4vw,38px);line-height:1.2;margin:0 0 14px}
+    .lead{color:var(--muted);font-size:17px;margin:0 0 28px;max-width:74ch}
+    .table-wrap{width:100%;overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:30px}
+    table{width:100%;min-width:720px;border-collapse:collapse;font-size:14px}
+    th,td{padding:12px 14px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+    th{background:var(--surface-alt);color:var(--muted);font-size:12px;text-transform:uppercase}
+    tr:last-child td{border-bottom:none}
+    code{font-family:var(--font-mono);font-size:12.5px;background:rgba(15,23,42,.85);padding:2px 6px;border-radius:5px;color:#93c5fd}
+    footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <a class="brand" href="./">api-design-principles</a>
+      <div class="nav-links">
+        <a href="./">Live Validator</a>
+        <a href="./openapi-linter-and-style-guide.html">Linter CLI</a>
+        <a href="./error-handling-rfc9457.html">RFC 9457</a>
+        <a href="./rest-vs-graphql-vs-grpc.html">REST vs GraphQL</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
+      </div>
+    </nav>
+
+    <h1>Designing APIs for AI Agents &amp; MCP Tools (2026)</h1>
+    <p class="lead">OpenAPI contracts now drive LLM tool calling and Model Context Protocol (MCP) adapters alongside human SDKs. Rules <code>ADP-017</code>, <code>ADP-019</code>, and <code>ADP-032</code> keep tool schemas deterministic.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>OpenAPI Property</th><th>Why AI Agents &amp; MCP Bridges Need It</th><th>Rule</th></tr></thead>
+        <tbody>
+          <tr><td><code>operationId</code> &amp; <code>summary</code></td><td>Map directly to the tool function name and tool selection prompt</td><td><code>ADP-017</code></td></tr>
+          <tr><td><code>example</code> / <code>examples</code></td><td>Show exact ID prefixes, ISO 8601 UTC dates, and integer currency units</td><td><code>ADP-019</code></td></tr>
+          <tr><td><code>maxLength</code> / <code>maxItems</code> / <code>enum</code></td><td>Prevent hallucinated strings, oversized arrays, and invalid states</td><td><code>ADP-021</code></td></tr>
+          <tr><td><code>Idempotency-Key</code></td><td>Make agent retries after network timeouts safe on writes</td><td><code>ADP-012</code></td></tr>
+          <tr><td><code>application/problem+json</code></td><td>Give agents machine-readable <code>detail</code> hints to fix invalid calls</td><td><code>ADP-008</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer><a href="./" style="color:var(--blue);">Back to Interactive OpenAPI Validator</a> | Verified 2026-11-16</footer>
+  </div>
+</body>
+</html>

@@ -1,14 +1,12 @@
 # API Error Handling with RFC 9457 Problem Details & HTTP Status Codes (2026)
 
-> **Back to Directory:** [API Design Principles & OpenAPI Validator](../README.md) • **Interactive Web Guide:** [error-handling-rfc9457.html](https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html)
+Back to [API Design Principles](../README.md) | Web version: [error-handling-rfc9457.html](https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html)
 
-Returning `200 OK` with `{ "success": false, "error": "Invalid" }` breaks HTTP caching, API gateway metrics, and retry middleware. **RFC 9457** (which obsoletes RFC 7807) defines the standard `application/problem+json` error format enforced by rules `ADP-008` and `ADP-009`.
+Returning `200 OK` with `{ "success": false, "error": "Invalid" }` breaks HTTP caching, API gateway metrics, and client retry middleware. **RFC 9457** (which obsoletes RFC 7807) defines the standard `application/problem+json` error payload checked by rules `ADP-008` and `ADP-009`.
 
----
+## 1. RFC 9457 Problem Details structure (`ADP-008`)
 
-## 1. RFC 9457 Problem Details Structure (`ADP-008`)
-
-Every `4xx` and `5xx` error response should return `Content-Type: application/problem+json` with these canonical members:
+Return `Content-Type: application/problem+json` on `4xx` and `5xx` responses:
 
 ```http
 HTTP/1.1 422 Unprocessable Content
@@ -31,30 +29,28 @@ X-Request-Id: req_01J9Z8X2M9K4
 }
 ```
 
-| Field | Required? | Purpose |
+| Field | Status | Purpose |
 | :--- | :---: | :--- |
-| `type` | Recommended | Stable URI identifying the error category (machine-readable) |
-| `title` | Recommended | Short, human-readable summary of the problem type (constant per `type`) |
-| `status` | Recommended | Exact HTTP status code (`400`, `401`, `404`, `409`, `422`, `429`, `500`) |
-| `detail` | Optional | Occurrence-specific explanation (never expose SQL errors or stack traces) |
-| `instance` | Optional | Request URI or correlation ID reference for support/debugging |
+| `type` | Recommended | Stable URI identifying the error category |
+| `title` | Recommended | Short summary of the problem type (constant per `type`) |
+| `status` | Recommended | HTTP status code (`400`, `401`, `404`, `409`, `422`, `429`, `500`) |
+| `detail` | Optional | Occurrence-specific explanation without leaking SQL errors or stack traces |
+| `instance` | Optional | Request URI or correlation ID reference for support debugging |
 
----
+## 2. HTTP status code cheat sheet
 
-## 2. HTTP Status Code Decision Cheat Sheet
-
-| Status | Meaning | When to Return It | Client Retry Safe? |
+| Status | Meaning | When to return it | Client retry safe |
 | :--- | :--- | :--- | :---: |
-| `200 OK` | Success with payload | `GET`, `PATCH`, `PUT` synchronous completion | — |
-| `201 Created` | New resource persisted | `POST` creating a resource (include `Location` header) | — |
-| `202 Accepted` | Queued asynchronously | Long-running exports/jobs (`ADP-026`) | — |
-| `204 No Content` | Success with empty body | `DELETE` completion | — |
-| `400 Bad Request` | Malformed syntax / JSON | Invalid JSON, missing required header, unknown query param | ❌ Fix request |
-| `401 Unauthorized` | Unauthenticated | Missing, expired, or invalid Bearer token / signature | 🔄 Refresh token |
-| `403 Forbidden` | Authenticated, lacks rights | Valid token, missing scope/permission | ❌ Do not retry |
-| `404 Not Found` | Resource missing (or hidden) | Non-existent ID or tenant-scoped BOLA isolation (`ADP-023`) | ❌ Do not retry |
-| `409 Conflict` | State / idempotency conflict | Duplicate unique key or mismatched `Idempotency-Key` body | ❌ Resolve state |
-| `412 Precondition Failed` | Optimistic lock mismatch | `If-Match` ETag header does not match current resource version | 🔄 Re-fetch & retry |
-| `422 Unprocessable Content` | Valid JSON, invalid domain rules | Negative quantity, invalid currency transition | ❌ Fix input |
-| `429 Too Many Requests` | Rate limit exceeded | Quota exhausted; include `Retry-After` & `RateLimit-*` (`ADP-013`) | ✅ After `Retry-After` |
-| `503 Service Unavailable` | Temporary overload / maintenance | Upstream dependency down; include `Retry-After` | ✅ Exponential backoff |
+| `200 OK` | Success with payload | `GET`, `PATCH`, `PUT` synchronous completion | No |
+| `201 Created` | New resource persisted | `POST` creating a resource (include `Location` header) | No |
+| `202 Accepted` | Queued asynchronously | Long-running exports or batch jobs (`ADP-026`) | No |
+| `204 No Content` | Success with empty body | `DELETE` completion | No |
+| `400 Bad Request` | Malformed syntax | Invalid JSON, missing required header, unknown query param | Fix request |
+| `401 Unauthorized` | Unauthenticated | Missing, expired, or invalid Bearer token or signature | Refresh token |
+| `403 Forbidden` | Authenticated, lacks rights | Valid token without the required OAuth scope or role | No |
+| `404 Not Found` | Missing or hidden resource | Non-existent ID or tenant-scoped BOLA isolation (`ADP-023`) | No |
+| `409 Conflict` | State or idempotency clash | Duplicate unique key or reused `Idempotency-Key` with different payload | Resolve state |
+| `412 Precondition Failed` | Optimistic lock mismatch | `If-Match` ETag does not match current resource version | Re-fetch and retry |
+| `422 Unprocessable Content` | Semantic domain error | Valid JSON syntax that violates business rules | Fix input |
+| `429 Too Many Requests` | Rate limit exceeded | Quota exhausted; include `Retry-After` and `RateLimit-*` (`ADP-013`) | After `Retry-After` |
+| `503 Service Unavailable` | Temporary overload | Upstream dependency down; include `Retry-After` | Exponential backoff |

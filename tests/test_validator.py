@@ -5,10 +5,13 @@ from pathlib import Path
 
 from api_validator import (
     RULES_PATH,
+    diff_specs,
+    format_sarif_report,
     load_config,
     load_rules,
     load_spec,
     main,
+    parse_simple_yaml,
     validate_spec,
 )
 
@@ -19,6 +22,7 @@ class TestAPIDesignValidator(unittest.TestCase):
         self.rules_by_id = {r["id"]: r for r in self.rules_data["rules"]}
         self.base_dir = Path(__file__).resolve().parent.parent
         self.good_spec = self.base_dir / "examples" / "orders-api-good.openapi.json"
+        self.good_yaml = self.base_dir / "examples" / "orders-api-good.openapi.yaml"
         self.bad_spec = self.base_dir / "examples" / "orders-api-bad.openapi.json"
 
     def test_rules_catalog_integrity(self) -> None:
@@ -44,6 +48,16 @@ class TestAPIDesignValidator(unittest.TestCase):
         self.assertEqual(res["summary"]["warnings"], 0)
         self.assertEqual(res["findings"], [])
 
+    def test_stdlib_yaml_parser_and_yaml_spec_validation(self) -> None:
+        raw_yaml = self.good_yaml.read_text(encoding="utf-8")
+        parsed = parse_simple_yaml(raw_yaml)
+        self.assertEqual(parsed["openapi"], "3.1.0")
+        self.assertIn("/v1/orders", parsed["paths"])
+        config = load_config(None, preset="strict-public-api")
+        res = validate_spec(parsed, self.rules_by_id, config, spec_label=str(self.good_yaml))
+        self.assertTrue(res["passed"], f"Unexpected findings: {res['findings']}")
+        self.assertEqual(res["score"], 100)
+
     def test_bad_spec_catches_core_violations(self) -> None:
         doc = load_spec(self.bad_spec)
         config = load_config(None)
@@ -52,31 +66,21 @@ class TestAPIDesignValidator(unittest.TestCase):
         self.assertLess(res["score"], 50)
         found_ids = {f["rule_id"] for f in res["findings"]}
         expected_ids = {
-            "ADP-001",  # CRUD verbs in paths
-            "ADP-002",  # camelCase / snake_case
-            "ADP-003",  # trailing slash
-            "ADP-004",  # missing /v1
-            "ADP-005",  # GET requestBody
-            "ADP-006",  # DELETE requestBody + missing 204
-            "ADP-007",  # POST 200 instead of 201
-            "ADP-008",  # missing application/problem+json
-            "ADP-009",  # missing 4xx
-            "ADP-010",  # missing pagination
-            "ADP-012",  # missing Idempotency-Key
-            "ADP-013",  # missing 429 / RateLimit
-            "ADP-014",  # http:// server
-            "ADP-015",  # missing securitySchemes
-            "ADP-016",  # api_key in query
-            "ADP-017",  # duplicate/missing operationId
-            "ADP-018",  # deprecated without Sunset
-            "ADP-020",  # PUT without If-Match
-            "ADP-021",  # unbounded strings/arrays
-            "ADP-022",  # created_at missing date-time
+            "ADP-001", "ADP-002", "ADP-003", "ADP-004", "ADP-005",
+            "ADP-006", "ADP-007", "ADP-008", "ADP-009", "ADP-010",
+            "ADP-012", "ADP-013", "ADP-014", "ADP-015", "ADP-016",
+            "ADP-017", "ADP-018", "ADP-020", "ADP-021", "ADP-022",
         }
         self.assertTrue(expected_ids.issubset(found_ids), f"Missing rules: {expected_ids - found_ids}")
 
-    def test_team_config_disables_and_overrides_rules(self) -> None:
+    def test_presets_and_team_config_overrides(self) -> None:
         doc = load_spec(self.bad_spec)
+        owasp_cfg = load_config(None, preset="owasp-api-top10")
+        res_owasp = validate_spec(doc, self.rules_by_id, owasp_cfg)
+        found_owasp = {f["rule_id"] for f in res_owasp["findings"]}
+        self.assertNotIn("ADP-002", found_owasp)
+        self.assertIn("ADP-021", found_owasp)
+
         with tempfile.TemporaryDirectory() as tmp:
             cfg_path = Path(tmp) / "team-rules.json"
             cfg_path.write_text(
@@ -96,17 +100,34 @@ class TestAPIDesignValidator(unittest.TestCase):
             adp_002_sevs = {f["severity"] for f in res["findings"] if f["rule_id"] == "ADP-002"}
             self.assertEqual(adp_002_sevs, {"error"})
 
-    def test_cli_exit_codes_and_output_file(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            out_path = Path(tmp) / "report.json"
-            code_good = main(["--spec", str(self.good_spec), "--format", "json", "--output", str(out_path)])
-            self.assertEqual(code_good, 0)
-            self.assertTrue(out_path.exists())
-            parsed = json.loads(out_path.read_text(encoding="utf-8"))
-            self.assertEqual(parsed["results"][0]["score"], 100)
+    def test_diff_detects_breaking_and_additive_changes(self) -> None:
+        base_doc = load_spec(self.good_spec)
+        head_doc = json.loads(json.dumps(base_doc))
+        # Remove DELETE operation and change amount_minor type
+        del head_doc["paths"]["/v1/orders/{order_id}"]["delete"]
+        head_doc["components"]["schemas"]["Order"]["properties"]["amount_minor"]["type"] = "string"
+        head_doc["paths"]["/v1/customers"] = {"get": {"responses": {"200": {"description": "OK"}}}}
 
-            code_bad = main(["--spec", str(self.bad_spec), "--fail-on", "error"])
+        diff_res = diff_specs(base_doc, head_doc)
+        self.assertFalse(diff_res["passed"])
+        self.assertGreaterEqual(diff_res["breaking_changes"], 2)
+        self.assertGreaterEqual(diff_res["non_breaking_changes"], 1)
+
+    def test_sarif_export_and_cli_exit_codes(self) -> None:
+        doc = load_spec(self.bad_spec)
+        res = validate_spec(doc, self.rules_by_id, load_config(None), spec_label="bad.json")
+        sarif = json.loads(format_sarif_report([res], self.rules_by_id))
+        self.assertEqual(sarif["version"], "2.1.0")
+        self.assertGreater(len(sarif["runs"][0]["results"]), 0)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            out_path = Path(tmp) / "report.sarif"
+            code_bad = main(["--spec", str(self.bad_spec), "--format", "sarif", "--output", str(out_path)])
             self.assertEqual(code_bad, 1)
+            self.assertTrue(out_path.exists())
+
+            code_good = main(["--spec", str(self.good_yaml), "--preset", "strict-public-api"])
+            self.assertEqual(code_good, 0)
 
 
 if __name__ == "__main__":

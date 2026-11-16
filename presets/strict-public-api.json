@@ -1,0 +1,16 @@
+{
+  "organization": "preset:strict-public-api",
+  "ruleset_name": "Strict Public Developer API (Zero-Warning Gate)",
+  "fail_on": "warning",
+  "allowed_version_prefixes": ["/v1", "/v2"],
+  "ignore_paths": ["/healthz"],
+  "disabled_rules": [],
+  "severity_overrides": {
+    "ADP-002": "error",
+    "ADP-011": "error",
+    "ADP-013": "error",
+    "ADP-016": "error",
+    "ADP-017": "error",
+    "ADP-019": "error"
+  }
+}

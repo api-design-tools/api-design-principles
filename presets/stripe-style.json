@@ -1,0 +1,14 @@
+{
+  "organization": "preset:stripe-style",
+  "ruleset_name": "Stripe-Style Developer-First Payments & SaaS API Standard",
+  "fail_on": "error",
+  "allowed_version_prefixes": ["/v1", "/v2"],
+  "ignore_paths": ["/health"],
+  "disabled_rules": ["ADP-018"],
+  "severity_overrides": {
+    "ADP-011": "error",
+    "ADP-012": "error",
+    "ADP-013": "error",
+    "ADP-019": "error"
+  }
+}

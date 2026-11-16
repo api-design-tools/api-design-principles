@@ -1,5 +1,5 @@
 name: "API Design Principles OpenAPI Validator"
-description: "Validate OpenAPI 3.0/3.1 specs against 22+ automated REST API design principles (RFC 9457, pagination, idempotency, OWASP API Top 10) and emit a violation report."
+description: "Validate OpenAPI 3.0/3.1 JSON or YAML specs against 22 automated REST API design rules, detect breaking changes, and emit Markdown, JSON, or SARIF violation reports."
 author: "api-design-tools"
 branding:
   icon: "check-circle"
@@ -7,10 +7,18 @@ branding:
 
 inputs:
   spec:
-    description: "Path or glob pattern to OpenAPI 3.0/3.1 JSON (or YAML) spec(s)"
+    description: "Path or glob pattern to OpenAPI 3.0/3.1 JSON or YAML spec(s)"
     required: true
+  preset:
+    description: "Optional built-in preset: google-aip, stripe-style, owasp-api-top10, or strict-public-api"
+    required: false
+    default: ""
   config:
     description: "Optional path to team ruleset config JSON (e.g., .api-rules.json)"
+    required: false
+    default: ""
+  diff-base:
+    description: "Optional baseline OpenAPI spec path to check for breaking contract changes against the first spec"
     required: false
     default: ""
   fail-on:
@@ -18,7 +26,7 @@ inputs:
     required: false
     default: "error"
   report-format:
-    description: "Report format: markdown, json, or text"
+    description: "Report format: markdown, json, sarif, or text"
     required: false
     default: "markdown"
   output-file:
@@ -56,6 +64,9 @@ runs:
       run: |
         set -euo pipefail
         ARGS=(--spec ${{ inputs.spec }} --fail-on "${{ inputs.fail-on }}" --format "${{ inputs.report-format }}")
+        if [ -n "${{ inputs.preset }}" ]; then
+          ARGS+=(--preset "${{ inputs.preset }}")
+        fi
         if [ -n "${{ inputs.config }}" ]; then
           ARGS+=(--config "${{ inputs.config }}")
         fi
@@ -73,6 +84,17 @@ runs:
             cat "${{ inputs.output-file }}" >> "$GITHUB_STEP_SUMMARY"
           else
             python3 "${{ github.action_path }}/api_validator.py" --spec ${{ inputs.spec }} --fail-on none --format markdown >> "$GITHUB_STEP_SUMMARY" || true
+          fi
+        fi
+
+        if [ -n "${{ inputs.diff-base }}" ]; then
+          FIRST_SPEC=$(python3 -c 'import glob,sys; m=sorted(glob.glob(sys.argv[1], recursive=True)); print(m[0] if m else sys.argv[1])' "${{ inputs.spec }}")
+          set +e
+          python3 "${{ github.action_path }}/api_validator.py" --diff "${{ inputs.diff-base }}" "$FIRST_SPEC" --format markdown >> "${GITHUB_STEP_SUMMARY:-/dev/stdout}"
+          DIFF_CODE=$?
+          set -e
+          if [ "$DIFF_CODE" -ne 0 ] && [ "${{ inputs.fail-on }}" != "none" ]; then
+            EXIT_CODE=$DIFF_CODE
           fi
         fi
 

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OWASP API Security Top 10 &amp; Auth Design Checklist (2026)</title>
+  <meta name="description" content="Practical OWASP API Security Top 10 checklist for OpenAPI 3.0/3.1: prevent BOLA/IDOR, enforce HTTPS and Bearer auth, ban secrets in query strings, and bound payload sizes." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/api-security-owasp-checklist.html" />
+  <meta property="og:title" content="OWASP API Security Top 10 &amp; Auth Design Checklist (2026)" />
+  <meta property="og:description" content="Automate OWASP API2, API4, and API8 checks in CI with --preset owasp-api-top10 and enforce BOLA scoping." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/api-security-owasp-checklist.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "OWASP API Security Top 10 & Auth Design Checklist (2026)",
+    "datePublished": "2026-11-16",
+    "dateModified": "2026-11-16",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/api-security-owasp-checklist.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "OWASP API Security Checklist", "item": "https://api-design-tools.github.io/api-design-principles/api-security-owasp-checklist.html" }
+    ]
+  }
+  </script>
+  <style>
+    :root { --bg:#080d1a; --surface:#111c33; --surface-alt:#182644; --border:#263554; --text:#f8fafc; --muted:#94a3b8; --blue:#38bdf8; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.65;overflow-x:clip}
+    .container{max-width:1080px;margin:0 auto;padding:26px 20px 72px}
+    nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:32px;flex-wrap:wrap;gap:12px}
+    .brand{font-weight:700;color:var(--text);text-decoration:none}
+    .nav-links{display:flex;gap:16px;font-size:14px;flex-wrap:wrap}
+    .nav-links a{color:var(--muted);text-decoration:none} .nav-links a:hover{color:var(--text)}
+    h1{font-size:clamp(26px,4vw,38px);line-height:1.2;margin:0 0 14px}
+    .lead{color:var(--muted);font-size:17px;margin:0 0 28px;max-width:74ch}
+    .table-wrap{width:100%;overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:30px}
+    table{width:100%;min-width:720px;border-collapse:collapse;font-size:14px}
+    th,td{padding:12px 14px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+    th{background:var(--surface-alt);color:var(--muted);font-size:12px;text-transform:uppercase}
+    tr:last-child td{border-bottom:none}
+    code{font-family:var(--font-mono);font-size:12.5px;background:rgba(15,23,42,.85);padding:2px 6px;border-radius:5px;color:#93c5fd}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px}
+    .card h3{margin:0 0 8px;color:var(--blue)}
+    footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <a class="brand" href="./">api-design-principles</a>
+      <div class="nav-links">
+        <a href="./">Live Validator</a>
+        <a href="./rest-naming-and-methods.html">Naming</a>
+        <a href="./error-handling-rfc9457.html">RFC 9457</a>
+        <a href="./webhook-design-and-async-apis.html">Webhooks</a>
+        <a href="./openapi-linter-and-style-guide.html">Linter CLI</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
+      </div>
+    </nav>
+
+    <h1>OWASP API Security Top 10 &amp; Auth Design Checklist (2026)</h1>
+    <p class="lead">Map OWASP API Security Top 10 risks directly to automated OpenAPI checks with <code>--preset owasp-api-top10</code> and database-level tenant authorization.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rule</th><th>OWASP Risk</th><th>What the OpenAPI validator checks</th><th>Remediation</th></tr></thead>
+        <tbody>
+          <tr><td><code>ADP-014</code></td><td>API8:2023 Misconfiguration</td><td>Rejects non-local <code>http://</code> servers</td><td>Use <code>https://</code> with TLS 1.2+</td></tr>
+          <tr><td><code>ADP-015</code></td><td>API2:2023 Broken Auth</td><td>Flags missing <code>components.securitySchemes</code> or unprotected routes</td><td>Declare Bearer JWT / OAuth 2.1 security</td></tr>
+          <tr><td><code>ADP-016</code></td><td>API2:2023 Broken Auth</td><td>Flags <code>api_key</code>, <code>token</code>, or <code>secret</code> in query params</td><td>Pass credentials via <code>Authorization</code> header</td></tr>
+          <tr><td><code>ADP-021</code></td><td>API4:2023 Resource Consumption</td><td>Flags unbounded strings and arrays</td><td>Set <code>maxLength</code>, <code>maxItems</code>, and <code>maximum</code></td></tr>
+          <tr><td><code>ADP-010</code></td><td>API4:2023 Resource Consumption</td><td>Flags unpaginated collection <code>GET</code> routes</td><td>Require bounded <code>cursor</code> + <code>limit</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Prevent BOLA / IDOR (<code>ADP-023</code>) and ID enumeration (<code>ADP-024</code>)</h3>
+      <p>Scope every single-record database query by the authenticated tenant (<code>WHERE id = $1 AND tenant_id = $2</code>) and use prefixed ULID or UUIDv7 identifiers such as <code>ord_01J9Z4K8M2</code> instead of sequential integers.</p>
+    </div>
+
+    <footer><a href="./" style="color:var(--blue);">Back to Interactive OpenAPI Validator</a> | Verified 2026-11-16</footer>
+  </div>
+</body>
+</html>

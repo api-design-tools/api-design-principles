@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenAPI Linter, Breaking-Change Diff &amp; GitHub Action (2026)</title>
+  <meta name="description" content="Zero-dependency OpenAPI 3.0/3.1 JSON &amp; YAML linter, breaking-change diff checker, built-in Google AIP / Stripe / OWASP presets, and SARIF output for GitHub Actions." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/openapi-linter-and-style-guide.html" />
+  <meta property="og:title" content="OpenAPI Linter, Breaking-Change Diff &amp; GitHub Action (2026)" />
+  <meta property="og:description" content="Validate OpenAPI JSON/YAML specs in CI without Node.js or Docker. Includes breaking-change diff and SARIF 2.1.0 upload." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/openapi-linter-and-style-guide.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "OpenAPI Linter, Breaking-Change Diff & GitHub Action (2026)",
+    "datePublished": "2026-11-16",
+    "dateModified": "2026-11-16",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/openapi-linter-and-style-guide.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "OpenAPI Linter & GitHub Action", "item": "https://api-design-tools.github.io/api-design-principles/openapi-linter-and-style-guide.html" }
+    ]
+  }
+  </script>
+  <style>
+    :root { --bg:#080d1a; --surface:#111c33; --surface-alt:#182644; --border:#263554; --text:#f8fafc; --muted:#94a3b8; --blue:#38bdf8; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.65;overflow-x:clip}
+    .container{max-width:1080px;margin:0 auto;padding:26px 20px 72px}
+    nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:32px;flex-wrap:wrap;gap:12px}
+    .brand{font-weight:700;color:var(--text);text-decoration:none}
+    .nav-links{display:flex;gap:16px;font-size:14px;flex-wrap:wrap}
+    .nav-links a{color:var(--muted);text-decoration:none} .nav-links a:hover{color:var(--text)}
+    h1{font-size:clamp(26px,4vw,38px);line-height:1.2;margin:0 0 14px}
+    .lead{color:var(--muted);font-size:17px;margin:0 0 28px;max-width:74ch}
+    .table-wrap{width:100%;overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:30px}
+    table{width:100%;min-width:720px;border-collapse:collapse;font-size:14px}
+    th,td{padding:12px 14px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+    th{background:var(--surface-alt);color:var(--muted);font-size:12px;text-transform:uppercase}
+    tr:last-child td{border-bottom:none}
+    code{font-family:var(--font-mono);font-size:12.5px;background:rgba(15,23,42,.85);padding:2px 6px;border-radius:5px;color:#93c5fd}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-family:var(--font-mono);font-size:13px;color:#e2e8f0}
+    footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <a class="brand" href="./">api-design-principles</a>
+      <div class="nav-links">
+        <a href="./">Live Validator</a>
+        <a href="./api-style-guides-compared.html">Style Guides Compared</a>
+        <a href="./api-security-owasp-checklist.html">OWASP Security</a>
+        <a href="./ai-agent-ready-api-design.html">AI &amp; MCP APIs</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
+      </div>
+    </nav>
+
+    <h1>OpenAPI Linter, Breaking-Change Diff &amp; GitHub Action (2026)</h1>
+    <p class="lead">Run <code>api_validator.py</code> locally or in GitHub Actions using standard library Python 3.9+. Supports JSON and YAML specs, breaking-change diffs, built-in presets, and SARIF 2.1.0 security reports.</p>
+
+    <pre># Lint YAML or JSON OpenAPI specs with an industry preset
+python3 api_validator.py --spec examples/orders-api-good.openapi.yaml --preset stripe-style
+
+# Detect breaking contract changes between two OpenAPI revisions
+python3 api_validator.py --diff openapi.base.json openapi.head.json --format markdown
+
+# Export SARIF 2.1.0 for GitHub Code Scanning
+python3 api_validator.py --spec openapi.json --format sarif --output api-lint.sarif</pre>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Preset</th><th>Primary Focus</th><th>Key Rules Promoted to Error</th></tr></thead>
+        <tbody>
+          <tr><td><code>google-aip</code></td><td>URI and resource consistency</td><td><code>ADP-002</code> (kebab-case), <code>ADP-011</code> (cursors), <code>ADP-017</code> (<code>operationId</code>)</td></tr>
+          <tr><td><code>stripe-style</code></td><td>Payments and developer UX</td><td><code>ADP-012</code> (<code>Idempotency-Key</code>), <code>ADP-013</code> (<code>429</code>), <code>ADP-019</code> (examples)</td></tr>
+          <tr><td><code>owasp-api-top10</code></td><td>Security gate</td><td><code>ADP-010</code>, <code>ADP-014</code>, <code>ADP-015</code>, <code>ADP-016</code>, <code>ADP-021</code></td></tr>
+          <tr><td><code>strict-public-api</code></td><td>Zero-warning release gate</td><td>Fails on warnings (<code>fail_on: warning</code>) across naming and docs</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer><a href="./" style="color:var(--blue);">Back to Interactive OpenAPI Validator</a> | Verified 2026-11-16</footer>
+  </div>
+</body>
+</html>

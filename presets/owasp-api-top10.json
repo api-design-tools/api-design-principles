@@ -1,0 +1,16 @@
+{
+  "organization": "preset:owasp-api-top10",
+  "ruleset_name": "OWASP API Security Top 10 Enforcement Profile",
+  "fail_on": "error",
+  "allowed_version_prefixes": [],
+  "ignore_paths": [],
+  "disabled_rules": ["ADP-002", "ADP-003", "ADP-018", "ADP-019", "ADP-022"],
+  "severity_overrides": {
+    "ADP-010": "error",
+    "ADP-013": "error",
+    "ADP-014": "error",
+    "ADP-015": "error",
+    "ADP-016": "error",
+    "ADP-021": "error"
+  }
+}

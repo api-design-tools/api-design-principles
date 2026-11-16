@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-API Design Principles & OpenAPI 3.x Validator CLI (2026)
+API Design Principles & OpenAPI 3.x Validator CLI
 
-Zero-dependency OpenAPI 3.0/3.1 linter, team ruleset enforcer, and interactive
-API design principles explorer. Designed for local CLI checks and GitHub Actions CI/CD.
+Zero-dependency OpenAPI 3.0/3.1 linter (JSON + YAML), breaking-change diff
+checker, SARIF 2.1.0 exporter, and rules explorer.
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 BASE_DIR = Path(__file__).resolve().parent
 RULES_PATH = BASE_DIR / "rules.json"
+PRESETS_DIR = BASE_DIR / "presets"
 
 VERB_PREFIX_RE = re.compile(
     r"^(get|list|fetch|read|retrieve|create|add|new|insert|update|edit|modify|"
@@ -37,10 +38,238 @@ SENSITIVE_QUERY_NAMES = {
     "api_key", "apikey", "token", "access_token", "auth", "authorization",
     "secret", "client_secret", "password", "passwd", "pwd", "jwt", "bearer",
 }
-PAGINATION_PARAMS = {"cursor", "after", "before", "page_token", "pageToken", "limit", "page_size", "pageSize", "per_page", "page"}
+PAGINATION_PARAMS = {
+    "cursor", "after", "before", "page_token", "pageToken",
+    "limit", "page_size", "pageSize", "per_page", "page",
+}
 CURSOR_PARAMS = {"cursor", "after", "before", "page_token", "pageToken", "starting_after"}
 OFFSET_PARAMS = {"offset", "skip"}
 TIMESTAMP_NAMES = ("_at", "timestamp", "createdat", "updatedat", "deletedat", "expiresat")
+
+
+def _strip_yaml_comment(line: str) -> str:
+    in_single = False
+    in_double = False
+    escaped = False
+    for idx, ch in enumerate(line):
+        if escaped:
+            escaped = False
+            continue
+        if ch == "\\" and in_double:
+            escaped = True
+            continue
+        if ch == "'" and not in_double:
+            in_single = not in_single
+        elif ch == '"' and not in_single:
+            in_double = not in_double
+        elif ch == "#" and not in_single and not in_double:
+            if idx == 0 or line[idx - 1].isspace():
+                return line[:idx].rstrip()
+    return line.rstrip()
+
+
+def _split_top_level(text: str, sep: str = ",") -> List[str]:
+    parts: List[str] = []
+    buf: List[str] = []
+    depth = 0
+    in_s = False
+    in_d = False
+    esc = False
+    for ch in text:
+        if esc:
+            buf.append(ch)
+            esc = False
+            continue
+        if ch == "\\" and in_d:
+            buf.append(ch)
+            esc = True
+            continue
+        if ch == "'" and not in_d:
+            in_s = not in_s
+        elif ch == '"' and not in_s:
+            in_d = not in_d
+        elif not in_s and not in_d:
+            if ch in "[{":
+                depth += 1
+            elif ch in "]}":
+                depth = max(0, depth - 1)
+            elif ch == sep and depth == 0:
+                parts.append("".join(buf).strip())
+                buf = []
+                continue
+        buf.append(ch)
+    tail = "".join(buf).strip()
+    if tail:
+        parts.append(tail)
+    return parts
+
+
+def _parse_yaml_scalar(raw: str) -> Any:
+    val = raw.strip()
+    if not val or val in {"null", "~", "Null", "NULL"}:
+        return None
+    if val in {"true", "True", "TRUE"}:
+        return True
+    if val in {"false", "False", "FALSE"}:
+        return False
+    if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+        if val.startswith('"'):
+            try:
+                return json.loads(val)
+            except json.JSONDecodeError:
+                return val[1:-1]
+        return val[1:-1].replace("''", "'")
+    if val.startswith("[") and val.endswith("]"):
+        inner = val[1:-1].strip()
+        if not inner:
+            return []
+        return [_parse_yaml_scalar(p) for p in _split_top_level(inner)]
+    if val.startswith("{") and val.endswith("}"):
+        inner = val[1:-1].strip()
+        if not inner:
+            return {}
+        out: Dict[str, Any] = {}
+        for item in _split_top_level(inner):
+            k, sep, v = item.partition(":")
+            if sep:
+                out[str(_parse_yaml_scalar(k))] = _parse_yaml_scalar(v)
+        return out
+    if re.fullmatch(r"-?\d+", val):
+        return int(val)
+    if re.fullmatch(r"-?\d+\.\d+", val):
+        return float(val)
+    return val
+
+
+def _find_yaml_kv(text: str) -> Tuple[Optional[str], Optional[str]]:
+    in_s = False
+    in_d = False
+    esc = False
+    for idx, ch in enumerate(text):
+        if esc:
+            esc = False
+            continue
+        if ch == "\\" and in_d:
+            esc = True
+            continue
+        if ch == "'" and not in_d:
+            in_s = not in_s
+        elif ch == '"' and not in_s:
+            in_d = not in_d
+        elif ch == ":" and not in_s and not in_d:
+            if idx + 1 == len(text) or text[idx + 1].isspace():
+                key = text[:idx].strip()
+                rest = text[idx + 1 :].strip()
+                return key, rest
+    return None, None
+
+
+def parse_simple_yaml(raw_text: str) -> Any:
+    """Parse common OpenAPI YAML documents using only Python stdlib."""
+    raw_lines = raw_text.splitlines()
+    tokens: List[Tuple[int, str]] = []
+    i = 0
+    while i < len(raw_lines):
+        line = _strip_yaml_comment(raw_lines[i])
+        stripped = line.strip()
+        if not stripped or stripped in {"---", "..."}:
+            i += 1
+            continue
+        indent = len(line) - len(line.lstrip(" "))
+        # Handle block scalars (| or >)
+        _, rest = _find_yaml_kv(stripped)
+        if rest in {"|", "|-", ">", ">-"}:
+            block_lines: List[str] = []
+            j = i + 1
+            block_indent: Optional[int] = None
+            while j < len(raw_lines):
+                nxt = raw_lines[j]
+                if not nxt.strip():
+                    block_lines.append("")
+                    j += 1
+                    continue
+                nxt_ind = len(nxt) - len(nxt.lstrip(" "))
+                if nxt_ind <= indent:
+                    break
+                if block_indent is None:
+                    block_indent = nxt_ind
+                block_lines.append(nxt[block_indent:])
+                j += 1
+            joined = (" ".join(block_lines) if rest.startswith(">") else "\n".join(block_lines)).strip()
+            key_part, _ = _find_yaml_kv(stripped)
+            tokens.append((indent, f"{key_part}: {json.dumps(joined)}"))
+            i = j
+            continue
+        tokens.append((indent, stripped))
+        i += 1
+
+    if not tokens:
+        return {}
+
+    def parse_block(idx: int, min_indent: int) -> Tuple[Any, int]:
+        if idx >= len(tokens):
+            return {}, idx
+        cur_indent, cur_text = tokens[idx]
+        if cur_text.startswith("- ") or cur_text == "-":
+            arr: List[Any] = []
+            while idx < len(tokens):
+                ind, txt = tokens[idx]
+                if ind < min_indent or ind != cur_indent or not (txt.startswith("- ") or txt == "-"):
+                    break
+                item_body = txt[1:].strip()
+                if not item_body:
+                    val, idx = parse_block(idx + 1, cur_indent + 1)
+                    arr.append(val)
+                else:
+                    k, v = _find_yaml_kv(item_body)
+                    if k is not None:
+                        item_dict: Dict[str, Any] = {}
+                        key_str = str(_parse_yaml_scalar(k))
+                        if v == "":
+                            sub_val, idx = parse_block(idx + 1, cur_indent + 2)
+                            item_dict[key_str] = sub_val
+                        else:
+                            item_dict[key_str] = _parse_yaml_scalar(v)
+                            idx += 1
+                        if idx < len(tokens) and tokens[idx][0] > cur_indent:
+                            extra, idx = parse_block(idx, cur_indent + 1)
+                            if isinstance(extra, dict):
+                                item_dict.update(extra)
+                        arr.append(item_dict)
+                    else:
+                        arr.append(_parse_yaml_scalar(item_body))
+                        idx += 1
+            return arr, idx
+
+        mapping: Dict[str, Any] = {}
+        while idx < len(tokens):
+            ind, txt = tokens[idx]
+            if ind < min_indent or ind != cur_indent:
+                break
+            if txt.startswith("- ") or txt == "-":
+                break
+            k, v = _find_yaml_kv(txt)
+            if k is None:
+                idx += 1
+                continue
+            key_str = str(_parse_yaml_scalar(k))
+            if v == "":
+                if idx + 1 < len(tokens) and tokens[idx + 1][0] > cur_indent:
+                    sub_val, idx = parse_block(idx + 1, cur_indent + 1)
+                    mapping[key_str] = sub_val
+                elif idx + 1 < len(tokens) and tokens[idx + 1][0] == cur_indent and tokens[idx + 1][1].startswith("- "):
+                    sub_val, idx = parse_block(idx + 1, cur_indent)
+                    mapping[key_str] = sub_val
+                else:
+                    mapping[key_str] = None
+                    idx += 1
+            else:
+                mapping[key_str] = _parse_yaml_scalar(v)
+                idx += 1
+        return mapping, idx
+
+    parsed, _ = parse_block(0, tokens[0][0])
+    return parsed
 
 
 def load_rules(path: Path = RULES_PATH) -> Dict[str, Any]:
@@ -51,15 +280,12 @@ def load_rules(path: Path = RULES_PATH) -> Dict[str, Any]:
 def load_spec(spec_path: Path) -> Dict[str, Any]:
     raw = spec_path.read_text(encoding="utf-8")
     suffix = spec_path.suffix.lower()
-    if suffix in {".yaml", ".yml"}:
+    if suffix in {".yaml", ".yml"} or raw.lstrip().startswith(("openapi:", "swagger:")):
         try:
             import yaml  # type: ignore
-        except ImportError as exc:
-            raise RuntimeError(
-                f"Cannot parse YAML spec '{spec_path}' without PyYAML. "
-                "Convert to OpenAPI JSON or install PyYAML (`pip install pyyaml`)."
-            ) from exc
-        data = yaml.safe_load(raw)
+            data = yaml.safe_load(raw)
+        except ImportError:
+            data = parse_simple_yaml(raw)
         if not isinstance(data, dict):
             raise ValueError(f"Spec '{spec_path}' did not parse into an object.")
         return data
@@ -69,7 +295,7 @@ def load_spec(spec_path: Path) -> Dict[str, Any]:
     return data
 
 
-def load_config(config_path: Optional[Path]) -> Dict[str, Any]:
+def load_config(config_path: Optional[Path], preset: Optional[str] = None) -> Dict[str, Any]:
     defaults: Dict[str, Any] = {
         "organization": "default",
         "ruleset_name": "API Design Principles Standard (2026)",
@@ -79,12 +305,19 @@ def load_config(config_path: Optional[Path]) -> Dict[str, Any]:
         "disabled_rules": [],
         "severity_overrides": {},
     }
-    if not config_path:
-        return defaults
-    loaded = json.loads(config_path.read_text(encoding="utf-8"))
-    if not isinstance(loaded, dict):
-        raise ValueError("Config file must contain a JSON object.")
-    merged = {**defaults, **loaded}
+    merged = dict(defaults)
+    if preset:
+        preset_file = PRESETS_DIR / f"{preset}.json"
+        if not preset_file.exists():
+            available = ", ".join(p.stem for p in sorted(PRESETS_DIR.glob("*.json")))
+            raise ValueError(f"Unknown preset '{preset}'. Available presets: {available}")
+        preset_data = json.loads(preset_file.read_text(encoding="utf-8"))
+        merged.update(preset_data)
+    if config_path:
+        loaded = json.loads(config_path.read_text(encoding="utf-8"))
+        if not isinstance(loaded, dict):
+            raise ValueError("Config file must contain a JSON object.")
+        merged.update(loaded)
     return merged
 
 
@@ -138,10 +371,8 @@ def path_looks_like_action_noun(segment: str) -> bool:
     if not match:
         return False
     prefix = match.group(1).lower()
-    # Avoid false positives like "settings", "orders", "returns", "checks"
     if clean.lower() in {"settings", "orders", "returns", "checks", "records", "posts", "sets"}:
         return False
-    # Flag camelCase/snake_case/kebab-case CRUD verbs like getUsers, create-order, delete_item
     if len(clean) > len(prefix) and (
         clean[len(prefix)].isupper() or clean[len(prefix)] in {"-", "_"}
     ):
@@ -223,7 +454,6 @@ def validate_spec(
             }
         )
 
-    # Global Server HTTPS Check (ADP-014) & base path version detection
     servers = doc.get("servers", [])
     server_has_version = False
     if isinstance(servers, list):
@@ -242,7 +472,6 @@ def validate_spec(
             if re.search(r"/v\d+(?:/|$)", url, re.IGNORECASE):
                 server_has_version = True
 
-    # Global security schemes check (ADP-015)
     components = doc.get("components", {}) if isinstance(doc.get("components"), dict) else {}
     security_schemes = components.get("securitySchemes", {})
     global_security = doc.get("security")
@@ -255,11 +484,7 @@ def validate_spec(
 
     paths = doc.get("paths", {})
     if not isinstance(paths, dict) or not paths:
-        add_finding(
-            "ADP-009",
-            "paths",
-            "OpenAPI specification contains no paths to validate.",
-        )
+        add_finding("ADP-009", "paths", "OpenAPI specification contains no paths to validate.")
 
     seen_operation_ids: Dict[str, str] = {}
     operation_count = 0
@@ -269,7 +494,6 @@ def validate_spec(
             if path_str in ignore_paths or not isinstance(raw_path_item, dict):
                 continue
 
-            # ADP-003: No trailing slash
             if len(path_str) > 1 and path_str.endswith("/"):
                 add_finding(
                     "ADP-003",
@@ -277,7 +501,6 @@ def validate_spec(
                     f"Path '{path_str}' has a trailing slash; normalize to '{path_str.rstrip('/')}'.",
                 )
 
-            # ADP-004: Versioned path or versioned server base URL
             has_allowed_prefix = (
                 any(path_str.startswith(p) for p in allowed_prefixes)
                 if allowed_prefixes
@@ -290,7 +513,6 @@ def validate_spec(
                     f"Endpoint '{path_str}' has no explicit major version prefix (e.g. /v1/...) and no versioned server URL.",
                 )
 
-            # Segment checks: ADP-001 (no verbs) & ADP-002 (kebab-case)
             segments = [s for s in path_str.split("/") if s]
             for seg in segments:
                 if seg.startswith("{") and seg.endswith("}"):
@@ -317,7 +539,6 @@ def validate_spec(
                 op_loc = f"{method} {path_str}"
                 operation_count += 1
 
-                # ADP-017: Unique operationId & summary
                 op_id = raw_op.get("operationId")
                 summary = raw_op.get("summary")
                 if not isinstance(op_id, str) or not op_id.strip():
@@ -336,13 +557,8 @@ def validate_spec(
                     else:
                         seen_operation_ids[op_id] = op_loc
                 if not isinstance(summary, str) or not summary.strip():
-                    add_finding(
-                        "ADP-017",
-                        op_loc,
-                        "Missing concise operation summary.",
-                    )
+                    add_finding("ADP-017", op_loc, "Missing concise operation summary.")
 
-                # ADP-015: Operation security
                 if "security" not in raw_op and not global_security:
                     if isinstance(security_schemes, dict) and security_schemes:
                         add_finding(
@@ -359,7 +575,6 @@ def validate_spec(
                     if str(p.get("in", "")).lower() == "header"
                 }
 
-                # ADP-016: Sensitive credentials in query params
                 for p in params:
                     p_in = str(p.get("in", "")).lower()
                     p_name = str(p.get("name", ""))
@@ -370,7 +585,6 @@ def validate_spec(
                             f"Sensitive credential parameter '{p_name}' passed in URL query string; move to Authorization header.",
                         )
 
-                # Request body checks
                 req_body = resolve_ref(doc, raw_op.get("requestBody"))
                 if method in {"GET", "HEAD"} and isinstance(req_body, dict):
                     add_finding(
@@ -386,7 +600,6 @@ def validate_spec(
                         "DELETE operation requires a requestBody; resource deletion should be self-contained in the URI.",
                     )
 
-                # ADP-020: PUT without If-Match / PATCH recommendation
                 if method == "PUT" and "if-match" not in header_names_lower:
                     add_finding(
                         "ADP-020",
@@ -394,7 +607,6 @@ def validate_spec(
                         "PUT replacement without If-Match header risks lost updates; prefer PATCH or add ETag/If-Match.",
                     )
 
-                # ADP-012: Idempotency-Key on POST mutations
                 if method == "POST" and not path_str.endswith(":search"):
                     if "idempotency-key" not in header_names_lower:
                         add_finding(
@@ -403,7 +615,6 @@ def validate_spec(
                             "POST mutation does not declare an Idempotency-Key header parameter for safe client retries.",
                         )
 
-                # ADP-019 & ADP-021 & ADP-022 on requestBody schemas
                 if isinstance(req_body, dict) and isinstance(req_body.get("content"), dict):
                     for media_type, media_obj in req_body["content"].items():
                         if not isinstance(media_obj, dict):
@@ -436,13 +647,11 @@ def validate_spec(
                                     "Input string schema has no maxLength or enum bound (OWASP API4:2023 risk).",
                                 )
 
-                # Responses analysis
                 responses = raw_op.get("responses", {})
                 if not isinstance(responses, dict):
                     responses = {}
                 resp_codes = {str(k) for k in responses.keys()}
 
-                # ADP-007: POST creation should return 201 or 202
                 if method == "POST" and is_collection_path(path_str) and not path_str.endswith(":search"):
                     if "201" not in resp_codes and "202" not in resp_codes:
                         add_finding(
@@ -451,7 +660,6 @@ def validate_spec(
                             "Resource-creating POST should return 201 Created (with Location) or 202 Accepted instead of only 200.",
                         )
 
-                # ADP-006: DELETE should return 204 or 202
                 if method == "DELETE" and "204" not in resp_codes and "202" not in resp_codes:
                     add_finding(
                         "ADP-006",
@@ -459,7 +667,6 @@ def validate_spec(
                         "DELETE operation should document 204 No Content or 202 Accepted.",
                     )
 
-                # ADP-009: Explicit 4xx / default error responses
                 has_error_resp = any(
                     c.startswith("4") or c == "4XX" or c == "default" for c in resp_codes
                 )
@@ -470,7 +677,6 @@ def validate_spec(
                         "Operation defines no explicit 4xx or default error responses.",
                     )
 
-                # ADP-008: RFC 9457 application/problem+json on 4xx/5xx
                 error_codes = [
                     c for c in resp_codes if c.startswith("4") or c.startswith("5") or c in {"4XX", "5XX", "default"}
                 ]
@@ -491,10 +697,9 @@ def validate_spec(
                             "Error responses do not use RFC 9457 media type 'application/problem+json'.",
                         )
 
-                # ADP-013: 429 & RateLimit headers
                 has_429 = "429" in resp_codes
                 has_rl_headers = False
-                for rc, raw_r in responses.items():
+                for raw_r in responses.values():
                     r_obj = resolve_ref(doc, raw_r)
                     if isinstance(r_obj, dict) and isinstance(r_obj.get("headers"), dict):
                         hdrs_lower = {h.lower() for h in r_obj["headers"].keys()}
@@ -510,7 +715,6 @@ def validate_spec(
                         "Operation does not document 429 Too Many Requests or standard RateLimit/Retry-After headers.",
                     )
 
-                # ADP-010 & ADP-011: Collection GET pagination
                 if method == "GET" and is_collection_path(path_str):
                     if not (param_names & PAGINATION_PARAMS):
                         add_finding(
@@ -525,7 +729,6 @@ def validate_spec(
                             "Collection GET uses offset/skip pagination without keyset cursor; prefer cursor/after for O(1) scaling.",
                         )
 
-                # ADP-018: Deprecated endpoints should expose Deprecation / Sunset headers
                 if raw_op.get("deprecated") is True:
                     has_sunset = False
                     for raw_r in responses.values():
@@ -541,7 +744,6 @@ def validate_spec(
                             "Deprecated operation lacks Deprecation or Sunset headers (RFC 8594 / RFC 9745).",
                         )
 
-                # ADP-019 & ADP-022 on 2xx response bodies
                 for rc, raw_r in responses.items():
                     if not rc.startswith("2"):
                         continue
@@ -576,7 +778,6 @@ def validate_spec(
     warnings = sum(1 for f in findings if f["severity"] == "warning")
     infos = sum(1 for f in findings if f["severity"] == "info")
 
-    # Deduplicate rule penalty slightly so large specs still score fairly while rewarding zero errors
     unique_error_rules = len({f["rule_id"] for f in findings if f["severity"] == "error"})
     unique_warn_rules = len({f["rule_id"] for f in findings if f["severity"] == "warning"})
     penalty = (unique_error_rules * 8) + (errors * 2) + (unique_warn_rules * 3) + warnings + infos
@@ -606,6 +807,162 @@ def validate_spec(
     }
 
 
+def _extract_schema_props(doc: Dict[str, Any], schema: Any) -> Tuple[Dict[str, Dict[str, Any]], Set[str]]:
+    resolved = resolve_ref(doc, schema)
+    if not isinstance(resolved, dict):
+        return {}, set()
+    props: Dict[str, Dict[str, Any]] = {}
+    req: Set[str] = set()
+    if isinstance(resolved.get("required"), list):
+        req.update(str(r) for r in resolved["required"])
+    raw_props = resolved.get("properties")
+    if isinstance(raw_props, dict):
+        for k, v in raw_props.items():
+            rv = resolve_ref(doc, v)
+            if isinstance(rv, dict):
+                props[str(k)] = rv
+    for comp in ("allOf",):
+        if isinstance(resolved.get(comp), list):
+            for sub in resolved[comp]:
+                sub_p, sub_r = _extract_schema_props(doc, sub)
+                props.update(sub_p)
+                req.update(sub_r)
+    return props, req
+
+
+def diff_specs(
+    base_doc: Dict[str, Any],
+    head_doc: Dict[str, Any],
+    base_label: str = "base",
+    head_label: str = "head",
+) -> Dict[str, Any]:
+    """Compare two OpenAPI specs and report breaking and non-breaking contract changes."""
+    changes: List[Dict[str, str]] = []
+
+    def add_change(kind: str, location: str, message: str) -> None:
+        changes.append({"severity": kind, "location": location, "message": message})
+
+    base_paths = base_doc.get("paths", {}) if isinstance(base_doc.get("paths"), dict) else {}
+    head_paths = head_doc.get("paths", {}) if isinstance(head_doc.get("paths"), dict) else {}
+
+    for path_str, b_item in base_paths.items():
+        if not isinstance(b_item, dict):
+            continue
+        if path_str not in head_paths or not isinstance(head_paths.get(path_str), dict):
+            add_change("breaking", path_str, f"Endpoint path '{path_str}' was removed.")
+            continue
+        h_item = head_paths[path_str]
+
+        for m in HTTP_METHODS:
+            b_op = b_item.get(m)
+            if not isinstance(b_op, dict):
+                continue
+            h_op = h_item.get(m)
+            op_loc = f"{m.upper()} {path_str}"
+            if not isinstance(h_op, dict):
+                add_change("breaking", op_loc, f"Operation '{op_loc}' was removed.")
+                continue
+
+            b_params = {(p["in"], p["name"]): p for p in merge_parameters(base_doc, b_item, b_op)}
+            h_params = {(p["in"], p["name"]): p for p in merge_parameters(head_doc, h_item, h_op)}
+
+            for pk, bp in b_params.items():
+                if pk not in h_params:
+                    add_change("breaking", op_loc, f"Parameter '{pk[1]}' ({pk[0]}) was removed.")
+                else:
+                    hp = h_params[pk]
+                    if not bp.get("required") and hp.get("required"):
+                        add_change("breaking", op_loc, f"Optional parameter '{pk[1]}' became required.")
+
+            for pk, hp in h_params.items():
+                if pk not in b_params and hp.get("required"):
+                    add_change("breaking", op_loc, f"New required parameter '{pk[1]}' ({pk[0]}) added.")
+
+            b_rb = resolve_ref(base_doc, b_op.get("requestBody"))
+            h_rb = resolve_ref(head_doc, h_op.get("requestBody"))
+            if isinstance(h_rb, dict) and h_rb.get("required") and not (isinstance(b_rb, dict) and b_rb.get("required")):
+                add_change("breaking", op_loc, "Request body became required.")
+
+            if isinstance(b_rb, dict) and isinstance(h_rb, dict):
+                b_cnt = b_rb.get("content", {})
+                h_cnt = h_rb.get("content", {})
+                for mt, b_m in b_cnt.items():
+                    if mt not in h_cnt:
+                        add_change("breaking", op_loc, f"Request media type '{mt}' was removed.")
+                        continue
+                    b_props, b_req = _extract_schema_props(base_doc, b_m.get("schema"))
+                    h_props, h_req = _extract_schema_props(head_doc, h_cnt[mt].get("schema"))
+                    for new_req in sorted(h_req - b_req):
+                        add_change("breaking", f"{op_loc}.requestBody", f"Property '{new_req}' became required.")
+                    for p_name, bp in b_props.items():
+                        if p_name in h_props:
+                            hp = h_props[p_name]
+                            if bp.get("type") and hp.get("type") and bp.get("type") != hp.get("type"):
+                                add_change(
+                                    "breaking",
+                                    f"{op_loc}.requestBody.{p_name}",
+                                    f"Type changed from '{bp.get('type')}' to '{hp.get('type')}'.",
+                                )
+                            if isinstance(bp.get("enum"), list) and isinstance(hp.get("enum"), list):
+                                removed_vals = set(bp["enum"]) - set(hp["enum"])
+                                if removed_vals:
+                                    add_change(
+                                        "breaking",
+                                        f"{op_loc}.requestBody.{p_name}",
+                                        f"Enum values removed: {sorted(map(str, removed_vals))}.",
+                                    )
+
+            b_resps = b_op.get("responses", {})
+            h_resps = h_op.get("responses", {})
+            for rc in b_resps:
+                if rc.startswith("2") and rc not in h_resps:
+                    add_change("breaking", op_loc, f"Success response '{rc}' was removed.")
+                elif rc.startswith("2") and rc in h_resps:
+                    b_r = resolve_ref(base_doc, b_resps[rc])
+                    h_r = resolve_ref(head_doc, h_resps[rc])
+                    if isinstance(b_r, dict) and isinstance(h_r, dict):
+                        b_c = b_r.get("content", {})
+                        h_c = h_r.get("content", {})
+                        for mt, b_m in b_c.items():
+                            if mt in h_c:
+                                b_props, _ = _extract_schema_props(base_doc, b_m.get("schema"))
+                                h_props, _ = _extract_schema_props(head_doc, h_c[mt].get("schema"))
+                                for p_name, bp in b_props.items():
+                                    if p_name not in h_props:
+                                        add_change(
+                                            "breaking",
+                                            f"{op_loc}.{rc}",
+                                            f"Response property '{p_name}' was removed.",
+                                        )
+                                    elif bp.get("type") and h_props[p_name].get("type") and bp.get("type") != h_props[p_name].get("type"):
+                                        add_change(
+                                            "breaking",
+                                            f"{op_loc}.{rc}.{p_name}",
+                                            f"Response type changed from '{bp.get('type')}' to '{h_props[p_name].get('type')}'.",
+                                        )
+
+    for path_str, h_item in head_paths.items():
+        if not isinstance(h_item, dict):
+            continue
+        if path_str not in base_paths:
+            add_change("non-breaking", path_str, f"New endpoint path '{path_str}' added.")
+            continue
+        b_item = base_paths[path_str]
+        for m in HTTP_METHODS:
+            if isinstance(h_item.get(m), dict) and not isinstance(b_item.get(m), dict):
+                add_change("non-breaking", f"{m.upper()} {path_str}", f"New operation '{m.upper()} {path_str}' added.")
+
+    breaking_count = sum(1 for c in changes if c["severity"] == "breaking")
+    return {
+        "base": base_label,
+        "head": head_label,
+        "breaking_changes": breaking_count,
+        "non_breaking_changes": len(changes) - breaking_count,
+        "passed": breaking_count == 0,
+        "changes": changes,
+    }
+
+
 def _status_label(res: Dict[str, Any]) -> str:
     if not res["passed"]:
         return "FAIL"
@@ -620,19 +977,17 @@ def format_text_report(results: List[Dict[str, Any]]) -> str:
         status = _status_label(res)
         s = res["summary"]
         lines.append("=" * 78)
-        lines.append(f"[{status}] {res['title']} ({res['spec']}) — OpenAPI {res['openapi_version']}")
+        lines.append(f"[{status}] {res['title']} ({res['spec']}) - OpenAPI {res['openapi_version']}")
         lines.append(
             f"Score: {res['score']}/100 | Operations: {res['operations_checked']} | "
             f"Errors: {s['errors']} | Warnings: {s['warnings']} | Info: {s['info']}"
         )
         lines.append("-" * 78)
         if not res["findings"]:
-            lines.append("No rule violations detected. Specification adheres to all automated principles.")
+            lines.append("No rule violations detected.")
         else:
             for f in res["findings"]:
-                lines.append(
-                    f"[{f['severity'].upper():7}] {f['rule_id']} @ {f['location']}"
-                )
+                lines.append(f"[{f['severity'].upper():7}] {f['rule_id']} @ {f['location']}")
                 lines.append(f"          {f['message']}")
                 if f.get("remediation"):
                     lines.append(f"          Fix: {f['remediation']} ({f['standard_ref']})")
@@ -641,17 +996,17 @@ def format_text_report(results: List[Dict[str, Any]]) -> str:
 
 
 def format_markdown_report(results: List[Dict[str, Any]]) -> str:
-    lines: List[str] = ["## API Design Principles — Validation Report", ""]
+    lines: List[str] = ["## API Design Principles Validation Report", ""]
     for res in results:
         badge = _status_label(res)
         s = res["summary"]
-        lines.append(f"### `{res['spec']}` — {res['title']} (**{badge}**, Score: `{res['score']}/100`)")
+        lines.append(f"### `{res['spec']}` ({res['title']}): **{badge}**, Score `{res['score']}/100`")
         lines.append("")
         lines.append(
-            f"- **OpenAPI Version:** `{res['openapi_version']}` • **Operations Checked:** `{res['operations_checked']}`"
+            f"- OpenAPI Version: `{res['openapi_version']}` | Operations Checked: `{res['operations_checked']}`"
         )
         lines.append(
-            f"- **Violations:** `{s['errors']}` Errors • `{s['warnings']}` Warnings • `{s['info']}` Info"
+            f"- Violations: `{s['errors']}` Errors, `{s['warnings']}` Warnings, `{s['info']}` Info"
         )
         lines.append("")
         if not res["findings"]:
@@ -666,6 +1021,96 @@ def format_markdown_report(results: List[Dict[str, Any]]) -> str:
             ref = f["standard_ref"].replace("|", "\\|")
             lines.append(f"| `{f['severity'].upper()}` | **{f['rule_id']}** | `{loc}` | {msg} | {ref} |")
         lines.append("")
+    return "\n".join(lines)
+
+
+def format_sarif_report(
+    results: List[Dict[str, Any]], rules_by_id: Dict[str, Dict[str, Any]]
+) -> str:
+    sarif_rules = []
+    for rid, r in sorted(rules_by_id.items()):
+        if not r.get("automatable"):
+            continue
+        level = "error" if r.get("severity") == "error" else ("warning" if r.get("severity") == "warning" else "note")
+        sarif_rules.append(
+            {
+                "id": rid,
+                "name": r.get("slug", rid),
+                "shortDescription": {"text": r.get("title", rid)},
+                "fullDescription": {"text": r.get("principle", "")},
+                "defaultConfiguration": {"level": level},
+                "properties": {"tags": ["api-design", r.get("category", "rest")], "standard": r.get("standard_ref", "")},
+            }
+        )
+
+    sarif_results = []
+    for res in results:
+        spec_uri = res["spec"]
+        for f in res["findings"]:
+            sev = f["severity"]
+            level = "error" if sev == "error" else ("warning" if sev == "warning" else "note")
+            sarif_results.append(
+                {
+                    "ruleId": f["rule_id"],
+                    "level": level,
+                    "message": {"text": f"[{f['location']}] {f['message']} Fix: {f['remediation']}"},
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {"uri": spec_uri},
+                                "region": {"startLine": 1},
+                            },
+                            "logicalLocations": [{"fullyQualifiedName": f["location"]}],
+                        }
+                    ],
+                }
+            )
+
+    sarif_doc = {
+        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "api-design-principles",
+                        "informationUri": "https://github.com/api-design-tools/api-design-principles",
+                        "rules": sarif_rules,
+                    }
+                },
+                "results": sarif_results,
+            }
+        ],
+    }
+    return json.dumps(sarif_doc, indent=2)
+
+
+def format_diff_report(diff_res: Dict[str, Any], fmt: str) -> str:
+    if fmt == "json":
+        return json.dumps(diff_res, indent=2)
+    if fmt == "markdown":
+        status = "PASS" if diff_res["passed"] else "FAIL (Breaking Changes Detected)"
+        lines = [
+            f"## OpenAPI Contract Diff: `{diff_res['base']}` -> `{diff_res['head']}` (**{status}**)",
+            "",
+            f"- Breaking changes: `{diff_res['breaking_changes']}` | Additive changes: `{diff_res['non_breaking_changes']}`",
+            "",
+        ]
+        if diff_res["changes"]:
+            lines.append("| Type | Location | Change |")
+            lines.append("| :--- | :--- | :--- |")
+            for c in diff_res["changes"]:
+                lines.append(f"| `{c['severity'].upper()}` | `{c['location']}` | {c['message']} |")
+        else:
+            lines.append("> No contract differences detected.")
+        return "\n".join(lines)
+
+    lines = [
+        f"OpenAPI Diff ({diff_res['base']} -> {diff_res['head']}): "
+        f"{diff_res['breaking_changes']} breaking, {diff_res['non_breaking_changes']} non-breaking"
+    ]
+    for c in diff_res["changes"]:
+        lines.append(f"[{c['severity'].upper():12}] {c['location']} : {c['message']}")
     return "\n".join(lines)
 
 
@@ -697,14 +1142,14 @@ def print_checklist(rules_data: Dict[str, Any]) -> None:
     print("# Pre-Production API Design Review Checklist (2026)\n")
     for r in rules_data["rules"]:
         tag = "OpenAPI Lint" if r["automatable"] else "Architecture Review"
-        print(f"- [ ] **{r['id']}** ({r['severity'].upper()}, {tag}): {r['title']} — _{r['standard_ref']}_")
+        print(f"- [ ] **{r['id']}** ({r['severity'].upper()}, {tag}): {r['title']} ({r['standard_ref']})")
 
 
 def print_paradigm_comparison() -> None:
-    print("REST vs GraphQL vs gRPC vs Webhooks/SSE — 2026 Selection Matrix")
+    print("REST vs GraphQL vs gRPC vs Webhooks/SSE (2026 Selection Matrix)")
     print("=" * 88)
     rows = [
-        ("REST (OpenAPI 3.1)", "Public APIs, SaaS, CRUD, CDN caching", "HTTP/1.1–HTTP/3 + JSON", "RFC 9110 + RFC 9457"),
+        ("REST (OpenAPI 3.1)", "Public APIs, SaaS, CRUD, CDN caching", "HTTP/1.1-HTTP/3 + JSON", "RFC 9110 + RFC 9457"),
         ("GraphQL", "Multi-entity UI BFFs, mobile clients", "POST JSON + Typed Schema", "Persisted Queries + Depth Limits"),
         ("gRPC (Protobuf)", "Low-latency internal microservices", "HTTP/2 + Binary Protobuf", "Strict .proto contracts + TLS"),
         ("Webhooks / SSE", "Async events, billing, AI token streams", "HTTP POST / text/event-stream", "HMAC-SHA256 + Idempotency"),
@@ -721,7 +1166,6 @@ def expand_spec_inputs(patterns: List[str]) -> List[Path]:
             resolved.extend(Path(m) for m in sorted(matches) if Path(m).is_file())
         else:
             resolved.append(Path(pat))
-    # Deduplicate preserving order
     unique: List[Path] = []
     seen: Set[Path] = set()
     for p in resolved:
@@ -739,7 +1183,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--spec",
         nargs="+",
-        help="Path(s) or glob pattern(s) to OpenAPI 3.0/3.1 JSON (or YAML with PyYAML) specification(s).",
+        help="Path(s) or glob pattern(s) to OpenAPI 3.0/3.1 JSON or YAML specification(s).",
+    )
+    parser.add_argument(
+        "--diff",
+        nargs=2,
+        metavar=("BASE_SPEC", "HEAD_SPEC"),
+        help="Compare BASE_SPEC against HEAD_SPEC to detect breaking contract changes.",
+    )
+    parser.add_argument(
+        "--preset",
+        choices=["google-aip", "stripe-style", "owasp-api-top10", "strict-public-api"],
+        help="Apply a built-in industry preset from presets/.",
     )
     parser.add_argument(
         "--config",
@@ -748,7 +1203,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--format",
-        choices=["text", "markdown", "json"],
+        choices=["text", "markdown", "json", "sarif"],
         default="text",
         help="Violation report output format (default: text).",
     )
@@ -761,37 +1216,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--fail-on",
         choices=["error", "warning", "none"],
         default=None,
-        help="Minimum severity that causes non-zero exit code (default: config fail_on or 'error').",
+        help="Minimum severity that causes non-zero exit code.",
     )
-    parser.add_argument(
-        "--rules",
-        action="store_true",
-        help="List all API design principles in rules.json.",
-    )
-    parser.add_argument(
-        "--category",
-        help="Filter --rules by category (naming, methods, errors, pagination, versioning, idempotency, rate-limiting, security, documentation, evolution).",
-    )
-    parser.add_argument(
-        "--severity",
-        choices=["error", "warning", "info"],
-        help="Filter --rules by severity.",
-    )
-    parser.add_argument(
-        "--automatable",
-        action="store_true",
-        help="With --rules, show only rules enforced automatically on OpenAPI specs.",
-    )
-    parser.add_argument(
-        "--checklist",
-        action="store_true",
-        help="Print a Markdown pre-production API design checklist.",
-    )
-    parser.add_argument(
-        "--compare",
-        action="store_true",
-        help="Print REST vs GraphQL vs gRPC vs Webhooks decision matrix.",
-    )
+    parser.add_argument("--rules", action="store_true", help="List all API design principles in rules.json.")
+    parser.add_argument("--category", help="Filter --rules by category.")
+    parser.add_argument("--severity", choices=["error", "warning", "info"], help="Filter --rules by severity.")
+    parser.add_argument("--automatable", action="store_true", help="With --rules, show only automated OpenAPI rules.")
+    parser.add_argument("--checklist", action="store_true", help="Print a Markdown pre-production checklist.")
+    parser.add_argument("--compare", action="store_true", help="Print REST vs GraphQL vs gRPC vs Webhooks matrix.")
     return parser
 
 
@@ -802,27 +1234,36 @@ def main(argv: Optional[List[str]] = None) -> int:
     rules_by_id = {r["id"]: r for r in rules_data["rules"]}
 
     if args.rules:
-        print_rules(
-            rules_data,
-            category=args.category,
-            severity=args.severity,
-            automatable_only=args.automatable,
-        )
+        print_rules(rules_data, category=args.category, severity=args.severity, automatable_only=args.automatable)
         return 0
-
     if args.checklist:
         print_checklist(rules_data)
         return 0
-
     if args.compare:
         print_paradigm_comparison()
         return 0
+
+    if args.diff:
+        base_p, head_p = Path(args.diff[0]), Path(args.diff[1])
+        if not base_p.exists() or not head_p.exists():
+            print("Error: both BASE_SPEC and HEAD_SPEC must exist for --diff.", file=sys.stderr)
+            return 2
+        diff_res = diff_specs(load_spec(base_p), load_spec(head_p), str(base_p), str(head_p))
+        fmt = "json" if args.format == "sarif" else args.format
+        payload = format_diff_report(diff_res, fmt)
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(payload + "\n", encoding="utf-8")
+        print(payload)
+        if args.fail_on == "none":
+            return 0
+        return 0 if diff_res["passed"] else 1
 
     if not args.spec:
         parser.print_help()
         return 0
 
-    config = load_config(args.config)
+    config = load_config(args.config, preset=args.preset)
     if args.fail_on is not None:
         config["fail_on"] = args.fail_on
 
@@ -836,12 +1277,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         results.append(validate_spec(doc, rules_by_id, config, spec_label=str(sp)))
 
     if args.format == "json":
-        payload = json.dumps(
-            {"ruleset_version": rules_data["metadata"]["version"], "results": results},
-            indent=2,
-        )
+        payload = json.dumps({"ruleset_version": rules_data["metadata"]["version"], "results": results}, indent=2)
     elif args.format == "markdown":
         payload = format_markdown_report(results)
+    elif args.format == "sarif":
+        payload = format_sarif_report(results, rules_by_id)
     else:
         payload = format_text_report(results)
 
@@ -851,7 +1291,6 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     print(payload)
 
-    # Set GitHub Actions outputs if running inside Actions
     gh_output = os.environ.get("GITHUB_OUTPUT")
     if gh_output and results:
         total_err = sum(r["summary"]["errors"] for r in results)

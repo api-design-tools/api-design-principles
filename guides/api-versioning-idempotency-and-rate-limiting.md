@@ -1,17 +1,14 @@
-# API Versioning, Idempotency Keys & Rate Limiting (2026 Guide)
+# API Versioning, Idempotency Keys & Rate Limiting (2026)
 
-> **Back to Directory:** [API Design Principles & OpenAPI Validator](../README.md) • **Interactive Web Guide:** [versioning-idempotency-rate-limits.html](https://api-design-tools.github.io/api-design-principles/versioning-idempotency-rate-limits.html)
+Back to [API Design Principles](../README.md) | Web version: [versioning-idempotency-rate-limits.html](https://api-design-tools.github.io/api-design-principles/versioning-idempotency-rate-limits.html)
 
-Production resilience depends on three contracts rarely enforced by static style guides: **safe major versioning (`ADP-004`, `ADP-018`)**, **idempotent retries (`ADP-012`)**, and **machine-readable rate limiting (`ADP-013`)**.
+Production resilience depends on three contracts often skipped in static style guides: major versioning (`ADP-004`, `ADP-018`), idempotent retries (`ADP-012`), and machine-readable rate limits (`ADP-013`).
 
----
+## 1. API versioning and deprecation (`ADP-004`, `ADP-018`, `ADP-027`)
 
-## 1. API Versioning & Graceful Deprecation (`ADP-004`, `ADP-018`, `ADP-027`)
+URI major versioning (`/v1/orders`, `/v2/orders`) works reliably with CDN caches, OpenAPI routers, and client SDKs. Keep minor updates additive (`ADP-027`): adding optional response fields or new endpoints stays on `/v1`, while renaming fields, changing types, or tightening inputs belongs in `/v2`.
 
-### URI Versioning (`/v1/orders`) vs Header Versioning (`API-Version: 2026-11-01`)
-- **URI Major Versioning (`/v1/...`, `/v2/...`)** is the most cache-friendly, OpenAPI-compatible default for public REST APIs.
-- **Keep minor changes additive (`ADP-027`):** Adding optional response properties or new endpoints never requires a `/v2` bump. Only breaking changes (removing fields, renaming keys, changing types, tightening validation) require a new major version.
-- **Communicate End-of-Life with `Deprecation` & `Sunset` Headers (`ADP-018`):**
+When retiring an endpoint, expose `Deprecation` (RFC 9745) and `Sunset` (RFC 8594) headers:
 
 ```http
 HTTP/1.1 200 OK
@@ -20,11 +17,9 @@ Sunset: Wed, 31 Dec 2026 23:59:59 GMT
 Link: <https://api.example.com/v2/orders>; rel="successor-version"
 ```
 
----
+## 2. Idempotency-Key pattern for `POST` mutations (`ADP-012`)
 
-## 2. Idempotency-Key Pattern for `POST` Mutations (`ADP-012`)
-
-If a mobile or payment client sends `POST /v1/orders` and the network drops before reading the `201 Created` response, retrying without an idempotency key creates a **duplicate order or double charge**.
+If a client sends `POST /v1/orders` and drops the connection before reading `201 Created`, retrying without an idempotency key creates a duplicate order or double charge.
 
 ```http
 POST /v1/orders HTTP/1.1
@@ -34,18 +29,15 @@ Idempotency-Key: 019334b2-7d3a-7b8e-91c2-4a8e2e6f1100
 Content-Type: application/json
 ```
 
-### Server Implementation Rules
-1. Require a unique client-generated UUIDv4/v7 in `Idempotency-Key` (scoped by `tenant_id + method + path + key`).
-2. Store a cryptographic hash of the request payload alongside the cached HTTP status and response body for at least **24 hours**.
-3. **Same key + same payload hash:** Replay the exact original `201 Created` response without re-executing business side effects.
-4. **Same key + different payload hash:** Reject with `422` or `409 Conflict` (`application/problem+json`) to catch client key reuse bugs.
-5. **Concurrent in-flight duplicate:** Return `409 Conflict` with `Retry-After: 1` (or wait on a distributed lock).
+Server rules for handling `Idempotency-Key`:
+1. Scope keys by `(tenant_id, method, path, key)` and store a SHA-256 hash of the request payload alongside the cached response for at least 24 hours.
+2. Same key and matching payload hash: replay the original `201 Created` response without re-running business side effects.
+3. Same key and different payload hash: return `409 Conflict` or `422` (`application/problem+json`) so client key-reuse bugs fail loudly.
+4. Concurrent in-flight request with the same key: return `409 Conflict` with `Retry-After: 1` (or wait on a short distributed lock).
 
----
+## 3. Rate limit headers and `429` backoff (`ADP-013`)
 
-## 3. Standard Rate Limiting Headers & `429` Backoff (`ADP-013`)
-
-Follow the **IETF RateLimit Header Fields** draft alongside `429 Too Many Requests` (RFC 6585):
+Follow the IETF RateLimit Header Fields draft alongside `429 Too Many Requests` (RFC 6585):
 
 ```http
 HTTP/1.1 429 Too Many Requests

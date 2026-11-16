@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>API Pagination, Filtering &amp; Sorting Design Guide (2026) — Cursor vs Offset</title>
+  <title>API Pagination, Filtering &amp; Sorting Design Guide (2026)</title>
   <meta name="description" content="Compare cursor (keyset) pagination vs offset pagination in REST APIs. Prevent OWASP API4:2023 unbounded list outages with OpenAPI limit bounds and deterministic sorting." />
   <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/pagination-and-filtering.html" />
   <meta property="og:title" content="API Pagination, Filtering &amp; Sorting Design Guide (2026)" />
@@ -11,13 +11,34 @@
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/pagination-and-filtering.html" />
   <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "API Pagination, Filtering & Sorting Design Guide (2026)",
+    "datePublished": "2026-11-16",
+    "dateModified": "2026-11-16",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/pagination-and-filtering.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "Pagination & Filtering", "item": "https://api-design-tools.github.io/api-design-principles/pagination-and-filtering.html" }
+    ]
+  }
+  </script>
   <style>
-    :root { --bg:#080d1a; --surface:#111c33; --surface-alt:#182644; --border:#263554; --text:#f8fafc; --muted:#94a3b8; --blue:#38bdf8; --accent:#10b981; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    :root { --bg:#080d1a; --surface:#111c33; --surface-alt:#182644; --border:#263554; --text:#f8fafc; --muted:#94a3b8; --blue:#38bdf8; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
     *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.65;overflow-x:clip}
     .container{max-width:1080px;margin:0 auto;padding:26px 20px 72px}
     nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:32px;flex-wrap:wrap;gap:12px}
     .brand{font-weight:700;color:var(--text);text-decoration:none}
-    .nav-links{display:flex;gap:18px;font-size:14px;flex-wrap:wrap}
+    .nav-links{display:flex;gap:16px;font-size:14px;flex-wrap:wrap}
     .nav-links a{color:var(--muted);text-decoration:none} .nav-links a:hover{color:var(--text)}
     h1{font-size:clamp(26px,4vw,38px);line-height:1.2;margin:0 0 14px}
     .lead{color:var(--muted);font-size:17px;margin:0 0 28px;max-width:74ch}
@@ -35,38 +56,38 @@
 <body>
   <div class="container">
     <nav>
-      <a class="brand" href="./">api-design-principles (2026)</a>
+      <a class="brand" href="./">api-design-principles</a>
       <div class="nav-links">
         <a href="./">Live Validator</a>
-        <a href="./rest-naming-and-methods.html">Naming &amp; Methods</a>
-        <a href="./error-handling-rfc9457.html">RFC 9457 Errors</a>
-        <a href="./versioning-idempotency-rate-limits.html">Idempotency &amp; Limits</a>
-        <a href="./rest-vs-graphql-vs-grpc.html">REST vs GraphQL vs gRPC</a>
-        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repo ⭐</a>
+        <a href="./rest-naming-and-methods.html">Naming</a>
+        <a href="./error-handling-rfc9457.html">RFC 9457</a>
+        <a href="./versioning-idempotency-rate-limits.html">Idempotency</a>
+        <a href="./api-security-owasp-checklist.html">OWASP Security</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
       </div>
     </nav>
 
     <h1>API Pagination, Filtering &amp; Sorting Design Guide (2026)</h1>
-    <p class="lead">Why keyset cursor pagination outperforms SQL <code>OFFSET</code> at scale, and how <code>ADP-010</code>, <code>ADP-011</code>, and <code>ADP-021</code> protect collection endpoints from <strong>OWASP API4:2023</strong> resource exhaustion.</p>
+    <p class="lead">Keyset cursor pagination stays O(1) as tables grow, while rules <code>ADP-010</code>, <code>ADP-011</code>, and <code>ADP-021</code> protect collection endpoints from <strong>OWASP API4:2023</strong> resource exhaustion.</p>
 
     <div class="table-wrap">
       <table>
         <thead><tr><th>Criterion</th><th>Cursor / Keyset Pagination</th><th>Offset / Page Pagination</th></tr></thead>
         <tbody>
-          <tr><td><strong>Query Shape</strong></td><td><code>GET /v1/orders?cursor=eyJpZCI6MTAwfQ&amp;limit=25</code></td><td><code>GET /v1/orders?offset=50000&amp;limit=25</code></td></tr>
-          <tr><td><strong>DB Complexity</strong></td><td><strong>O(1)</strong> indexed seek on <code>(created_at, id)</code></td><td><strong>O(N)</strong> scans &amp; discards 50,000 rows</td></tr>
-          <tr><td><strong>Insert Consistency</strong></td><td>No duplicate or skipped records under writes</td><td>Rows shift on live inserts causing duplicates</td></tr>
-          <tr><td><strong>Validator Check</strong></td><td>Passes <code>ADP-010</code> &amp; <code>ADP-011</code></td><td>Triggers <code>ADP-011</code> warning when cursor is absent</td></tr>
+          <tr><td><strong>Query shape</strong></td><td><code>GET /v1/orders?cursor=eyJpZCI6MTAwfQ&amp;limit=25</code></td><td><code>GET /v1/orders?offset=50000&amp;limit=25</code></td></tr>
+          <tr><td><strong>DB complexity</strong></td><td>O(1) indexed seek on <code>(created_at, id)</code></td><td>O(N), scans and discards 50,000 rows</td></tr>
+          <tr><td><strong>Insert consistency</strong></td><td>No duplicate or skipped records under writes</td><td>Rows shift on live inserts, causing duplicates</td></tr>
+          <tr><td><strong>Validator check</strong></td><td>Passes <code>ADP-010</code> and <code>ADP-011</code></td><td>Triggers <code>ADP-011</code> warning when cursor is absent</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="card">
-      <h3>Always Bound Page Size &amp; Array Responses</h3>
+      <h3>Bound page sizes and collection envelopes</h3>
       <p>Set <code>minimum: 1</code>, <code>maximum: 100</code>, and <code>default: 25</code> on <code>limit</code>, and wrap responses in an extensible envelope: <code>{ "data": [...], "next_cursor": "...", "has_more": true }</code>.</p>
     </div>
 
-    <footer><a href="./" style="color:var(--blue);">← Back to Interactive OpenAPI Validator</a> • Verified 2026-11-16</footer>
+    <footer><a href="./" style="color:var(--blue);">Back to Interactive OpenAPI Validator</a> | Verified 2026-11-16</footer>
   </div>
 </body>
 </html>

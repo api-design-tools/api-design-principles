@@ -21,10 +21,11 @@ jobs:
       - name: Run Unit Tests
         run: python3 -m unittest discover -s tests -v
 
-      - name: Validate Reference Good OpenAPI Spec
+      - name: Validate Reference JSON and YAML Specs
         uses: ./
         with:
-          spec: examples/orders-api-good.openapi.json
+          spec: "examples/*good.openapi.*"
+          preset: strict-public-api
           fail-on: warning
           report-format: markdown
           output-file: reports/good-api-report.md

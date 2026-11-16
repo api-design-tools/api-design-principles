@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>API Design Principles &amp; Free OpenAPI Validator (2026) — REST Rules &amp; CI Linter</title>
-  <meta name="description" content="Practical 2026 API design principles handbook and free OpenAPI 3.0/3.1 validator. Check 32 RFC 9457, pagination, idempotency, rate-limit, and OWASP API rules in your browser or GitHub Actions." />
+  <title>API Design Principles &amp; Free OpenAPI Validator (2026) | REST Rules &amp; CI Linter</title>
+  <meta name="description" content="Practical 2026 API design principles handbook and free OpenAPI 3.0/3.1 JSON &amp; YAML validator. Check 32 RFC 9457, pagination, idempotency, rate-limit, and OWASP API rules in your browser or GitHub Actions." />
   <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/" />
   <meta property="og:title" content="API Design Principles &amp; Free OpenAPI Validator (2026)" />
-  <meta property="og:description" content="Validate OpenAPI specs in-browser or via GitHub Action against 32 standards-backed REST API design principles with instant Markdown &amp; JSON violation reports." />
+  <meta property="og:description" content="Validate OpenAPI JSON or YAML specs in-browser or via GitHub Action against 32 standards-backed REST API design principles with instant Markdown &amp; JSON violation reports." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/" />
   <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
@@ -20,7 +20,7 @@
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Web",
     "offers": { "@type": "Offer", "price": "0.00", "priceCurrency": "USD" },
-    "description": "Free browser-based and CLI OpenAPI 3.0/3.1 validator enforcing 22 automated REST API design rules across naming, RFC 9457 errors, cursor pagination, idempotency, rate limiting, and OWASP API security.",
+    "description": "Free browser-based and CLI OpenAPI 3.0/3.1 JSON and YAML validator enforcing 22 automated REST API design rules across naming, RFC 9457 errors, cursor pagination, idempotency, rate limiting, and OWASP API security.",
     "url": "https://api-design-tools.github.io/api-design-principles/"
   }
   </script>
@@ -28,16 +28,20 @@
   {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": "Core API Design Principles & Standards (2026)",
+    "name": "API Design Principles Guides (2026)",
     "url": "https://api-design-tools.github.io/api-design-principles/",
-    "numberOfItems": 6,
+    "numberOfItems": 10,
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Use Plural Resource Nouns Instead of CRUD Verbs (RFC 9110)", "url": "https://api-design-tools.github.io/api-design-principles/rest-naming-and-methods.html" },
-      { "@type": "ListItem", "position": 2, "name": "Standardize Error Payloads with RFC 9457 Problem Details", "url": "https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html" },
-      { "@type": "ListItem", "position": 3, "name": "Enforce Cursor / Keyset Pagination on Collection GETs", "url": "https://api-design-tools.github.io/api-design-principles/pagination-and-filtering.html" },
-      { "@type": "ListItem", "position": 4, "name": "Require Idempotency-Key Headers on Mutating POST Requests", "url": "https://api-design-tools.github.io/api-design-principles/versioning-idempotency-rate-limits.html" },
-      { "@type": "ListItem", "position": 5, "name": "Document 429 Too Many Requests and IETF RateLimit Headers", "url": "https://api-design-tools.github.io/api-design-principles/versioning-idempotency-rate-limits.html" },
-      { "@type": "ListItem", "position": 6, "name": "Choose Between REST, GraphQL, gRPC, and Signed Webhooks", "url": "https://api-design-tools.github.io/api-design-principles/rest-vs-graphql-vs-grpc.html" }
+      { "@type": "ListItem", "position": 1, "name": "REST API Naming & HTTP Method Semantics", "url": "https://api-design-tools.github.io/api-design-principles/rest-naming-and-methods.html" },
+      { "@type": "ListItem", "position": 2, "name": "Pagination, Filtering & Sorting", "url": "https://api-design-tools.github.io/api-design-principles/pagination-and-filtering.html" },
+      { "@type": "ListItem", "position": 3, "name": "RFC 9457 Problem Details & Status Codes", "url": "https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html" },
+      { "@type": "ListItem", "position": 4, "name": "Versioning, Idempotency & Rate Limits", "url": "https://api-design-tools.github.io/api-design-principles/versioning-idempotency-rate-limits.html" },
+      { "@type": "ListItem", "position": 5, "name": "REST vs GraphQL vs gRPC vs Webhooks", "url": "https://api-design-tools.github.io/api-design-principles/rest-vs-graphql-vs-grpc.html" },
+      { "@type": "ListItem", "position": 6, "name": "OWASP API Security Top 10 Checklist", "url": "https://api-design-tools.github.io/api-design-principles/api-security-owasp-checklist.html" },
+      { "@type": "ListItem", "position": 7, "name": "Webhook Design & Async APIs", "url": "https://api-design-tools.github.io/api-design-principles/webhook-design-and-async-apis.html" },
+      { "@type": "ListItem", "position": 8, "name": "AI-Agent & MCP Ready API Design", "url": "https://api-design-tools.github.io/api-design-principles/ai-agent-ready-api-design.html" },
+      { "@type": "ListItem", "position": 9, "name": "OpenAPI Linter, Diff & GitHub Action", "url": "https://api-design-tools.github.io/api-design-principles/openapi-linter-and-style-guide.html" },
+      { "@type": "ListItem", "position": 10, "name": "API Style Guides Compared", "url": "https://api-design-tools.github.io/api-design-principles/api-style-guides-compared.html" }
     ]
   }
   </script>
@@ -48,10 +52,10 @@
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "What makes this API design principles project different from static style guides?",
+        "name": "How is this API design principles repository different from static style guides?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Unlike read-only style guides such as Haufe-Lexware api-style-guide, api-design-principles pairs practical HTTP/JSON examples with a free zero-dependency OpenAPI 3.0/3.1 validator, a drop-in GitHub Action, and automated rule-violation reports."
+          "text": "Static style guides such as Haufe-Lexware api-style-guide only document conventions for human reading. api-design-principles pairs practical HTTP/JSON examples with a zero-dependency OpenAPI 3.0/3.1 JSON and YAML validator, breaking-change diff detection, a GitHub Action, and SARIF/Markdown violation reports."
         }
       },
       {
@@ -85,7 +89,7 @@
     .container { width: 100%; max-width: 1160px; margin: 0 auto; padding: 26px 20px 72px; }
     nav { display: flex; justify-content: space-between; align-items: center; padding-bottom: 18px; border-bottom: 1px solid var(--border); margin-bottom: 30px; flex-wrap: wrap; gap: 12px; }
     .brand { font-weight: 700; color: var(--text); text-decoration: none; font-size: 16px; }
-    .nav-links { display: flex; gap: 18px; font-size: 14px; flex-wrap: wrap; }
+    .nav-links { display: flex; gap: 16px; font-size: 14px; flex-wrap: wrap; }
     .nav-links a { color: var(--muted); text-decoration: none; }
     .nav-links a:hover { color: var(--text); }
     .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(16, 185, 129, 0.14); color: #34d399; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 14px; }
@@ -124,43 +128,50 @@
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
     .card h3 { margin: 0 0 6px; font-size: 16px; color: var(--blue); }
     .card p { margin: 0; font-size: 13.5px; color: var(--muted); }
+    .guides-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 32px; }
+    .guide-link { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; text-decoration: none; color: var(--text); }
+    .guide-link:hover { border-color: var(--blue); }
+    .guide-link strong { color: var(--blue); display: block; margin-bottom: 4px; font-size: 14.5px; }
+    .guide-link span { color: var(--muted); font-size: 13px; }
     footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
   </style>
 </head>
 <body>
   <div class="container">
     <nav>
-      <a class="brand" href="./">api-design-principles (2026)</a>
+      <a class="brand" href="./">api-design-principles</a>
       <div class="nav-links">
-        <a href="./rest-naming-and-methods.html">Naming &amp; Methods</a>
+        <a href="./rest-naming-and-methods.html">Naming</a>
         <a href="./pagination-and-filtering.html">Pagination</a>
-        <a href="./error-handling-rfc9457.html">RFC 9457 Errors</a>
-        <a href="./versioning-idempotency-rate-limits.html">Idempotency &amp; Limits</a>
-        <a href="./rest-vs-graphql-vs-grpc.html">REST vs GraphQL vs gRPC</a>
-        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repo ⭐</a>
+        <a href="./error-handling-rfc9457.html">RFC 9457</a>
+        <a href="./versioning-idempotency-rate-limits.html">Idempotency</a>
+        <a href="./api-security-owasp-checklist.html">OWASP</a>
+        <a href="./openapi-linter-and-style-guide.html">CLI &amp; Diff</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
       </div>
     </nav>
 
-    <div class="badge">32 STANDARDS-BACKED RULES • 22 AUTOMATED OPENAPI CHECKS • GITHUB ACTION READY</div>
+    <div class="badge">32 STANDARDS-BACKED RULES | JSON &amp; YAML OPENAPI VALIDATOR | GITHUB ACTION</div>
     <h1>API Design Principles &amp; Free OpenAPI Validator (2026)</h1>
-    <p class="lead">Go beyond static style-guide theory. Paste any OpenAPI 3.0/3.1 JSON spec below to audit your API against <strong>RFC 9110</strong>, <strong>RFC 9457 Problem Details</strong>, <strong>cursor pagination</strong>, <strong>Idempotency-Key</strong>, <strong>RateLimit headers</strong>, and <strong>OWASP API Top 10</strong> — or run the zero-dependency CLI &amp; GitHub Action in CI/CD.</p>
+    <p class="lead">Paste any OpenAPI 3.0 or 3.1 specification (JSON or YAML) below to check it against <strong>RFC 9110</strong>, <strong>RFC 9457 Problem Details</strong>, <strong>cursor pagination</strong>, <strong>Idempotency-Key</strong>, <strong>RateLimit headers</strong>, and <strong>OWASP API Top 10</strong>. Run the same checks locally or in GitHub Actions with breaking-change diffs and SARIF export.</p>
 
     <section class="panel" aria-label="Interactive OpenAPI Validator">
       <div class="toolbar">
         <div class="btn-group">
-          <button class="primary" id="btn-validate" type="button">▶ Validate OpenAPI Spec</button>
+          <button class="primary" id="btn-validate" type="button">Validate OpenAPI Spec</button>
           <button id="btn-load-bad" type="button">Load Anti-Pattern Demo</button>
-          <button id="btn-load-good" type="button">Load Compliant Demo</button>
-          <label class="btn-link" for="file-upload">Upload JSON</label>
-          <input id="file-upload" type="file" accept=".json,.openapi.json" style="display:none" />
+          <button id="btn-load-good" type="button">Load Compliant Demo (JSON)</button>
+          <button id="btn-load-yaml" type="button">Load Compliant Demo (YAML)</button>
+          <label class="btn-link" for="file-upload">Upload JSON / YAML</label>
+          <input id="file-upload" type="file" accept=".json,.yaml,.yml" style="display:none" />
         </div>
         <div class="btn-group">
-          <button id="btn-export-md" type="button">Export Markdown Report</button>
+          <button id="btn-export-md" type="button">Export Markdown</button>
           <button id="btn-export-json" type="button">Export JSON</button>
         </div>
       </div>
 
-      <textarea id="spec-input" spellcheck="false" aria-label="OpenAPI 3.0 or 3.1 JSON Specification"></textarea>
+      <textarea id="spec-input" spellcheck="false" aria-label="OpenAPI 3.0 or 3.1 JSON or YAML Specification"></textarea>
 
       <div class="score-grid" id="score-grid">
         <div class="stat"><div class="stat-label">Compliance Score</div><div class="stat-val" id="stat-score">--/100</div></div>
@@ -188,23 +199,37 @@
       </div>
     </section>
 
-    <h2>GitHub Action &amp; Multi-Repo CI Enforcement</h2>
+    <h2>CI/CD enforcement and team presets</h2>
     <div class="cards">
       <div class="card">
-        <h3>1. Drop-in GitHub Action</h3>
-        <p>Add <code>uses: api-design-tools/api-design-principles@v1</code> to fail PRs on rule errors and post Markdown violation reports in Job Summaries.</p>
+        <h3>GitHub Action and SARIF</h3>
+        <p>Add <code>uses: api-design-tools/api-design-principles@v1</code> to fail PRs on errors, write Markdown Step Summaries, and upload SARIF 2.1.0 alerts.</p>
       </div>
       <div class="card">
-        <h3>2. Zero-Dependency Python CLI</h3>
-        <p>Run <code>python3 api_validator.py --spec openapi.json</code> anywhere with Python 3.9+ stdlib — no Node.js or Docker needed.</p>
+        <h3>Zero-dependency CLI and diff</h3>
+        <p>Run <code>python3 api_validator.py --spec openapi.yaml</code> or <code>--diff base.yaml head.yaml</code> using Python 3.9+ standard library only.</p>
       </div>
       <div class="card">
-        <h3>3. Team Rulesets &amp; Overrides</h3>
-        <p>Share one <code>.api-rules.json</code> across multiple microservice repos to disable rules or escalate warnings to CI errors.</p>
+        <h3>Industry presets</h3>
+        <p>Start with <code>--preset google-aip</code>, <code>stripe-style</code>, <code>owasp-api-top10</code>, or <code>strict-public-api</code>, or override rules in <code>.api-rules.json</code>.</p>
       </div>
     </div>
 
-    <h2>32-Rule API Design Principles Directory</h2>
+    <h2>Topic guides</h2>
+    <div class="guides-grid">
+      <a class="guide-link" href="./rest-naming-and-methods.html"><strong>REST Naming &amp; Methods</strong><span>Plural nouns, kebab-case, 201 Created, Merge Patch</span></a>
+      <a class="guide-link" href="./pagination-and-filtering.html"><strong>Pagination &amp; Filtering</strong><span>Keyset cursor pagination vs SQL OFFSET</span></a>
+      <a class="guide-link" href="./error-handling-rfc9457.html"><strong>RFC 9457 Error Handling</strong><span>application/problem+json &amp; HTTP status matrix</span></a>
+      <a class="guide-link" href="./versioning-idempotency-rate-limits.html"><strong>Versioning, Idempotency &amp; Limits</strong><span>Idempotency-Key, Sunset headers, 429 RateLimit</span></a>
+      <a class="guide-link" href="./rest-vs-graphql-vs-grpc.html"><strong>REST vs GraphQL vs gRPC</strong><span>Protocol trade-offs and hybrid architectures</span></a>
+      <a class="guide-link" href="./api-security-owasp-checklist.html"><strong>OWASP API Security Top 10</strong><span>BOLA scoping, ULID IDs, OWASP API4 input bounds</span></a>
+      <a class="guide-link" href="./webhook-design-and-async-apis.html"><strong>Webhooks &amp; Async APIs</strong><span>HMAC-SHA256 signatures &amp; 202 Accepted polling</span></a>
+      <a class="guide-link" href="./ai-agent-ready-api-design.html"><strong>AI-Agent &amp; MCP Ready APIs</strong><span>Deterministic operationId, enums, error recovery</span></a>
+      <a class="guide-link" href="./openapi-linter-and-style-guide.html"><strong>OpenAPI Linter &amp; Diff CLI</strong><span>YAML support, presets, SARIF &amp; GitHub Actions</span></a>
+      <a class="guide-link" href="./api-style-guides-compared.html"><strong>API Style Guides Compared</strong><span>Haufe-Lexware vs Zalando vs Google AIP</span></a>
+    </div>
+
+    <h2>API design principles directory (32 rules)</h2>
     <div class="filter-row">
       <input id="rule-search" type="search" placeholder="Search rules (e.g. RFC 9457, cursor, idempotency, OWASP)..." style="flex:1; min-width:240px;" />
       <select id="rule-category">
@@ -243,8 +268,8 @@
     </div>
 
     <footer>
-      <span>Maintained by <a href="https://github.com/api-design-tools/api-design-principles" style="color:var(--blue);text-decoration:none;">api-design-tools/api-design-principles</a> • MIT License</span>
-      <span>Verified 2026-11-16 • <a href="./llms.txt" style="color:var(--blue);text-decoration:none;">llms.txt</a></span>
+      <span>Maintained by <a href="https://github.com/api-design-tools/api-design-principles" style="color:var(--blue);text-decoration:none;">api-design-tools/api-design-principles</a> (MIT License)</span>
+      <span>Verified 2026-11-16 | <a href="./llms.txt" style="color:var(--blue);text-decoration:none;">llms.txt</a></span>
     </footer>
   </div>
 
@@ -382,6 +407,210 @@
         }
       }
     };
+
+    const GOOD_YAML_DEMO = `openapi: 3.1.0
+info:
+  title: Orders Reference API (YAML)
+  version: 1.2.0
+servers:
+  - url: https://api.example.com/v1
+security:
+  - BearerAuth: []
+paths:
+  /v1/orders:
+    get:
+      operationId: listOrders
+      summary: List paginated customer orders
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            maxLength: 128
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Paginated orders
+          headers:
+            RateLimit-Remaining:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                data: []
+                next_cursor: null
+        "400":
+          $ref: "#/components/responses/ProblemBadRequest"
+        "429":
+          $ref: "#/components/responses/ProblemRateLimited"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  responses:
+    ProblemBadRequest:
+      description: Validation failed
+      content:
+        application/problem+json:
+          schema:
+            type: object
+          example:
+            type: https://api.example.com/errors/validation
+            title: Validation Failed
+            status: 400
+    ProblemRateLimited:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/problem+json:
+          schema:
+            type: object
+          example:
+            type: https://api.example.com/errors/rate-limited
+            title: Too Many Requests
+            status: 429`;
+
+    // Zero-dependency OpenAPI YAML subset parser for browser use
+    function stripYamlComment(line) {
+      let inS = false, inD = false, esc = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (esc) { esc = false; continue; }
+        if (ch === "\\" && inD) { esc = true; continue; }
+        if (ch === "'" && !inD) inS = !inS;
+        else if (ch === '"' && !inS) inD = !inD;
+        else if (ch === "#" && !inS && !inD && (i === 0 || /\s/.test(line[i - 1]))) {
+          return line.slice(0, i).replace(/\s+$/, "");
+        }
+      }
+      return line.replace(/\s+$/, "");
+    }
+
+    function findYamlKv(text) {
+      let inS = false, inD = false, esc = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (esc) { esc = false; continue; }
+        if (ch === "\\" && inD) { esc = true; continue; }
+        if (ch === "'" && !inD) inS = !inS;
+        else if (ch === '"' && !inS) inD = !inD;
+        else if (ch === ":" && !inS && !inD && (i + 1 === text.length || /\s/.test(text[i + 1]))) {
+          return [text.slice(0, i).trim(), text.slice(i + 1).trim()];
+        }
+      }
+      return [null, null];
+    }
+
+    function parseYamlScalar(raw) {
+      const val = raw.trim();
+      if (!val || val === "null" || val === "~") return null;
+      if (val === "true" || val === "True") return true;
+      if (val === "false" || val === "False") return false;
+      if (val.startsWith('"') && val.endsWith('"')) {
+        try { return JSON.parse(val); } catch { return val.slice(1, -1); }
+      }
+      if (val.startsWith("'") && val.endsWith("'")) return val.slice(1, -1).replace(/''/g, "'");
+      if (val === "[]") return [];
+      if (val === "{}") return {};
+      if (val.startsWith("[") && val.endsWith("]")) {
+        return val.slice(1, -1).split(",").map(s => parseYamlScalar(s)).filter((_, idx, a) => !(a.length === 1 && a[0] === null));
+      }
+      if (/^-?\d+$/.test(val)) return parseInt(val, 10);
+      if (/^-?\d+\.\d+$/.test(val)) return parseFloat(val);
+      return val;
+    }
+
+    function parseSimpleYaml(rawText) {
+      const tokens = [];
+      for (const rawLine of rawText.split(/\r?\n/)) {
+        const line = stripYamlComment(rawLine);
+        const stripped = line.trim();
+        if (!stripped || stripped === "---" || stripped === "...") continue;
+        tokens.push([line.length - line.trimStart().length, stripped]);
+      }
+      if (!tokens.length) return {};
+
+      function parseBlock(idx, minIndent) {
+        if (idx >= tokens.length) return [{}, idx];
+        const [curInd, curTxt] = tokens[idx];
+        if (curTxt.startsWith("- ") || curTxt === "-") {
+          const arr = [];
+          while (idx < tokens.length) {
+            const [ind, txt] = tokens[idx];
+            if (ind < minIndent || ind !== curInd || !(txt.startsWith("- ") || txt === "-")) break;
+            const body = txt.slice(1).trim();
+            if (!body) {
+              const [sub, nxt] = parseBlock(idx + 1, curInd + 1);
+              arr.push(sub); idx = nxt;
+            } else {
+              const [k, v] = findYamlKv(body);
+              if (k !== null) {
+                const obj = {};
+                const keyStr = String(parseYamlScalar(k));
+                if (v === "") {
+                  const [sub, nxt] = parseBlock(idx + 1, curInd + 2);
+                  obj[keyStr] = sub; idx = nxt;
+                } else {
+                  obj[keyStr] = parseYamlScalar(v); idx += 1;
+                }
+                if (idx < tokens.length && tokens[idx][0] > curInd) {
+                  const [extra, nxt] = parseBlock(idx, curInd + 1);
+                  if (extra && typeof extra === "object" && !Array.isArray(extra)) Object.assign(obj, extra);
+                  idx = nxt;
+                }
+                arr.push(obj);
+              } else {
+                arr.push(parseYamlScalar(body));
+                idx += 1;
+              }
+            }
+          }
+          return [arr, idx];
+        }
+        const map = {};
+        while (idx < tokens.length) {
+          const [ind, txt] = tokens[idx];
+          if (ind < minIndent || ind !== curInd || txt.startsWith("- ") || txt === "-") break;
+          const [k, v] = findYamlKv(txt);
+          if (k === null) { idx += 1; continue; }
+          const keyStr = String(parseYamlScalar(k));
+          if (v === "") {
+            if (idx + 1 < tokens.length && tokens[idx + 1][0] > curInd) {
+              const [sub, nxt] = parseBlock(idx + 1, curInd + 1);
+              map[keyStr] = sub; idx = nxt;
+            } else if (idx + 1 < tokens.length && tokens[idx + 1][0] === curInd && tokens[idx + 1][1].startsWith("- ")) {
+              const [sub, nxt] = parseBlock(idx + 1, curInd);
+              map[keyStr] = sub; idx = nxt;
+            } else {
+              map[keyStr] = null; idx += 1;
+            }
+          } else {
+            map[keyStr] = parseYamlScalar(v);
+            idx += 1;
+          }
+        }
+        return [map, idx];
+      }
+      return parseBlock(0, tokens[0][0])[0];
+    }
+
+    function parseSpecInput(raw) {
+      const trimmed = raw.trim();
+      if (trimmed.startsWith("{")) return JSON.parse(trimmed);
+      return parseSimpleYaml(trimmed);
+    }
 
     const VERB_PREFIX = /^(get|list|fetch|read|retrieve|create|add|new|insert|update|edit|modify|patch|delete|remove|destroy|erase|set|save|post|put|find|search|query|check|verify|validate|send|run|exec|execute|process|handle)[A-Z_-]?/i;
     const CRUD_WORDS = new Set(["get","list","fetch","create","add","update","edit","delete","remove","destroy","find","search","query"]);
@@ -583,6 +812,10 @@
       return { title: (doc.info && doc.info.title) || "Untitled API", openapi: doc.openapi || "3.x", ops, score, errors, warnings, infos, passed: errors === 0, findings };
     }
 
+    function escapeHtml(s) {
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
     function renderValidation(res) {
       lastReport = res;
       const scoreEl = document.getElementById("stat-score");
@@ -597,7 +830,7 @@
 
       const tbody = document.getElementById("violations-body");
       if (res.findings.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5"><span class="pill pill-pass">PASS</span> Zero violations detected! Your OpenAPI spec complies with all 22 automated API design rules.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5"><span class="pill pill-pass">PASS</span> Zero violations detected across all 22 automated API design checks.</td></tr>`;
         return;
       }
       tbody.innerHTML = res.findings.map(f => `
@@ -609,10 +842,6 @@
           <td style="color:var(--muted);">${escapeHtml(f.standard_ref)}</td>
         </tr>
       `).join("");
-    }
-
-    function escapeHtml(s) {
-      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
     function renderRules() {
@@ -630,7 +859,7 @@
         <tr>
           <td><code>${r.id}</code><br><span class="pill pill-${r.severity}">${r.severity.toUpperCase()}</span></td>
           <td>${r.automatable ? '<span class="pill pill-pass">AUTO</span>' : '<span class="pill pill-info">ARCH</span>'}</td>
-          <td><strong>${escapeHtml(r.title)}</strong><br><span style="color:var(--muted);font-size:12.5px;">${escapeHtml(r.standard_ref)} — ${escapeHtml(r.principle)}</span></td>
+          <td><strong>${escapeHtml(r.title)}</strong><br><span style="color:var(--muted);font-size:12.5px;">${escapeHtml(r.standard_ref)}: ${escapeHtml(r.principle)}</span></td>
           <td><code>${escapeHtml(r.bad_example)}</code></td>
           <td><code>${escapeHtml(r.good_example)}</code></td>
         </tr>
@@ -639,10 +868,10 @@
 
     function runFromTextarea() {
       try {
-        const parsed = JSON.parse(document.getElementById("spec-input").value);
+        const parsed = parseSpecInput(document.getElementById("spec-input").value);
         renderValidation(validateOpenAPI(parsed));
       } catch (err) {
-        document.getElementById("violations-body").innerHTML = `<tr><td colspan="5" class="err">Invalid JSON: ${escapeHtml(err.message)}</td></tr>`;
+        document.getElementById("violations-body").innerHTML = `<tr><td colspan="5" class="err">Parse error: ${escapeHtml(err.message)}</td></tr>`;
       }
     }
 
@@ -653,6 +882,10 @@
     });
     document.getElementById("btn-load-good").addEventListener("click", () => {
       document.getElementById("spec-input").value = JSON.stringify(GOOD_DEMO, null, 2);
+      runFromTextarea();
+    });
+    document.getElementById("btn-load-yaml").addEventListener("click", () => {
+      document.getElementById("spec-input").value = GOOD_YAML_DEMO;
       runFromTextarea();
     });
     document.getElementById("file-upload").addEventListener("change", (ev) => {
@@ -666,9 +899,9 @@
       if (!lastReport) runFromTextarea();
       if (!lastReport) return;
       const lines = [
-        `## API Design Principles Validation Report — ${lastReport.title}`,
-        `- **Score:** \`${lastReport.score}/100\` (**${lastReport.passed ? "PASS" : "FAIL"}**)`,
-        `- **Errors:** ${lastReport.errors} • **Warnings:** ${lastReport.warnings}`,
+        `## API Design Principles Validation Report: ${lastReport.title}`,
+        `- Score: \`${lastReport.score}/100\` (**${lastReport.passed ? "PASS" : "FAIL"}**)`,
+        `- Errors: ${lastReport.errors}, Warnings: ${lastReport.warnings}`,
         "",
         "| Severity | Rule | Location | Violation | Standard |",
         "| :--- | :--- | :--- | :--- | :--- |",

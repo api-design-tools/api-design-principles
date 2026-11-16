@@ -1,0 +1,120 @@
+openapi: 3.1.0
+info:
+  title: Orders Reference API (YAML)
+  version: 1.2.0
+  description: YAML OpenAPI 3.1 specification parsed with zero external dependencies.
+servers:
+  - url: https://api.example.com/v1
+    description: Production API v1
+security:
+  - BearerAuth: []
+paths:
+  /v1/orders:
+    get:
+      operationId: listOrders
+      summary: List paginated customer orders
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 128
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Paginated list of orders
+          headers:
+            RateLimit-Remaining:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  created_at:
+                    type: string
+                    format: date-time
+              example:
+                data: []
+                next_cursor: null
+        "400":
+          $ref: "#/components/responses/ProblemBadRequest"
+        "429":
+          $ref: "#/components/responses/ProblemRateLimited"
+    post:
+      operationId: createOrder
+      summary: Create a new order idempotently
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currency
+              properties:
+                currency:
+                  type: string
+                  minLength: 3
+                  maxLength: 3
+            example:
+              currency: USD
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: ord_01J9Z
+        "400":
+          $ref: "#/components/responses/ProblemBadRequest"
+        "429":
+          $ref: "#/components/responses/ProblemRateLimited"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    ProblemBadRequest:
+      description: Invalid input
+      content:
+        application/problem+json:
+          schema:
+            type: object
+          example:
+            type: https://api.example.com/errors/validation
+            title: Validation Failed
+            status: 400
+    ProblemRateLimited:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/problem+json:
+          schema:
+            type: object
+          example:
+            type: https://api.example.com/errors/rate-limited
+            title: Too Many Requests
+            status: 429

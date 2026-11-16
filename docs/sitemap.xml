@@ -37,6 +37,36 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://api-design-tools.github.io/api-design-principles/api-security-owasp-checklist.html</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://api-design-tools.github.io/api-design-principles/webhook-design-and-async-apis.html</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://api-design-tools.github.io/api-design-principles/ai-agent-ready-api-design.html</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://api-design-tools.github.io/api-design-principles/openapi-linter-and-style-guide.html</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://api-design-tools.github.io/api-design-principles/api-style-guides-compared.html</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://api-design-tools.github.io/api-design-principles/llms.txt</loc>
     <lastmod>2026-11-16</lastmod>
     <changefreq>weekly</changefreq>

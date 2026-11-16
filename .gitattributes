@@ -1,8 +1,11 @@
 docs/* linguist-documentation
 guides/* linguist-documentation
 examples/* linguist-documentation
+presets/* linguist-documentation
 tests/* linguist-vendored
 assets/* linguist-vendored
 *.html linguist-detectable=false
 *.json linguist-detectable=false
+*.yaml linguist-detectable=false
+*.yml linguist-detectable=false
 *.md linguist-documentation

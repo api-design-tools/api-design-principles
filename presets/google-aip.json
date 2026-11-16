@@ -1,0 +1,13 @@
+{
+  "organization": "preset:google-aip",
+  "ruleset_name": "Google AIP-Aligned REST Standard (2026)",
+  "fail_on": "error",
+  "allowed_version_prefixes": ["/v1", "/v2", "/v3", "/v1beta1"],
+  "ignore_paths": ["/health", "/healthz", "/metrics"],
+  "disabled_rules": [],
+  "severity_overrides": {
+    "ADP-002": "error",
+    "ADP-011": "error",
+    "ADP-017": "error"
+  }
+}

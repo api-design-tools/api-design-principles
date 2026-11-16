@@ -11,13 +11,34 @@
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html" />
   <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "RFC 9457 Problem Details & HTTP Status Codes Guide (2026)",
+    "datePublished": "2026-11-16",
+    "dateModified": "2026-11-16",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "RFC 9457 Error Handling", "item": "https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html" }
+    ]
+  }
+  </script>
   <style>
-    :root { --bg:#080d1a; --surface:#111c33; --surface-alt:#182644; --border:#263554; --text:#f8fafc; --muted:#94a3b8; --blue:#38bdf8; --accent:#10b981; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    :root { --bg:#080d1a; --surface:#111c33; --surface-alt:#182644; --border:#263554; --text:#f8fafc; --muted:#94a3b8; --blue:#38bdf8; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
     *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.65;overflow-x:clip}
     .container{max-width:1080px;margin:0 auto;padding:26px 20px 72px}
     nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:32px;flex-wrap:wrap;gap:12px}
     .brand{font-weight:700;color:var(--text);text-decoration:none}
-    .nav-links{display:flex;gap:18px;font-size:14px;flex-wrap:wrap}
+    .nav-links{display:flex;gap:16px;font-size:14px;flex-wrap:wrap}
     .nav-links a{color:var(--muted);text-decoration:none} .nav-links a:hover{color:var(--text)}
     h1{font-size:clamp(26px,4vw,38px);line-height:1.2;margin:0 0 14px}
     .lead{color:var(--muted);font-size:17px;margin:0 0 28px;max-width:74ch}
@@ -34,19 +55,19 @@
 <body>
   <div class="container">
     <nav>
-      <a class="brand" href="./">api-design-principles (2026)</a>
+      <a class="brand" href="./">api-design-principles</a>
       <div class="nav-links">
         <a href="./">Live Validator</a>
-        <a href="./rest-naming-and-methods.html">Naming &amp; Methods</a>
+        <a href="./rest-naming-and-methods.html">Naming</a>
         <a href="./pagination-and-filtering.html">Pagination</a>
-        <a href="./versioning-idempotency-rate-limits.html">Idempotency &amp; Limits</a>
-        <a href="./rest-vs-graphql-vs-grpc.html">REST vs GraphQL vs gRPC</a>
-        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repo ⭐</a>
+        <a href="./versioning-idempotency-rate-limits.html">Idempotency</a>
+        <a href="./ai-agent-ready-api-design.html">AI &amp; MCP APIs</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
       </div>
     </nav>
 
     <h1>RFC 9457 Problem Details &amp; HTTP Status Codes (2026)</h1>
-    <p class="lead">Every <code>4xx</code> and <code>5xx</code> API response should return <code>Content-Type: application/problem+json</code> following <strong>RFC 9457</strong> (which obsoleted RFC 7807) — automatically checked by OpenAPI rules <code>ADP-008</code> and <code>ADP-009</code>.</p>
+    <p class="lead">Return <code>Content-Type: application/problem+json</code> on <code>4xx</code> and <code>5xx</code> responses following <strong>RFC 9457</strong> (which obsoleted RFC 7807), checked automatically by rules <code>ADP-008</code> and <code>ADP-009</code>.</p>
 
     <pre>{
   "type": "https://api.example.com/errors/validation-error",
@@ -58,20 +79,20 @@
 
     <div class="table-wrap">
       <table>
-        <thead><tr><th>HTTP Status</th><th>Meaning</th><th>Typical Cause</th><th>Safe to Retry?</th></tr></thead>
+        <thead><tr><th>HTTP Status</th><th>Meaning</th><th>Typical Cause</th><th>Safe to Retry</th></tr></thead>
         <tbody>
           <tr><td><code>400 Bad Request</code></td><td>Malformed syntax</td><td>Invalid JSON, missing required header, unknown query key</td><td>No (fix payload)</td></tr>
-          <tr><td><code>401 Unauthorized</code></td><td>Unauthenticated</td><td>Missing or expired Bearer JWT / API credential</td><td>After token refresh</td></tr>
+          <tr><td><code>401 Unauthorized</code></td><td>Unauthenticated</td><td>Missing or expired Bearer JWT or API credential</td><td>After token refresh</td></tr>
           <tr><td><code>403 Forbidden</code></td><td>Insufficient permissions</td><td>Valid token lacks required OAuth scope or role</td><td>No</td></tr>
-          <tr><td><code>409 Conflict</code></td><td>State / Idempotency clash</td><td>Duplicate unique key or reused <code>Idempotency-Key</code> with different body</td><td>No</td></tr>
-          <tr><td><code>412 Precondition Failed</code></td><td>Optimistic lock mismatch</td><td><code>If-Match</code> ETag is stale after concurrent update</td><td>Re-fetch &amp; retry</td></tr>
-          <tr><td><code>422 Unprocessable Content</code></td><td>Semantic domain error</td><td>Valid JSON schema, invalid business constraint</td><td>No</td></tr>
-          <tr><td><code>429 Too Many Requests</code></td><td>Rate limit exceeded</td><td>Quota hit; pair with <code>Retry-After</code> &amp; <code>RateLimit-*</code></td><td>Yes (after delay)</td></tr>
+          <tr><td><code>409 Conflict</code></td><td>State or idempotency clash</td><td>Duplicate unique key or reused <code>Idempotency-Key</code> with different body</td><td>No</td></tr>
+          <tr><td><code>412 Precondition Failed</code></td><td>Optimistic lock mismatch</td><td><code>If-Match</code> ETag is stale after concurrent update</td><td>Re-fetch and retry</td></tr>
+          <tr><td><code>422 Unprocessable Content</code></td><td>Semantic domain error</td><td>Valid JSON syntax that violates business rules</td><td>No</td></tr>
+          <tr><td><code>429 Too Many Requests</code></td><td>Rate limit exceeded</td><td>Quota hit; pair with <code>Retry-After</code> and <code>RateLimit-*</code></td><td>Yes (after delay)</td></tr>
         </tbody>
       </table>
     </div>
 
-    <footer><a href="./" style="color:var(--blue);">← Back to Interactive OpenAPI Validator</a> • Verified 2026-11-16</footer>
+    <footer><a href="./" style="color:var(--blue);">Back to Interactive OpenAPI Validator</a> | Verified 2026-11-16</footer>
   </div>
 </body>
 </html>

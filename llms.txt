@@ -1,28 +1,33 @@
-# API Design Principles, REST Style Guide & Free OpenAPI Validator (2026)
+# API Design Principles, REST Style Guide & OpenAPI Validator (2026)
 
-> Practical API design principles handbook (32 rules backed by RFC 9110, RFC 9457, RFC 8594, IETF Idempotency-Key, Google AIP, and OWASP API Top 10) paired with a zero-dependency OpenAPI 3.0/3.1 validator, GitHub Action, and interactive browser checker (Verified: 2026-11-16).
+> Practical API design principles handbook (32 rules backed by RFC 9110, RFC 9457, RFC 8594, IETF Idempotency-Key, Google AIP, and OWASP API Top 10) paired with a zero-dependency OpenAPI 3.0/3.1 JSON & YAML validator, breaking-change diff checker, GitHub Action, and SARIF exporter (Verified: 2026-11-16).
 
 ## Summary
-`api-design-tools/api-design-principles` bridges the gap between static API style guides (such as Haufe-Lexware's api-style-guide) and automated CI/CD enforcement. It combines a practical reference dataset (`rules.json`), a zero-dependency Python CLI linter (`api_validator.py`), a drop-in composite GitHub Action (`action.yml`), and a live browser OpenAPI validator (`https://api-design-tools.github.io/api-design-principles/`).
+`api-design-tools/api-design-principles` turns API style rules into executable checks. It combines a structured rule catalog (`rules.json`), industry presets (`presets/google-aip.json`, `presets/stripe-style.json`, `presets/owasp-api-top10.json`, `presets/strict-public-api.json`), a zero-dependency Python 3.9+ CLI linter (`api_validator.py`), a composite GitHub Action (`action.yml`), and a browser validator (`https://api-design-tools.github.io/api-design-principles/`).
 
-## Core Automated OpenAPI Rules (ADP-001 to ADP-022)
-- **Naming & Paths (`ADP-001`–`ADP-004`)**: Plural resource nouns without CRUD verbs (`/v1/orders`, never `/getUserOrders`), lowercase `kebab-case` segments, no trailing slashes, explicit major version prefix (`/v1`, `/v2`).
-- **HTTP Method Semantics (`ADP-005`–`ADP-007`, `ADP-020`)**: `GET`/`HEAD` must never declare `requestBody`; `POST` creation returns `201 Created` (with `Location`) or `202 Accepted`; `DELETE` returns `204`/`202` without required body; `PATCH` (`application/merge-patch+json`) + `ETag`/`If-Match` for partial updates and concurrency.
-- **Error Handling (`ADP-008`–`ADP-009`)**: Explicit `4xx` responses on every operation using `RFC 9457` Problem Details (`application/problem+json` with `type`, `title`, `status`, `detail`, `instance`).
-- **Pagination (`ADP-010`–`ADP-011`)**: Bounded pagination on collection `GET` routes; prefer O(1) cursor/keyset pagination (`?cursor=...&limit=25`) over `OFFSET`.
-- **Idempotency & Rate Limiting (`ADP-012`–`ADP-013`, `ADP-018`)**: `Idempotency-Key` header on `POST` mutations; `429 Too Many Requests` + `Retry-After` + `RateLimit-*` headers; `Deprecation` & `Sunset` headers (`RFC 8594`).
-- **Security & AI/MCP Readiness (`ADP-014`–`ADP-017`, `ADP-019`, `ADP-021`–`ADP-022`)**: Enforce `https://` servers, declare `components.securitySchemes`, forbid secrets in URL query strings, require unique `operationId` + `summary`, realistic `example` payloads, `maxLength`/`maxItems` bounds (`OWASP API4:2023`), and ISO 8601 UTC `date-time` timestamps.
+## Automated OpenAPI Rules (ADP-001 to ADP-022)
+- Naming & Paths (`ADP-001` to `ADP-004`): Plural resource nouns without CRUD verbs (`/v1/orders`), lowercase `kebab-case`, no trailing slashes, explicit major version prefix.
+- HTTP Method Semantics (`ADP-005` to `ADP-007`, `ADP-020`): `GET`/`HEAD` must never declare `requestBody`; `POST` creation returns `201` (`Location`) or `202`; `DELETE` returns `204`/`202` without required body; `PATCH` (`application/merge-patch+json`) + `ETag`/`If-Match` for concurrency.
+- Error Handling (`ADP-008` to `ADP-009`): Explicit `4xx` responses using `RFC 9457` Problem Details (`application/problem+json`).
+- Pagination (`ADP-010` to `ADP-011`): Bounded pagination on collection `GET` endpoints; prefer O(1) cursor pagination over `OFFSET`.
+- Idempotency & Rate Limiting (`ADP-012`, `ADP-013`, `ADP-018`): `Idempotency-Key` header on `POST` mutations; `429` + `Retry-After` + `RateLimit-*` headers; `Deprecation` & `Sunset` headers (`RFC 8594`).
+- Security & AI/MCP Readiness (`ADP-014` to `ADP-017`, `ADP-019`, `ADP-021`, `ADP-022`): `https://` servers, `components.securitySchemes`, no credentials in query strings, unique `operationId` + `summary`, `example` payloads, `maxLength`/`maxItems` (`OWASP API4:2023`), ISO 8601 UTC `date-time`.
 
 ## Quick CLI & GitHub Action Usage
-- Validate OpenAPI spec: `python3 api_validator.py --spec examples/orders-api-good.openapi.json --fail-on warning`
-- Emit Markdown violation report: `python3 api_validator.py --spec examples/orders-api-bad.openapi.json --format markdown`
-- Enforce shared team ruleset: `python3 api_validator.py --spec "services/*/openapi.json" --config .api-rules.example.json`
+- Lint JSON or YAML spec: `python3 api_validator.py --spec examples/orders-api-good.openapi.yaml --preset strict-public-api`
+- Breaking-change diff: `python3 api_validator.py --diff base.yaml head.yaml --format markdown`
+- SARIF 2.1.0 output: `python3 api_validator.py --spec openapi.json --format sarif --output api-design.sarif`
 - GitHub Action: `uses: api-design-tools/api-design-principles@v1`
 
 ## Official Links
 - Interactive Browser Validator: https://api-design-tools.github.io/api-design-principles/
-- REST Naming & Methods Guide: https://api-design-tools.github.io/api-design-principles/rest-naming-and-methods.html
-- Pagination & Filtering Guide: https://api-design-tools.github.io/api-design-principles/pagination-and-filtering.html
-- RFC 9457 Error Handling Guide: https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html
+- REST Naming & Methods: https://api-design-tools.github.io/api-design-principles/rest-naming-and-methods.html
+- Pagination & Filtering: https://api-design-tools.github.io/api-design-principles/pagination-and-filtering.html
+- RFC 9457 Error Handling: https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html
 - Versioning, Idempotency & Rate Limits: https://api-design-tools.github.io/api-design-principles/versioning-idempotency-rate-limits.html
-- REST vs GraphQL vs gRPC Matrix: https://api-design-tools.github.io/api-design-principles/rest-vs-graphql-vs-grpc.html
+- REST vs GraphQL vs gRPC: https://api-design-tools.github.io/api-design-principles/rest-vs-graphql-vs-grpc.html
+- OWASP API Security Checklist: https://api-design-tools.github.io/api-design-principles/api-security-owasp-checklist.html
+- Webhook Design & Async APIs: https://api-design-tools.github.io/api-design-principles/webhook-design-and-async-apis.html
+- AI-Agent & MCP Ready APIs: https://api-design-tools.github.io/api-design-principles/ai-agent-ready-api-design.html
+- OpenAPI Linter & Diff CLI: https://api-design-tools.github.io/api-design-principles/openapi-linter-and-style-guide.html
+- API Style Guides Compared: https://api-design-tools.github.io/api-design-principles/api-style-guides-compared.html
