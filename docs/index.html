@@ -12,6 +12,10 @@
   <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/" />
   <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
   <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&amp;family=Atkinson+Hyperlegible+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -69,209 +73,248 @@
     ]
   }
   </script>
-  <style>
-    :root {
-      --bg: #080d1a;
-      --surface: #111c33;
-      --surface-alt: #182644;
-      --border: #263554;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --accent: #10b981;
-      --blue: #38bdf8;
-      --amber: #f59e0b;
-      --red: #f87171;
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--font-sans); line-height: 1.6; overflow-x: clip; }
-    .container { width: 100%; max-width: 1160px; margin: 0 auto; padding: 26px 20px 72px; }
-    nav { display: flex; justify-content: space-between; align-items: center; padding-bottom: 18px; border-bottom: 1px solid var(--border); margin-bottom: 30px; flex-wrap: wrap; gap: 12px; }
-    .brand { font-weight: 700; color: var(--text); text-decoration: none; font-size: 16px; }
-    .nav-links { display: flex; gap: 16px; font-size: 14px; flex-wrap: wrap; }
-    .nav-links a { color: var(--muted); text-decoration: none; }
-    .nav-links a:hover { color: var(--text); }
-    .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(16, 185, 129, 0.14); color: #34d399; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 14px; }
-    h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.18; margin: 0 0 14px; letter-spacing: -0.02em; }
-    .lead { font-size: 17px; color: var(--muted); max-width: 80ch; margin: 0 0 26px; }
-    .panel { background: linear-gradient(180deg, var(--surface-alt) 0%, var(--surface) 100%); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 30px; }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .btn-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    button, .btn-link { padding: 9px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; }
-    button:hover, .btn-link:hover { border-color: var(--blue); }
-    button.primary { background: var(--accent); color: #052e16; border-color: var(--accent); }
-    button.primary:hover { filter: brightness(1.08); }
-    textarea { width: 100%; min-height: 220px; padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: #e2e8f0; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.5; resize: vertical; }
-    .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin: 18px 0; }
-    .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
-    .stat-label { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
-    .stat-val { font-size: 26px; font-weight: 800; font-family: var(--font-mono); margin-top: 4px; }
-    .ok { color: #34d399; }
-    .err { color: var(--red); }
-    .warn { color: var(--amber); }
-    .info { color: var(--blue); }
-    .table-wrap { width: 100%; overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 30px; }
-    table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 13.5px; }
-    th, td { padding: 11px 14px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
-    th { background: var(--surface-alt); color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; }
-    tr:last-child td { border-bottom: none; }
-    .pill { display: inline-block; padding: 2px 8px; border-radius: 6px; font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; }
-    .pill-error { background: rgba(248, 113, 113, 0.16); color: #fca5a5; }
-    .pill-warning { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
-    .pill-info { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; }
-    .pill-pass { background: rgba(16, 185, 129, 0.16); color: #34d399; }
-    .filter-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
-    .filter-row input, .filter-row select { padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 14px; }
-    code { font-family: var(--font-mono); font-size: 12.5px; background: rgba(15, 23, 42, 0.85); padding: 2px 6px; border-radius: 5px; color: #93c5fd; }
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-bottom: 32px; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-    .card h3 { margin: 0 0 6px; font-size: 16px; color: var(--blue); }
-    .card p { margin: 0; font-size: 13.5px; color: var(--muted); }
-    .guides-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 32px; }
-    .guide-link { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; text-decoration: none; color: var(--text); }
-    .guide-link:hover { border-color: var(--blue); }
-    .guide-link strong { color: var(--blue); display: block; margin-bottom: 4px; font-size: 14.5px; }
-    .guide-link span { color: var(--muted); font-size: 13px; }
-    footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-  </style>
 </head>
 <body>
-  <div class="container">
-    <nav>
+  <header class="site-header">
+    <nav class="container site-nav" aria-label="Primary">
       <a class="brand" href="./">api-design-principles</a>
       <div class="nav-links">
-        <a href="./rest-naming-and-methods.html">Naming</a>
-        <a href="./pagination-and-filtering.html">Pagination</a>
-        <a href="./error-handling-rfc9457.html">RFC 9457</a>
-        <a href="./versioning-idempotency-rate-limits.html">Idempotency</a>
-        <a href="./api-security-owasp-checklist.html">OWASP</a>
-        <a href="./openapi-linter-and-style-guide.html">CLI &amp; Diff</a>
+        <a href="#validator">Validator</a>
+        <a href="#cli-workflows">Command line</a>
+        <a href="#rules">32 Rules</a>
+        <a href="#guides">Guides</a>
+        <a href="./openapi-linter-and-style-guide.html">Diff &amp; SARIF</a>
         <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
       </div>
     </nav>
+  </header>
 
-    <div class="badge">32 STANDARDS-BACKED RULES | JSON &amp; YAML OPENAPI VALIDATOR | GITHUB ACTION</div>
-    <h1>API Design Principles &amp; Free OpenAPI Validator (2026)</h1>
-    <p class="lead">Paste any OpenAPI 3.0 or 3.1 specification (JSON or YAML) below to check it against <strong>RFC 9110</strong>, <strong>RFC 9457 Problem Details</strong>, <strong>cursor pagination</strong>, <strong>Idempotency-Key</strong>, <strong>RateLimit headers</strong>, and <strong>OWASP API Top 10</strong>. Run the same checks locally or in GitHub Actions with breaking-change diffs and SARIF export.</p>
-
-    <section class="panel" aria-label="Interactive OpenAPI Validator">
-      <div class="toolbar">
-        <div class="btn-group">
-          <button class="primary" id="btn-validate" type="button">Validate OpenAPI Spec</button>
-          <button id="btn-load-bad" type="button">Load Anti-Pattern Demo</button>
-          <button id="btn-load-good" type="button">Load Compliant Demo (JSON)</button>
-          <button id="btn-load-yaml" type="button">Load Compliant Demo (YAML)</button>
-          <label class="btn-link" for="file-upload">Upload JSON / YAML</label>
-          <input id="file-upload" type="file" accept=".json,.yaml,.yml" style="display:none" />
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <h1>API design principles checked in CI</h1>
+          <p class="lead">Lint OpenAPI specs against 32 RFC, pagination, idempotency, and OWASP rules.</p>
+          <div class="hero-actions">
+            <a class="btn" href="#validator">Open spec validator</a>
+            <a class="btn" href="#cli-workflows">Install GitHub Action</a>
+          </div>
+          <p class="hero-note">Zero external dependencies in Python 3.9+ or right here in your browser.</p>
         </div>
-        <div class="btn-group">
-          <button id="btn-export-md" type="button">Export Markdown</button>
-          <button id="btn-export-json" type="button">Export JSON</button>
+
+        <div class="panels" aria-label="Sample OpenAPI violation diff">
+          <div class="panel-head">
+            <span class="panel-title">orders-api.openapi.yaml</span>
+            <span class="panel-meta">22 automated checks</span>
+          </div>
+          <div class="audit-rows">
+            <div class="audit-row audit-row--bad">
+              <span class="audit-code">ADP-001</span>
+              <span class="audit-path">GET /getUserOrders/</span>
+              <span class="audit-tag audit-tag--bad">CRUD verb in URI</span>
+            </div>
+            <div class="audit-row audit-row--bad">
+              <span class="audit-code">ADP-008</span>
+              <span class="audit-path">POST /createOrder (400)</span>
+              <span class="audit-tag audit-tag--bad">Missing problem+json</span>
+            </div>
+            <div class="audit-row audit-row--bad">
+              <span class="audit-code">ADP-012</span>
+              <span class="audit-path">POST /createOrder</span>
+              <span class="audit-tag audit-tag--bad">No Idempotency-Key</span>
+            </div>
+            <div class="audit-row audit-row--ok">
+              <span class="audit-code">ADP-010</span>
+              <span class="audit-path">GET /v1/orders?cursor=&amp;limit=25</span>
+              <span class="audit-tag audit-tag--ok">O(1) keyset cursor</span>
+            </div>
+            <div class="audit-row audit-row--ok">
+              <span class="audit-code">ADP-008</span>
+              <span class="audit-path">422 application/problem+json</span>
+              <span class="audit-tag audit-tag--ok">RFC 9457 valid</span>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <textarea id="spec-input" spellcheck="false" aria-label="OpenAPI 3.0 or 3.1 JSON or YAML Specification"></textarea>
-
-      <div class="score-grid" id="score-grid">
-        <div class="stat"><div class="stat-label">Compliance Score</div><div class="stat-val" id="stat-score">--/100</div></div>
-        <div class="stat"><div class="stat-label">Status</div><div class="stat-val" id="stat-status">--</div></div>
-        <div class="stat"><div class="stat-label">Errors</div><div class="stat-val err" id="stat-errors">0</div></div>
-        <div class="stat"><div class="stat-label">Warnings</div><div class="stat-val warn" id="stat-warnings">0</div></div>
-        <div class="stat"><div class="stat-label">Operations Checked</div><div class="stat-val info" id="stat-ops">0</div></div>
-      </div>
-
-      <div class="table-wrap" style="margin-bottom:0;">
-        <table>
-          <thead>
-            <tr>
-              <th>Severity</th>
-              <th>Rule</th>
-              <th>Location</th>
-              <th>Violation &amp; Fix Guidance</th>
-              <th>Standard</th>
-            </tr>
-          </thead>
-          <tbody id="violations-body">
-            <tr><td colspan="5" style="color:var(--muted);">Click <strong>Validate OpenAPI Spec</strong> to run all 22 automated API design checks.</td></tr>
-          </tbody>
-        </table>
       </div>
     </section>
 
-    <h2>CI/CD enforcement and team presets</h2>
-    <div class="cards">
-      <div class="card">
-        <h3>GitHub Action and SARIF</h3>
-        <p>Add <code>uses: api-design-tools/api-design-principles@v1</code> to fail PRs on errors, write Markdown Step Summaries, and upload SARIF 2.1.0 alerts.</p>
+    <section class="section section--deep" id="validator" aria-label="Interactive OpenAPI Validator">
+      <div class="container">
+        <div class="section-head">
+          <h2>Validate an OpenAPI spec</h2>
+          <p>Paste JSON or YAML below, load a preset spec, and export a Markdown or JSON violation report.</p>
+        </div>
+
+        <div class="workbench">
+          <div class="toolbar">
+            <div class="btn-group">
+              <button class="btn btn--primary" id="btn-validate" type="button">Validate OpenAPI Spec</button>
+              <button class="btn" id="btn-load-bad" type="button">Load Bad Demo</button>
+              <button class="btn" id="btn-load-good" type="button">Load Good JSON</button>
+              <button class="btn" id="btn-load-yaml" type="button">Load Good YAML</button>
+              <label class="btn-link" for="file-upload">Upload JSON / YAML</label>
+              <input id="file-upload" type="file" accept=".json,.yaml,.yml" class="visually-hidden" />
+            </div>
+            <div class="btn-group">
+              <button class="btn" id="btn-export-md" type="button">Export Markdown</button>
+              <button class="btn" id="btn-export-json" type="button">Export JSON</button>
+            </div>
+          </div>
+
+          <textarea class="spec-editor" id="spec-input" spellcheck="false" aria-label="OpenAPI 3.0 or 3.1 JSON or YAML Specification"></textarea>
+
+          <div class="score-grid" id="score-grid">
+            <div class="stat"><div class="stat-label">Compliance score</div><div class="stat-val" id="stat-score">--/100</div></div>
+            <div class="stat"><div class="stat-label">Result</div><div class="stat-val" id="stat-status">--</div></div>
+            <div class="stat"><div class="stat-label">Errors</div><div class="stat-val err" id="stat-errors">0</div></div>
+            <div class="stat"><div class="stat-label">Warnings</div><div class="stat-val warn" id="stat-warnings">0</div></div>
+            <div class="stat"><div class="stat-label">Operations</div><div class="stat-val info" id="stat-ops">0</div></div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="responsive-table">
+              <thead>
+                <tr>
+                  <th>Severity</th>
+                  <th>Rule</th>
+                  <th>Location</th>
+                  <th>Violation and fix</th>
+                  <th>Standard</th>
+                </tr>
+              </thead>
+              <tbody id="violations-body">
+                <tr><td colspan="5">Select Validate OpenAPI Spec to run all 22 automated checks.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h3>Zero-dependency CLI and diff</h3>
-        <p>Run <code>python3 api_validator.py --spec openapi.yaml</code> or <code>--diff base.yaml head.yaml</code> using Python 3.9+ standard library only.</p>
+    </section>
+
+    <section class="section" id="cli-workflows">
+      <div class="container">
+        <div class="section-head">
+          <h2>Run in CLI, GitHub Actions, and diff checks</h2>
+          <p>Switch workflows to enforce team presets, block breaking changes, and upload SARIF 2.1.0 alerts.</p>
+        </div>
+
+        <div class="switch" data-switch>
+          <div class="seg" role="tablist" aria-label="Validation workflows">
+            <button role="tab" type="button" aria-selected="true" aria-controls="wf-cli" id="tab-cli">CLI &amp; YAML</button>
+            <button role="tab" type="button" aria-selected="false" aria-controls="wf-diff" id="tab-diff" tabindex="-1">Breaking Diff</button>
+            <button role="tab" type="button" aria-selected="false" aria-controls="wf-action" id="tab-action" tabindex="-1">GitHub Action</button>
+            <button role="tab" type="button" aria-selected="false" aria-controls="wf-presets" id="tab-presets" tabindex="-1">Presets &amp; SARIF</button>
+          </div>
+
+          <section role="tabpanel" id="wf-cli" aria-labelledby="tab-cli" class="code-panel">
+            <pre>python3 api_validator.py --spec examples/orders-api-good.openapi.yaml --preset strict-public-api
+python3 api_validator.py --spec "services/*/openapi.*" --format markdown --output reports/api-lint.md</pre>
+            <p class="code-caption">Runs on Python 3.9+ standard library only with zero pip dependencies for both JSON and YAML OpenAPI specs.</p>
+          </section>
+
+          <section role="tabpanel" id="wf-diff" aria-labelledby="tab-diff" class="code-panel" hidden>
+            <pre>python3 api_validator.py --diff openapi.base.yaml openapi.head.yaml --format markdown</pre>
+            <p class="code-caption">Flags removed endpoints, newly required fields, property type changes, and narrowed enums before merge.</p>
+          </section>
+
+          <section role="tabpanel" id="wf-action" aria-labelledby="tab-action" class="code-panel" hidden>
+            <pre>uses: api-design-tools/api-design-principles@v1
+with:
+  spec: "services/**/openapi.yaml"
+  preset: "stripe-style"
+  diff-base: "openapi.base.yaml"
+  fail-on: "error"
+  write-summary: "true"</pre>
+            <p class="code-caption">Appends a rule-violation table directly to the GitHub Actions Step Summary on every Pull Request.</p>
+          </section>
+
+          <section role="tabpanel" id="wf-presets" aria-labelledby="tab-presets" class="code-panel" hidden>
+            <pre>python3 api_validator.py --spec openapi.json --preset owasp-api-top10 --format sarif --output api-lint.sarif</pre>
+            <p class="code-caption">Built-in presets in presets/: google-aip, stripe-style, owasp-api-top10, and strict-public-api.</p>
+          </section>
+        </div>
       </div>
-      <div class="card">
-        <h3>Industry presets</h3>
-        <p>Start with <code>--preset google-aip</code>, <code>stripe-style</code>, <code>owasp-api-top10</code>, or <code>strict-public-api</code>, or override rules in <code>.api-rules.json</code>.</p>
+    </section>
+
+    <section class="section section--deep" id="rules">
+      <div class="container">
+        <div class="section-head">
+          <h2>32 API design principles</h2>
+          <p>Filter the complete ruleset by RFC standard, category, or enforcement mode.</p>
+        </div>
+
+        <div class="filter-row">
+          <input id="rule-search" type="search" aria-label="Search API design rules" placeholder="Search rules (RFC 9457, cursor, idempotency, OWASP)..." />
+          <select id="rule-category" aria-label="Filter by category">
+            <option value="all">All categories</option>
+            <option value="naming">Naming &amp; URIs</option>
+            <option value="methods">HTTP methods</option>
+            <option value="errors">Errors (RFC 9457)</option>
+            <option value="pagination">Pagination</option>
+            <option value="versioning">Versioning</option>
+            <option value="idempotency">Idempotency</option>
+            <option value="rate-limiting">Rate limiting &amp; cache</option>
+            <option value="security">Security (OWASP)</option>
+            <option value="documentation">Schemas &amp; AI/MCP</option>
+            <option value="evolution">Webhooks &amp; architecture</option>
+          </select>
+          <select id="rule-auto" aria-label="Filter by enforcement mode">
+            <option value="all">All rules (32)</option>
+            <option value="auto">Automated in validator (22)</option>
+            <option value="arch">Architecture principles (10)</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table class="responsive-table">
+            <thead>
+              <tr>
+                <th>Rule</th>
+                <th>Mode</th>
+                <th>Principle and standard</th>
+                <th>Bad example</th>
+                <th>Good example</th>
+              </tr>
+            </thead>
+            <tbody id="rules-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="guides">
+      <div class="container">
+        <div class="section-head">
+          <h2>Topic guides and comparisons</h2>
+          <p>Deep-dive references for every rule family and protocol choice.</p>
+        </div>
+
+        <div class="guide-rows">
+          <a class="guide-row" href="./rest-naming-and-methods.html"><strong>REST Naming &amp; HTTP Methods</strong><span>Plural nouns, kebab-case paths, 201 Created, Merge Patch, and ETag concurrency</span></a>
+          <a class="guide-row" href="./pagination-and-filtering.html"><strong>Pagination, Filtering &amp; Sorting</strong><span>O(1) keyset cursor pagination vs SQL OFFSET and OWASP API4 bounds</span></a>
+          <a class="guide-row" href="./error-handling-rfc9457.html"><strong>RFC 9457 Error Handling</strong><span>application/problem+json payloads and HTTP 400/409/412/422/429 matrix</span></a>
+          <a class="guide-row" href="./versioning-idempotency-rate-limits.html"><strong>Versioning, Idempotency &amp; Rate Limits</strong><span>Idempotency-Key deduplication, Sunset headers, and IETF RateLimit fields</span></a>
+          <a class="guide-row" href="./rest-vs-graphql-vs-grpc.html"><strong>REST vs GraphQL vs gRPC</strong><span>Protocol trade-offs across edge caching, Protobuf RPC, and hybrid stacks</span></a>
+          <a class="guide-row" href="./api-security-owasp-checklist.html"><strong>OWASP API Security Top 10</strong><span>BOLA/IDOR database scoping, prefixed ULIDs, and input bounds</span></a>
+          <a class="guide-row" href="./webhook-design-and-async-apis.html"><strong>Webhooks &amp; Async APIs</strong><span>HMAC-SHA256 replay protection and 202 Accepted job polling</span></a>
+          <a class="guide-row" href="./ai-agent-ready-api-design.html"><strong>AI-Agent &amp; MCP Ready APIs</strong><span>Deterministic operationId, strict enums, and self-correcting errors</span></a>
+          <a class="guide-row" href="./openapi-linter-and-style-guide.html"><strong>OpenAPI Linter, Diff &amp; GitHub Action</strong><span>Zero-dependency YAML checks, built-in presets, and SARIF 2.1.0 upload</span></a>
+          <a class="guide-row" href="./api-style-guides-compared.html"><strong>API Style Guides Compared</strong><span>Haufe-Lexware vs Zalando vs Google AIP vs executable CI rules</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>api-design-tools / api-design-principles (MIT License, verified 2026-11-16)</span>
+      <div class="footer-links">
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repository</a>
+        <a href="./llms.txt">llms.txt</a>
+        <a href="./openapi-linter-and-style-guide.html">GitHub Action</a>
       </div>
     </div>
-
-    <h2>Topic guides</h2>
-    <div class="guides-grid">
-      <a class="guide-link" href="./rest-naming-and-methods.html"><strong>REST Naming &amp; Methods</strong><span>Plural nouns, kebab-case, 201 Created, Merge Patch</span></a>
-      <a class="guide-link" href="./pagination-and-filtering.html"><strong>Pagination &amp; Filtering</strong><span>Keyset cursor pagination vs SQL OFFSET</span></a>
-      <a class="guide-link" href="./error-handling-rfc9457.html"><strong>RFC 9457 Error Handling</strong><span>application/problem+json &amp; HTTP status matrix</span></a>
-      <a class="guide-link" href="./versioning-idempotency-rate-limits.html"><strong>Versioning, Idempotency &amp; Limits</strong><span>Idempotency-Key, Sunset headers, 429 RateLimit</span></a>
-      <a class="guide-link" href="./rest-vs-graphql-vs-grpc.html"><strong>REST vs GraphQL vs gRPC</strong><span>Protocol trade-offs and hybrid architectures</span></a>
-      <a class="guide-link" href="./api-security-owasp-checklist.html"><strong>OWASP API Security Top 10</strong><span>BOLA scoping, ULID IDs, OWASP API4 input bounds</span></a>
-      <a class="guide-link" href="./webhook-design-and-async-apis.html"><strong>Webhooks &amp; Async APIs</strong><span>HMAC-SHA256 signatures &amp; 202 Accepted polling</span></a>
-      <a class="guide-link" href="./ai-agent-ready-api-design.html"><strong>AI-Agent &amp; MCP Ready APIs</strong><span>Deterministic operationId, enums, error recovery</span></a>
-      <a class="guide-link" href="./openapi-linter-and-style-guide.html"><strong>OpenAPI Linter &amp; Diff CLI</strong><span>YAML support, presets, SARIF &amp; GitHub Actions</span></a>
-      <a class="guide-link" href="./api-style-guides-compared.html"><strong>API Style Guides Compared</strong><span>Haufe-Lexware vs Zalando vs Google AIP</span></a>
-    </div>
-
-    <h2>API design principles directory (32 rules)</h2>
-    <div class="filter-row">
-      <input id="rule-search" type="search" placeholder="Search rules (e.g. RFC 9457, cursor, idempotency, OWASP)..." style="flex:1; min-width:240px;" />
-      <select id="rule-category">
-        <option value="all">All Categories</option>
-        <option value="naming">Naming &amp; URIs</option>
-        <option value="methods">HTTP Methods</option>
-        <option value="errors">Errors (RFC 9457)</option>
-        <option value="pagination">Pagination</option>
-        <option value="versioning">Versioning</option>
-        <option value="idempotency">Idempotency</option>
-        <option value="rate-limiting">Rate Limiting &amp; Cache</option>
-        <option value="security">Security (OWASP)</option>
-        <option value="documentation">Schemas &amp; AI/MCP</option>
-        <option value="evolution">Webhooks &amp; Architecture</option>
-      </select>
-      <select id="rule-auto">
-        <option value="all">All Rules (32)</option>
-        <option value="auto">Automated in Validator (22)</option>
-        <option value="arch">Architecture Principles (10)</option>
-      </select>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Rule</th>
-            <th>Mode</th>
-            <th>Principle &amp; Standard</th>
-            <th>Bad Example</th>
-            <th>Good Example</th>
-          </tr>
-        </thead>
-        <tbody id="rules-body"></tbody>
-      </table>
-    </div>
-
-    <footer>
-      <span>Maintained by <a href="https://github.com/api-design-tools/api-design-principles" style="color:var(--blue);text-decoration:none;">api-design-tools/api-design-principles</a> (MIT License)</span>
-      <span>Verified 2026-11-16 | <a href="./llms.txt" style="color:var(--blue);text-decoration:none;">llms.txt</a></span>
-    </footer>
-  </div>
+  </footer>
 
   <script>
     const BAD_DEMO = {
@@ -482,7 +525,27 @@ components:
             title: Too Many Requests
             status: 429`;
 
-    // Zero-dependency OpenAPI YAML subset parser for browser use
+    // Switcher keyboard and click handling
+    document.querySelectorAll("[data-switch]").forEach((sw) => {
+      const tabs = [...sw.querySelectorAll('[role="tab"]')];
+      const panels = [...sw.querySelectorAll('[role="tabpanel"]')];
+      function selectTab(idx) {
+        tabs.forEach((t, i) => {
+          const active = i === idx;
+          t.setAttribute("aria-selected", String(active));
+          t.tabIndex = active ? 0 : -1;
+        });
+        panels.forEach((p, i) => { p.hidden = i !== idx; });
+      }
+      tabs.forEach((tab, idx) => {
+        tab.addEventListener("click", () => selectTab(idx));
+        tab.addEventListener("keydown", (e) => {
+          if (e.key === "ArrowRight") { e.preventDefault(); const n = (idx + 1) % tabs.length; selectTab(n); tabs[n].focus(); }
+          if (e.key === "ArrowLeft") { e.preventDefault(); const p = (idx - 1 + tabs.length) % tabs.length; selectTab(p); tabs[p].focus(); }
+        });
+      });
+    });
+
     function stripYamlComment(line) {
       let inS = false, inD = false, esc = false;
       for (let i = 0; i < line.length; i++) {
@@ -830,16 +893,16 @@ components:
 
       const tbody = document.getElementById("violations-body");
       if (res.findings.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5"><span class="pill pill-pass">PASS</span> Zero violations detected across all 22 automated API design checks.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5"><span class="pill pill-pass">Pass</span> Zero violations detected across all 22 automated API design checks.</td></tr>`;
         return;
       }
       tbody.innerHTML = res.findings.map(f => `
         <tr>
-          <td><span class="pill pill-${f.severity}">${f.severity.toUpperCase()}</span></td>
+          <td><span class="pill pill-${f.severity}">${escapeHtml(f.severity)}</span></td>
           <td><code>${f.rule_id}</code></td>
           <td><code>${escapeHtml(f.location)}</code></td>
           <td>${escapeHtml(f.message)}</td>
-          <td style="color:var(--muted);">${escapeHtml(f.standard_ref)}</td>
+          <td>${escapeHtml(f.standard_ref)}</td>
         </tr>
       `).join("");
     }
@@ -857,9 +920,9 @@ components:
       });
       document.getElementById("rules-body").innerHTML = rows.map(r => `
         <tr>
-          <td><code>${r.id}</code><br><span class="pill pill-${r.severity}">${r.severity.toUpperCase()}</span></td>
-          <td>${r.automatable ? '<span class="pill pill-pass">AUTO</span>' : '<span class="pill pill-info">ARCH</span>'}</td>
-          <td><strong>${escapeHtml(r.title)}</strong><br><span style="color:var(--muted);font-size:12.5px;">${escapeHtml(r.standard_ref)}: ${escapeHtml(r.principle)}</span></td>
+          <td><code>${r.id}</code><br><span class="pill pill-${r.severity}">${escapeHtml(r.severity)}</span></td>
+          <td>${r.automatable ? '<span class="pill pill-pass">Auto</span>' : '<span class="pill pill-info">Arch</span>'}</td>
+          <td><strong>${escapeHtml(r.title)}</strong><br><span>${escapeHtml(r.standard_ref)}: ${escapeHtml(r.principle)}</span></td>
           <td><code>${escapeHtml(r.bad_example)}</code></td>
           <td><code>${escapeHtml(r.good_example)}</code></td>
         </tr>
