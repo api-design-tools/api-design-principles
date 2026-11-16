@@ -638,6 +638,76 @@ code {
   outline-offset: 4px;
 }
 
+/* Guide article layout */
+.article-hero {
+  padding-block: var(--space-2xl) var(--space-xl);
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+}
+
+.article-hero h1 {
+  font-size: var(--text-display-s);
+  color: var(--color-ink);
+  max-width: 24ch;
+  margin-bottom: var(--space-md);
+}
+
+.article-hero .lead {
+  color: var(--color-ink-2);
+  margin: 0;
+}
+
+.article-stack {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.note-panel {
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+  padding: var(--space-lg);
+}
+
+.note-panel h2 {
+  font-size: var(--text-title);
+  color: var(--color-ink);
+  margin-bottom: var(--space-sm);
+}
+
+.note-panel p {
+  color: var(--color-ink-2);
+}
+
+.note-panel pre {
+  margin-top: var(--space-md);
+  margin-bottom: 0;
+  padding: var(--space-md);
+  border-radius: var(--radius-pill);
+  border: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-3);
+  color: var(--color-ink);
+  font-family: var(--font-outlier);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.inline-link {
+  color: var(--color-cool);
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
+.inline-link:hover {
+  color: var(--color-accent);
+}
+
+.inline-link:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
 /* Responsive stacking under 60rem */
 @media (max-width: 60rem) {
   .hero-grid {

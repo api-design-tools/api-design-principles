@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Webhook Design &amp; Async API Patterns (2026) — HMAC Signatures &amp; 202 Accepted</title>
+  <title>Webhook Design &amp; Async API Patterns (2026): HMAC Signatures &amp; 202 Accepted</title>
   <meta name="description" content="Design reliable webhooks and asynchronous APIs: HMAC-SHA256 signatures, 5-minute replay protection, exponential backoff retries, and 202 Accepted job polling." />
   <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/webhook-design-and-async-apis.html" />
   <meta property="og:title" content="Webhook Design &amp; Async API Patterns (2026)" />
@@ -11,6 +11,10 @@
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/webhook-design-and-async-apis.html" />
   <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&amp;family=Atkinson+Hyperlegible+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -32,57 +36,60 @@
     ]
   }
   </script>
-  <style>
-    :root { --bg:#080d1a; --surface:#111c33; --surface-alt:#182644; --border:#263554; --text:#f8fafc; --muted:#94a3b8; --blue:#38bdf8; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
-    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.65;overflow-x:clip}
-    .container{max-width:1080px;margin:0 auto;padding:26px 20px 72px}
-    nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:32px;flex-wrap:wrap;gap:12px}
-    .brand{font-weight:700;color:var(--text);text-decoration:none}
-    .nav-links{display:flex;gap:16px;font-size:14px;flex-wrap:wrap}
-    .nav-links a{color:var(--muted);text-decoration:none} .nav-links a:hover{color:var(--text)}
-    h1{font-size:clamp(26px,4vw,38px);line-height:1.2;margin:0 0 14px}
-    .lead{color:var(--muted);font-size:17px;margin:0 0 28px;max-width:74ch}
-    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:18px}
-    .card h3{margin:0 0 8px;color:var(--blue)}
-    code{font-family:var(--font-mono);font-size:12.5px;background:rgba(15,23,42,.85);padding:2px 6px;border-radius:5px;color:#93c5fd}
-    pre{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;font-family:var(--font-mono);font-size:13px;color:#e2e8f0}
-    footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
-  </style>
 </head>
 <body>
-  <div class="container">
-    <nav>
+  <header class="site-header">
+    <nav class="container site-nav" aria-label="Primary">
       <a class="brand" href="./">api-design-principles</a>
       <div class="nav-links">
-        <a href="./">Live Validator</a>
-        <a href="./api-security-owasp-checklist.html">OWASP Security</a>
-        <a href="./ai-agent-ready-api-design.html">AI &amp; MCP APIs</a>
+        <a href="./">Live validator</a>
+        <a href="./api-security-owasp-checklist.html">OWASP</a>
+        <a href="./ai-agent-ready-api-design.html">Agent APIs</a>
         <a href="./versioning-idempotency-rate-limits.html">Idempotency</a>
         <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
       </div>
     </nav>
+  </header>
 
-    <h1>Webhook Design &amp; Async API Patterns (2026)</h1>
-    <p class="lead">Sign outbound events with HMAC-SHA256 and timestamp replay windows (<code>ADP-025</code>), and offload slow jobs behind <code>202 Accepted</code> polling endpoints (<code>ADP-026</code>).</p>
+  <main>
+    <section class="article-hero">
+      <div class="container">
+        <h1>Webhook design and async APIs</h1>
+        <p class="lead">Sign events with HMAC-SHA256 (<code>ADP-025</code>) and poll jobs via <code>202 Accepted</code> (<code>ADP-026</code>).</p>
+      </div>
+    </section>
 
-    <div class="card">
-      <h3>1. Signed webhook delivery (<code>ADP-025</code>)</h3>
-      <p>Sign <code>&lt;webhook-id&gt;.&lt;webhook-timestamp&gt;.&lt;raw-body&gt;</code> with HMAC-SHA256, verify in constant time, and reject timestamps older than 5 minutes. Receivers should deduplicate using <code>Webhook-Id</code>.</p>
-      <pre>POST https://consumer.example.com/webhooks/orders HTTP/1.1
+    <section class="section section--deep">
+      <div class="container article-stack">
+        <div class="note-panel">
+          <h2>1. Signed webhook delivery (<code>ADP-025</code>)</h2>
+          <p>Sign <code>&lt;webhook-id&gt;.&lt;webhook-timestamp&gt;.&lt;raw-body&gt;</code> with HMAC-SHA256, verify in constant time, and reject timestamps older than 5 minutes. Receivers should deduplicate using <code>Webhook-Id</code>.</p>
+          <pre>POST https://consumer.example.com/webhooks/orders HTTP/1.1
 Webhook-Id: msg_01J9Z9P3K2M4
 Webhook-Timestamp: 1763290000
 Webhook-Signature: v1,g0hM9SsE+OTPJTGt/tmIKtSyZlE3uFJELVlNIOLJ1OE=</pre>
-    </div>
+        </div>
 
-    <div class="card">
-      <h3>2. Async job pattern with <code>202 Accepted</code> (<code>ADP-026</code>)</h3>
-      <p>Never hold HTTP connections open for slow exports or batch imports. Return <code>202 Accepted</code> with a <code>Location</code> header pointing to a job status resource.</p>
-      <pre>HTTP/1.1 202 Accepted
+        <div class="note-panel">
+          <h2>2. Async job pattern with <code>202 Accepted</code> (<code>ADP-026</code>)</h2>
+          <p>Never hold HTTP connections open for slow exports or batch imports. Return <code>202 Accepted</code> with a <code>Location</code> header pointing to a job status resource.</p>
+          <pre>HTTP/1.1 202 Accepted
 Location: /v1/jobs/job_01J9Z9T4
 Retry-After: 5</pre>
-    </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <footer><a href="./" style="color:var(--blue);">Back to Interactive OpenAPI Validator</a> | Verified 2026-11-16</footer>
-  </div>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>api-design-tools / api-design-principles (Verified 2026-11-16)</span>
+      <div class="footer-links">
+        <a href="./">Live validator</a>
+        <a href="./llms.txt">llms.txt</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
