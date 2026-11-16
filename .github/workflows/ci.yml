@@ -1,0 +1,31 @@
+name: API Design Validator & Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Unit Tests
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Validate Reference Good OpenAPI Spec
+        uses: ./
+        with:
+          spec: examples/orders-api-good.openapi.json
+          fail-on: warning
+          report-format: markdown
+          output-file: reports/good-api-report.md
+          write-summary: "true"

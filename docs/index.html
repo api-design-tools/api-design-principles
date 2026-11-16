@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API Design Principles &amp; Free OpenAPI Validator (2026) — REST Rules &amp; CI Linter</title>
+  <meta name="description" content="Practical 2026 API design principles handbook and free OpenAPI 3.0/3.1 validator. Check 32 RFC 9457, pagination, idempotency, rate-limit, and OWASP API rules in your browser or GitHub Actions." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/" />
+  <meta property="og:title" content="API Design Principles &amp; Free OpenAPI Validator (2026)" />
+  <meta property="og:description" content="Validate OpenAPI specs in-browser or via GitHub Action against 32 standards-backed REST API design principles with instant Markdown &amp; JSON violation reports." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "API Design Principles & OpenAPI Validator (2026)",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0.00", "priceCurrency": "USD" },
+    "description": "Free browser-based and CLI OpenAPI 3.0/3.1 validator enforcing 22 automated REST API design rules across naming, RFC 9457 errors, cursor pagination, idempotency, rate limiting, and OWASP API security.",
+    "url": "https://api-design-tools.github.io/api-design-principles/"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Core API Design Principles & Standards (2026)",
+    "url": "https://api-design-tools.github.io/api-design-principles/",
+    "numberOfItems": 6,
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Use Plural Resource Nouns Instead of CRUD Verbs (RFC 9110)", "url": "https://api-design-tools.github.io/api-design-principles/rest-naming-and-methods.html" },
+      { "@type": "ListItem", "position": 2, "name": "Standardize Error Payloads with RFC 9457 Problem Details", "url": "https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html" },
+      { "@type": "ListItem", "position": 3, "name": "Enforce Cursor / Keyset Pagination on Collection GETs", "url": "https://api-design-tools.github.io/api-design-principles/pagination-and-filtering.html" },
+      { "@type": "ListItem", "position": 4, "name": "Require Idempotency-Key Headers on Mutating POST Requests", "url": "https://api-design-tools.github.io/api-design-principles/versioning-idempotency-rate-limits.html" },
+      { "@type": "ListItem", "position": 5, "name": "Document 429 Too Many Requests and IETF RateLimit Headers", "url": "https://api-design-tools.github.io/api-design-principles/versioning-idempotency-rate-limits.html" },
+      { "@type": "ListItem", "position": 6, "name": "Choose Between REST, GraphQL, gRPC, and Signed Webhooks", "url": "https://api-design-tools.github.io/api-design-principles/rest-vs-graphql-vs-grpc.html" }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What makes this API design principles project different from static style guides?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Unlike read-only style guides such as Haufe-Lexware api-style-guide, api-design-principles pairs practical HTTP/JSON examples with a free zero-dependency OpenAPI 3.0/3.1 validator, a drop-in GitHub Action, and automated rule-violation reports."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which standards does the OpenAPI validator enforce?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The validator checks 22 automated rules mapped to RFC 9110 HTTP Semantics, RFC 9457 Problem Details, RFC 8594 Sunset headers, IETF Idempotency-Key, IETF RateLimit headers, Google AIP-158 pagination, and OWASP API Security Top 10."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #080d1a;
+      --surface: #111c33;
+      --surface-alt: #182644;
+      --border: #263554;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #10b981;
+      --blue: #38bdf8;
+      --amber: #f59e0b;
+      --red: #f87171;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--font-sans); line-height: 1.6; overflow-x: clip; }
+    .container { width: 100%; max-width: 1160px; margin: 0 auto; padding: 26px 20px 72px; }
+    nav { display: flex; justify-content: space-between; align-items: center; padding-bottom: 18px; border-bottom: 1px solid var(--border); margin-bottom: 30px; flex-wrap: wrap; gap: 12px; }
+    .brand { font-weight: 700; color: var(--text); text-decoration: none; font-size: 16px; }
+    .nav-links { display: flex; gap: 18px; font-size: 14px; flex-wrap: wrap; }
+    .nav-links a { color: var(--muted); text-decoration: none; }
+    .nav-links a:hover { color: var(--text); }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(16, 185, 129, 0.14); color: #34d399; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 14px; }
+    h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.18; margin: 0 0 14px; letter-spacing: -0.02em; }
+    .lead { font-size: 17px; color: var(--muted); max-width: 80ch; margin: 0 0 26px; }
+    .panel { background: linear-gradient(180deg, var(--surface-alt) 0%, var(--surface) 100%); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 30px; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    button, .btn-link { padding: 9px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; }
+    button:hover, .btn-link:hover { border-color: var(--blue); }
+    button.primary { background: var(--accent); color: #052e16; border-color: var(--accent); }
+    button.primary:hover { filter: brightness(1.08); }
+    textarea { width: 100%; min-height: 220px; padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: #e2e8f0; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.5; resize: vertical; }
+    .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin: 18px 0; }
+    .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+    .stat-label { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+    .stat-val { font-size: 26px; font-weight: 800; font-family: var(--font-mono); margin-top: 4px; }
+    .ok { color: #34d399; }
+    .err { color: var(--red); }
+    .warn { color: var(--amber); }
+    .info { color: var(--blue); }
+    .table-wrap { width: 100%; overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 30px; }
+    table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 13.5px; }
+    th, td { padding: 11px 14px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    th { background: var(--surface-alt); color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+    tr:last-child td { border-bottom: none; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 6px; font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; }
+    .pill-error { background: rgba(248, 113, 113, 0.16); color: #fca5a5; }
+    .pill-warning { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
+    .pill-info { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; }
+    .pill-pass { background: rgba(16, 185, 129, 0.16); color: #34d399; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+    .filter-row input, .filter-row select { padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 14px; }
+    code { font-family: var(--font-mono); font-size: 12.5px; background: rgba(15, 23, 42, 0.85); padding: 2px 6px; border-radius: 5px; color: #93c5fd; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-bottom: 32px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .card h3 { margin: 0 0 6px; font-size: 16px; color: var(--blue); }
+    .card p { margin: 0; font-size: 13.5px; color: var(--muted); }
+    footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <a class="brand" href="./">api-design-principles (2026)</a>
+      <div class="nav-links">
+        <a href="./rest-naming-and-methods.html">Naming &amp; Methods</a>
+        <a href="./pagination-and-filtering.html">Pagination</a>
+        <a href="./error-handling-rfc9457.html">RFC 9457 Errors</a>
+        <a href="./versioning-idempotency-rate-limits.html">Idempotency &amp; Limits</a>
+        <a href="./rest-vs-graphql-vs-grpc.html">REST vs GraphQL vs gRPC</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repo ⭐</a>
+      </div>
+    </nav>
+
+    <div class="badge">32 STANDARDS-BACKED RULES • 22 AUTOMATED OPENAPI CHECKS • GITHUB ACTION READY</div>
+    <h1>API Design Principles &amp; Free OpenAPI Validator (2026)</h1>
+    <p class="lead">Go beyond static style-guide theory. Paste any OpenAPI 3.0/3.1 JSON spec below to audit your API against <strong>RFC 9110</strong>, <strong>RFC 9457 Problem Details</strong>, <strong>cursor pagination</strong>, <strong>Idempotency-Key</strong>, <strong>RateLimit headers</strong>, and <strong>OWASP API Top 10</strong> — or run the zero-dependency CLI &amp; GitHub Action in CI/CD.</p>
+
+    <section class="panel" aria-label="Interactive OpenAPI Validator">
+      <div class="toolbar">
+        <div class="btn-group">
+          <button class="primary" id="btn-validate" type="button">▶ Validate OpenAPI Spec</button>
+          <button id="btn-load-bad" type="button">Load Anti-Pattern Demo</button>
+          <button id="btn-load-good" type="button">Load Compliant Demo</button>
+          <label class="btn-link" for="file-upload">Upload JSON</label>
+          <input id="file-upload" type="file" accept=".json,.openapi.json" style="display:none" />
+        </div>
+        <div class="btn-group">
+          <button id="btn-export-md" type="button">Export Markdown Report</button>
+          <button id="btn-export-json" type="button">Export JSON</button>
+        </div>
+      </div>
+
+      <textarea id="spec-input" spellcheck="false" aria-label="OpenAPI 3.0 or 3.1 JSON Specification"></textarea>
+
+      <div class="score-grid" id="score-grid">
+        <div class="stat"><div class="stat-label">Compliance Score</div><div class="stat-val" id="stat-score">--/100</div></div>
+        <div class="stat"><div class="stat-label">Status</div><div class="stat-val" id="stat-status">--</div></div>
+        <div class="stat"><div class="stat-label">Errors</div><div class="stat-val err" id="stat-errors">0</div></div>
+        <div class="stat"><div class="stat-label">Warnings</div><div class="stat-val warn" id="stat-warnings">0</div></div>
+        <div class="stat"><div class="stat-label">Operations Checked</div><div class="stat-val info" id="stat-ops">0</div></div>
+      </div>
+
+      <div class="table-wrap" style="margin-bottom:0;">
+        <table>
+          <thead>
+            <tr>
+              <th>Severity</th>
+              <th>Rule</th>
+              <th>Location</th>
+              <th>Violation &amp; Fix Guidance</th>
+              <th>Standard</th>
+            </tr>
+          </thead>
+          <tbody id="violations-body">
+            <tr><td colspan="5" style="color:var(--muted);">Click <strong>Validate OpenAPI Spec</strong> to run all 22 automated API design checks.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <h2>GitHub Action &amp; Multi-Repo CI Enforcement</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>1. Drop-in GitHub Action</h3>
+        <p>Add <code>uses: api-design-tools/api-design-principles@v1</code> to fail PRs on rule errors and post Markdown violation reports in Job Summaries.</p>
+      </div>
+      <div class="card">
+        <h3>2. Zero-Dependency Python CLI</h3>
+        <p>Run <code>python3 api_validator.py --spec openapi.json</code> anywhere with Python 3.9+ stdlib — no Node.js or Docker needed.</p>
+      </div>
+      <div class="card">
+        <h3>3. Team Rulesets &amp; Overrides</h3>
+        <p>Share one <code>.api-rules.json</code> across multiple microservice repos to disable rules or escalate warnings to CI errors.</p>
+      </div>
+    </div>
+
+    <h2>32-Rule API Design Principles Directory</h2>
+    <div class="filter-row">
+      <input id="rule-search" type="search" placeholder="Search rules (e.g. RFC 9457, cursor, idempotency, OWASP)..." style="flex:1; min-width:240px;" />
+      <select id="rule-category">
+        <option value="all">All Categories</option>
+        <option value="naming">Naming &amp; URIs</option>
+        <option value="methods">HTTP Methods</option>
+        <option value="errors">Errors (RFC 9457)</option>
+        <option value="pagination">Pagination</option>
+        <option value="versioning">Versioning</option>
+        <option value="idempotency">Idempotency</option>
+        <option value="rate-limiting">Rate Limiting &amp; Cache</option>
+        <option value="security">Security (OWASP)</option>
+        <option value="documentation">Schemas &amp; AI/MCP</option>
+        <option value="evolution">Webhooks &amp; Architecture</option>
+      </select>
+      <select id="rule-auto">
+        <option value="all">All Rules (32)</option>
+        <option value="auto">Automated in Validator (22)</option>
+        <option value="arch">Architecture Principles (10)</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Rule</th>
+            <th>Mode</th>
+            <th>Principle &amp; Standard</th>
+            <th>Bad Example</th>
+            <th>Good Example</th>
+          </tr>
+        </thead>
+        <tbody id="rules-body"></tbody>
+      </table>
+    </div>
+
+    <footer>
+      <span>Maintained by <a href="https://github.com/api-design-tools/api-design-principles" style="color:var(--blue);text-decoration:none;">api-design-tools/api-design-principles</a> • MIT License</span>
+      <span>Verified 2026-11-16 • <a href="./llms.txt" style="color:var(--blue);text-decoration:none;">llms.txt</a></span>
+    </footer>
+  </div>
+
+  <script>
+    const BAD_DEMO = {
+      openapi: "3.0.3",
+      info: { title: "Legacy Anti-Pattern Orders API", version: "0.1.0" },
+      servers: [{ url: "http://api.legacy-shop.internal" }],
+      paths: {
+        "/getUserOrders/": {
+          get: {
+            parameters: [
+              { name: "api_key", in: "query", required: true, schema: { type: "string" } },
+              { name: "offset", in: "query", schema: { type: "integer" } }
+            ],
+            requestBody: { content: { "application/json": { schema: { type: "object" } } } },
+            responses: {
+              "200": {
+                description: "Orders",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "array",
+                      items: { type: "object", properties: { created_at: { type: "string" } } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "/createOrder": {
+          post: {
+            deprecated: true,
+            requestBody: {
+              required: true,
+              content: { "application/json": { schema: { type: "object", properties: { notes: { type: "string" } } } } }
+            },
+            responses: {
+              "200": { description: "Created" },
+              "400": { description: "Error", content: { "application/json": { schema: { type: "object" } } } }
+            }
+          }
+        }
+      }
+    };
+
+    const GOOD_DEMO = {
+      openapi: "3.1.0",
+      info: { title: "Orders Reference API", version: "1.2.0" },
+      servers: [{ url: "https://api.example.com/v1" }],
+      security: [{ BearerAuth: [] }],
+      components: {
+        securitySchemes: { BearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" } },
+        schemas: {
+          ProblemDetails: {
+            type: "object",
+            required: ["type", "title", "status"],
+            properties: {
+              type: { type: "string", format: "uri", maxLength: 256 },
+              title: { type: "string", maxLength: 128 },
+              status: { type: "integer" }
+            }
+          }
+        },
+        responses: {
+          ProblemBadRequest: {
+            description: "Validation failed",
+            content: {
+              "application/problem+json": {
+                schema: { $ref: "#/components/schemas/ProblemDetails" },
+                example: { type: "https://api.example.com/errors/validation", title: "Invalid Input", status: 400 }
+              }
+            }
+          },
+          ProblemRateLimited: {
+            description: "Too many requests",
+            headers: { "Retry-After": { schema: { type: "integer" } }, "RateLimit-Remaining": { schema: { type: "integer" } } },
+            content: {
+              "application/problem+json": {
+                schema: { $ref: "#/components/schemas/ProblemDetails" },
+                example: { type: "https://api.example.com/errors/rate-limit", title: "Too Many Requests", status: 429 }
+              }
+            }
+          }
+        }
+      },
+      paths: {
+        "/v1/orders": {
+          get: {
+            operationId: "listOrders",
+            summary: "List paginated customer orders",
+            parameters: [
+              { name: "cursor", in: "query", schema: { type: "string", maxLength: 128 } },
+              { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 100 } }
+            ],
+            responses: {
+              "200": {
+                description: "Paginated orders",
+                content: {
+                  "application/json": {
+                    schema: { type: "object", properties: { created_at: { type: "string", format: "date-time" } } },
+                    example: { data: [], next_cursor: null }
+                  }
+                }
+              },
+              "400": { $ref: "#/components/responses/ProblemBadRequest" },
+              "429": { $ref: "#/components/responses/ProblemRateLimited" }
+            }
+          },
+          post: {
+            operationId: "createOrder",
+            summary: "Create an order idempotently",
+            parameters: [
+              { name: "Idempotency-Key", in: "header", required: true, schema: { type: "string", format: "uuid" } }
+            ],
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: { type: "object", properties: { sku: { type: "string", maxLength: 64 } } },
+                  example: { sku: "SKU-PRO" }
+                }
+              }
+            },
+            responses: {
+              "201": {
+                description: "Created",
+                content: { "application/json": { schema: { type: "object" }, example: { id: "ord_01J9Z" } } }
+              },
+              "400": { $ref: "#/components/responses/ProblemBadRequest" },
+              "429": { $ref: "#/components/responses/ProblemRateLimited" }
+            }
+          }
+        }
+      }
+    };
+
+    const VERB_PREFIX = /^(get|list|fetch|read|retrieve|create|add|new|insert|update|edit|modify|patch|delete|remove|destroy|erase|set|save|post|put|find|search|query|check|verify|validate|send|run|exec|execute|process|handle)[A-Z_-]?/i;
+    const CRUD_WORDS = new Set(["get","list","fetch","create","add","update","edit","delete","remove","destroy","find","search","query"]);
+    const SAFE_NOUNS = new Set(["settings","orders","returns","checks","records","posts","sets"]);
+    const SENSITIVE_Q = new Set(["api_key","apikey","token","access_token","auth","authorization","secret","client_secret","password","passwd","pwd","jwt","bearer"]);
+    const PAGE_P = new Set(["cursor","after","before","page_token","pageToken","limit","page_size","pageSize","per_page","page"]);
+    const CURSOR_P = new Set(["cursor","after","before","page_token","pageToken","starting_after"]);
+    const OFFSET_P = new Set(["offset","skip"]);
+    const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+    let lastReport = null;
+    let catalogRules = [];
+
+    function resolveRef(doc, obj, seen = new Set()) {
+      if (!obj || typeof obj !== "object") return obj;
+      const ref = obj.$ref;
+      if (typeof ref !== "string" || !ref.startsWith("#/") || seen.has(ref)) return obj;
+      seen.add(ref);
+      let cur = doc;
+      for (const seg of ref.slice(2).split("/")) {
+        const key = seg.replace(/~1/g, "/").replace(/~0/g, "~");
+        if (cur && typeof cur === "object" && key in cur) cur = cur[key];
+        else return obj;
+      }
+      return resolveRef(doc, cur, seen);
+    }
+
+    function looksLikeVerb(seg) {
+      const clean = seg.split(":")[0];
+      if (CRUD_WORDS.has(clean.toLowerCase())) return true;
+      if (SAFE_NOUNS.has(clean.toLowerCase())) return false;
+      const m = clean.match(VERB_PREFIX);
+      if (!m) return false;
+      const p = m[1];
+      if (clean.length > p.length && (/[A-Z_-]/.test(clean[p.length]))) return true;
+      return clean.toLowerCase() === p.toLowerCase();
+    }
+
+    function validateOpenAPI(doc) {
+      const findings = [];
+      const byId = Object.fromEntries(catalogRules.map(r => [r.id, r]));
+      const add = (id, location, message) => {
+        const r = byId[id] || { severity: "warning", title: id, standard_ref: "" };
+        findings.push({ rule_id: id, severity: r.severity, location, message, standard_ref: r.standard_ref });
+      };
+
+      const servers = Array.isArray(doc.servers) ? doc.servers : [];
+      let serverHasVer = false;
+      servers.forEach((s, i) => {
+        const u = String((s && s.url) || "");
+        if (u.startsWith("http://") && !/(localhost|127\.0\.0\.1|\[::1\])/.test(u)) {
+          add("ADP-014", `servers[${i}].url`, `Insecure HTTP URL '${u}' detected; production servers must use https://.`);
+        }
+        if (/\/v\d+(?:\/|$)/i.test(u)) serverHasVer = true;
+      });
+
+      const secSchemes = doc.components && doc.components.securitySchemes;
+      if (!secSchemes || typeof secSchemes !== "object" || Object.keys(secSchemes).length === 0) {
+        add("ADP-015", "components.securitySchemes", "No securitySchemes declared in components.");
+      }
+
+      const paths = doc.paths || {};
+      const seenOpIds = new Map();
+      let ops = 0;
+
+      for (const [pStr, pItem] of Object.entries(paths)) {
+        if (!pItem || typeof pItem !== "object") continue;
+        if (pStr.length > 1 && pStr.endsWith("/")) {
+          add("ADP-003", pStr, `Trailing slash in '${pStr}'; normalize to '${pStr.replace(/\/+$/, "")}'.`);
+        }
+        if (!/^\/(?:api\/)?v\d+(?:\/|$)/i.test(pStr) && !serverHasVer) {
+          add("ADP-004", pStr, `Endpoint '${pStr}' lacks a major version prefix (e.g. /v1/...).`);
+        }
+        for (const seg of pStr.split("/").filter(Boolean)) {
+          if (seg.startsWith("{") && seg.endsWith("}")) continue;
+          if (/^v\d+$/i.test(seg) || seg === "api") continue;
+          if (looksLikeVerb(seg)) add("ADP-001", pStr, `Segment '${seg}' looks like a CRUD verb; use plural resource nouns.`);
+          if (!KEBAB_RE.test(seg.split(":")[0])) add("ADP-002", pStr, `Segment '${seg}' should be lowercase kebab-case.`);
+        }
+
+        const isColl = (() => {
+          const segs = pStr.split("/").filter(Boolean);
+          return segs.length > 0 && !(segs[segs.length - 1].startsWith("{") && segs[segs.length - 1].endsWith("}"));
+        })();
+
+        for (const m of ["get", "post", "put", "patch", "delete", "head"]) {
+          const op = pItem[m];
+          if (!op || typeof op !== "object") continue;
+          ops += 1;
+          const M = m.toUpperCase();
+          const opLoc = `${M} ${pStr}`;
+
+          if (!op.operationId) add("ADP-017", opLoc, "Missing operationId.");
+          else if (seenOpIds.has(op.operationId)) add("ADP-017", opLoc, `Duplicate operationId '${op.operationId}'.`);
+          else seenOpIds.set(op.operationId, opLoc);
+          if (!op.summary) add("ADP-017", opLoc, "Missing concise operation summary.");
+
+          if (!op.security && !doc.security && secSchemes && Object.keys(secSchemes).length > 0) {
+            add("ADP-015", opLoc, "Operation has no security applied.");
+          }
+
+          const params = [...(pItem.parameters || []), ...(op.parameters || [])].map(x => resolveRef(doc, x)).filter(Boolean);
+          const pNames = new Set(params.map(x => String(x.name || "")));
+          const hdrsLower = new Set(params.filter(x => String(x.in || "").toLowerCase() === "header").map(x => String(x.name || "").toLowerCase()));
+
+          for (const prm of params) {
+            if (String(prm.in || "").toLowerCase() === "query" && SENSITIVE_Q.has(String(prm.name || "").toLowerCase())) {
+              add("ADP-016", `${opLoc} (query:${prm.name})`, `Sensitive credential '${prm.name}' in query string; move to Authorization header.`);
+            }
+          }
+
+          const reqBody = resolveRef(doc, op.requestBody);
+          if ((M === "GET" || M === "HEAD") && reqBody) {
+            add("ADP-005", opLoc, `${M} operation declares a requestBody (violates RFC 9110 §9.3.1).`);
+          }
+          if (M === "DELETE" && reqBody && reqBody.required) {
+            add("ADP-006", opLoc, "DELETE operation requires a requestBody.");
+          }
+          if (M === "PUT" && !hdrsLower.has("if-match")) {
+            add("ADP-020", opLoc, "PUT without If-Match risks lost updates; prefer PATCH or ETag/If-Match.");
+          }
+          if (M === "POST" && !pStr.endsWith(":search") && !hdrsLower.has("idempotency-key")) {
+            add("ADP-012", opLoc, "POST mutation missing Idempotency-Key header parameter.");
+          }
+
+          if (reqBody && reqBody.content) {
+            for (const [mt, mObj] of Object.entries(reqBody.content)) {
+              if (!mObj || typeof mObj !== "object") continue;
+              const sch = resolveRef(doc, mObj.schema);
+              if (!("example" in mObj) && !("examples" in mObj) && !(sch && ("example" in sch || "examples" in sch))) {
+                add("ADP-019", `${opLoc} requestBody (${mt})`, "Request body lacks an example payload.");
+              }
+              if (sch && sch.properties) {
+                for (const [pk, pvRaw] of Object.entries(sch.properties)) {
+                  const pv = resolveRef(doc, pvRaw);
+                  if (pv && pv.type === "array" && pv.maxItems === undefined) add("ADP-021", `${opLoc}.requestBody.${pk}`, "Unbounded input array (missing maxItems).");
+                  if (pv && pv.type === "string" && pv.maxLength === undefined && !pv.enum && !["uuid","date","date-time","email"].includes(pv.format)) {
+                    add("ADP-021", `${opLoc}.requestBody.${pk}`, "Unbounded input string (missing maxLength).");
+                  }
+                }
+              }
+            }
+          }
+
+          const resps = op.responses || {};
+          const codes = Object.keys(resps);
+          if (M === "POST" && isColl && !codes.includes("201") && !codes.includes("202")) {
+            add("ADP-007", opLoc, "Resource-creating POST should return 201 Created or 202 Accepted.");
+          }
+          if (M === "DELETE" && !codes.includes("204") && !codes.includes("202")) {
+            add("ADP-006", opLoc, "DELETE should document 204 No Content or 202 Accepted.");
+          }
+          if (!codes.some(c => c.startsWith("4") || c === "4XX" || c === "default")) {
+            add("ADP-009", opLoc, "No explicit 4xx or default error responses documented.");
+          }
+          const errCodes = codes.filter(c => c.startsWith("4") || c.startsWith("5") || c === "default");
+          const nonProb = errCodes.filter(c => {
+            const ro = resolveRef(doc, resps[c]);
+            return ro && ro.content && Object.keys(ro.content).length > 0 && !("application/problem+json" in ro.content);
+          });
+          if (nonProb.length > 0) {
+            add("ADP-008", `${opLoc} (${nonProb.join(",")})`, "Error responses should use RFC 9457 'application/problem+json'.");
+          }
+
+          const has429 = codes.includes("429");
+          const hasRL = codes.some(c => {
+            const ro = resolveRef(doc, resps[c]);
+            return ro && ro.headers && Object.keys(ro.headers).some(h => /^(x-)?ratelimit|^retry-after$/i.test(h));
+          });
+          if (!has429 && !hasRL) {
+            add("ADP-013", opLoc, "Missing 429 Too Many Requests or RateLimit/Retry-After headers.");
+          }
+
+          if (M === "GET" && isColl) {
+            const hasPage = [...pNames].some(n => PAGE_P.has(n));
+            if (!hasPage) add("ADP-010", opLoc, "Collection GET lacks pagination parameters (cursor/limit).");
+            else if ([...pNames].some(n => OFFSET_P.has(n)) && ![...pNames].some(n => CURSOR_P.has(n))) {
+              add("ADP-011", opLoc, "Offset pagination used without cursor; prefer O(1) keyset cursors.");
+            }
+          }
+
+          if (op.deprecated === true) {
+            const hasSunset = codes.some(c => {
+              const ro = resolveRef(doc, resps[c]);
+              return ro && ro.headers && Object.keys(ro.headers).some(h => /^(sunset|deprecation)$/i.test(h));
+            });
+            if (!hasSunset) add("ADP-018", opLoc, "Deprecated operation lacks Sunset/Deprecation headers (RFC 8594).");
+          }
+        }
+      }
+
+      const errors = findings.filter(f => f.severity === "error").length;
+      const warnings = findings.filter(f => f.severity === "warning").length;
+      const infos = findings.filter(f => f.severity === "info").length;
+      const uniqErr = new Set(findings.filter(f => f.severity === "error").map(f => f.rule_id)).size;
+      const uniqWarn = new Set(findings.filter(f => f.severity === "warning").map(f => f.rule_id)).size;
+      const score = Math.max(0, Math.min(100, 100 - (uniqErr * 8 + errors * 2 + uniqWarn * 3 + warnings + infos)));
+
+      return { title: (doc.info && doc.info.title) || "Untitled API", openapi: doc.openapi || "3.x", ops, score, errors, warnings, infos, passed: errors === 0, findings };
+    }
+
+    function renderValidation(res) {
+      lastReport = res;
+      const scoreEl = document.getElementById("stat-score");
+      scoreEl.textContent = `${res.score}/100`;
+      scoreEl.className = `stat-val ${res.score >= 85 ? "ok" : res.score >= 50 ? "warn" : "err"}`;
+      const stEl = document.getElementById("stat-status");
+      stEl.textContent = res.passed ? "PASS" : "FAIL";
+      stEl.className = `stat-val ${res.passed ? "ok" : "err"}`;
+      document.getElementById("stat-errors").textContent = res.errors;
+      document.getElementById("stat-warnings").textContent = res.warnings;
+      document.getElementById("stat-ops").textContent = res.ops;
+
+      const tbody = document.getElementById("violations-body");
+      if (res.findings.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5"><span class="pill pill-pass">PASS</span> Zero violations detected! Your OpenAPI spec complies with all 22 automated API design rules.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = res.findings.map(f => `
+        <tr>
+          <td><span class="pill pill-${f.severity}">${f.severity.toUpperCase()}</span></td>
+          <td><code>${f.rule_id}</code></td>
+          <td><code>${escapeHtml(f.location)}</code></td>
+          <td>${escapeHtml(f.message)}</td>
+          <td style="color:var(--muted);">${escapeHtml(f.standard_ref)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function renderRules() {
+      const q = document.getElementById("rule-search").value.toLowerCase();
+      const cat = document.getElementById("rule-category").value;
+      const auto = document.getElementById("rule-auto").value;
+      const rows = catalogRules.filter(r => {
+        if (cat !== "all" && r.category !== cat) return false;
+        if (auto === "auto" && !r.automatable) return false;
+        if (auto === "arch" && r.automatable) return false;
+        if (q && !`${r.id} ${r.title} ${r.principle} ${r.standard_ref}`.toLowerCase().includes(q)) return false;
+        return true;
+      });
+      document.getElementById("rules-body").innerHTML = rows.map(r => `
+        <tr>
+          <td><code>${r.id}</code><br><span class="pill pill-${r.severity}">${r.severity.toUpperCase()}</span></td>
+          <td>${r.automatable ? '<span class="pill pill-pass">AUTO</span>' : '<span class="pill pill-info">ARCH</span>'}</td>
+          <td><strong>${escapeHtml(r.title)}</strong><br><span style="color:var(--muted);font-size:12.5px;">${escapeHtml(r.standard_ref)} — ${escapeHtml(r.principle)}</span></td>
+          <td><code>${escapeHtml(r.bad_example)}</code></td>
+          <td><code>${escapeHtml(r.good_example)}</code></td>
+        </tr>
+      `).join("");
+    }
+
+    function runFromTextarea() {
+      try {
+        const parsed = JSON.parse(document.getElementById("spec-input").value);
+        renderValidation(validateOpenAPI(parsed));
+      } catch (err) {
+        document.getElementById("violations-body").innerHTML = `<tr><td colspan="5" class="err">Invalid JSON: ${escapeHtml(err.message)}</td></tr>`;
+      }
+    }
+
+    document.getElementById("btn-validate").addEventListener("click", runFromTextarea);
+    document.getElementById("btn-load-bad").addEventListener("click", () => {
+      document.getElementById("spec-input").value = JSON.stringify(BAD_DEMO, null, 2);
+      runFromTextarea();
+    });
+    document.getElementById("btn-load-good").addEventListener("click", () => {
+      document.getElementById("spec-input").value = JSON.stringify(GOOD_DEMO, null, 2);
+      runFromTextarea();
+    });
+    document.getElementById("file-upload").addEventListener("change", (ev) => {
+      const f = ev.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => { document.getElementById("spec-input").value = reader.result; runFromTextarea(); };
+      reader.readAsText(f);
+    });
+    document.getElementById("btn-export-md").addEventListener("click", () => {
+      if (!lastReport) runFromTextarea();
+      if (!lastReport) return;
+      const lines = [
+        `## API Design Principles Validation Report — ${lastReport.title}`,
+        `- **Score:** \`${lastReport.score}/100\` (**${lastReport.passed ? "PASS" : "FAIL"}**)`,
+        `- **Errors:** ${lastReport.errors} • **Warnings:** ${lastReport.warnings}`,
+        "",
+        "| Severity | Rule | Location | Violation | Standard |",
+        "| :--- | :--- | :--- | :--- | :--- |",
+        ...lastReport.findings.map(f => `| \`${f.severity.toUpperCase()}\` | **${f.rule_id}** | \`${f.location}\` | ${f.message} | ${f.standard_ref} |`)
+      ];
+      const blob = new Blob([lines.join("\n")], { type: "text/markdown" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "api-design-report.md";
+      a.click();
+    });
+    document.getElementById("btn-export-json").addEventListener("click", () => {
+      if (!lastReport) runFromTextarea();
+      if (!lastReport) return;
+      const blob = new Blob([JSON.stringify(lastReport, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "api-design-report.json";
+      a.click();
+    });
+
+    ["rule-search", "rule-category", "rule-auto"].forEach(id => {
+      document.getElementById(id).addEventListener("input", renderRules);
+      document.getElementById(id).addEventListener("change", renderRules);
+    });
+
+    fetch("./rules.json")
+      .then(r => r.json())
+      .then(data => {
+        catalogRules = data.rules || [];
+        renderRules();
+        document.getElementById("spec-input").value = JSON.stringify(BAD_DEMO, null, 2);
+        runFromTextarea();
+      });
+  </script>
+</body>
+</html>

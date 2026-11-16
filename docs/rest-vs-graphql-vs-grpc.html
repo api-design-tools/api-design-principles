@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>REST vs GraphQL vs gRPC vs Webhooks (2026 Architecture Decision Matrix)</title>
+  <meta name="description" content="Choose the right API paradigm in 2026: compare REST (OpenAPI 3.1), GraphQL, gRPC (Protobuf), and Signed Webhooks / SSE across caching, latency, contracts, and AI/MCP readiness." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/rest-vs-graphql-vs-grpc.html" />
+  <meta property="og:title" content="REST vs GraphQL vs gRPC vs Webhooks (2026 Architecture Matrix)" />
+  <meta property="og:description" content="Architectural trade-offs, security guardrails, and AI/MCP compatibility across REST, GraphQL, gRPC, and Webhooks." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/rest-vs-graphql-vs-grpc.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <style>
+    :root { --bg:#080d1a; --surface:#111c33; --surface-alt:#182644; --border:#263554; --text:#f8fafc; --muted:#94a3b8; --blue:#38bdf8; --accent:#10b981; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.65;overflow-x:clip}
+    .container{max-width:1080px;margin:0 auto;padding:26px 20px 72px}
+    nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:32px;flex-wrap:wrap;gap:12px}
+    .brand{font-weight:700;color:var(--text);text-decoration:none}
+    .nav-links{display:flex;gap:18px;font-size:14px;flex-wrap:wrap}
+    .nav-links a{color:var(--muted);text-decoration:none} .nav-links a:hover{color:var(--text)}
+    h1{font-size:clamp(26px,4vw,38px);line-height:1.2;margin:0 0 14px}
+    .lead{color:var(--muted);font-size:17px;margin:0 0 28px;max-width:74ch}
+    .table-wrap{width:100%;overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:30px}
+    table{width:100%;min-width:760px;border-collapse:collapse;font-size:14px}
+    th,td{padding:12px 14px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+    th{background:var(--surface-alt);color:var(--muted);font-size:12px;text-transform:uppercase}
+    tr:last-child td{border-bottom:none}
+    code{font-family:var(--font-mono);font-size:12.5px;background:rgba(15,23,42,.85);padding:2px 6px;border-radius:5px;color:#93c5fd}
+    footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <a class="brand" href="./">api-design-principles (2026)</a>
+      <div class="nav-links">
+        <a href="./">Live Validator</a>
+        <a href="./rest-naming-and-methods.html">Naming &amp; Methods</a>
+        <a href="./pagination-and-filtering.html">Pagination</a>
+        <a href="./error-handling-rfc9457.html">RFC 9457 Errors</a>
+        <a href="./versioning-idempotency-rate-limits.html">Idempotency &amp; Limits</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repo ⭐</a>
+      </div>
+    </nav>
+
+    <h1>REST vs GraphQL vs gRPC vs Webhooks (2026 Architecture Matrix)</h1>
+    <p class="lead">Select the right API protocol for your consumers (<code>ADP-031</code>), combine OpenAPI 3.1 REST with internal gRPC, and harden every contract against abuse.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dimension</th><th>REST (OpenAPI 3.1)</th><th>GraphQL</th><th>gRPC (Protobuf)</th><th>Webhooks / SSE</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Primary Fit</strong></td><td>Public developer APIs, SaaS, CRUD</td><td>UI BFFs aggregating multiple entities</td><td>Low-latency internal microservices</td><td>Async event callbacks &amp; AI streaming</td></tr>
+          <tr><td><strong>Edge Caching</strong></td><td>Native HTTP (<code>ETag</code>, <code>Cache-Control</code>)</td><td>Requires persisted queries + CDN</td><td>None (HTTP/2 RPC)</td><td>Push / stream only</td></tr>
+          <tr><td><strong>Required Guardrails</strong></td><td><code>api_validator.py</code> (22 checks)</td><td>Persisted queries, depth/cost caps</td><td>Strict <code>.proto</code> compatibility + mTLS</td><td>HMAC-SHA256 + 5-min replay window</td></tr>
+          <tr><td><strong>AI / MCP Tool Fit</strong></td><td>Direct 1-to-1 OpenAPI → Tool mapping</td><td>Needs curated query wrappers</td><td>Needs REST/gRPC gateway</td><td>SSE powers remote MCP servers</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer><a href="./" style="color:var(--blue);">← Back to Interactive OpenAPI Validator</a> • Verified 2026-11-16</footer>
+  </div>
+</body>
+</html>

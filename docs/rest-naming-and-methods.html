@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>REST API Naming Conventions &amp; HTTP Method Semantics (2026) — api-design-principles</title>
+  <meta name="description" content="Practical REST API URI naming rules (plural nouns, kebab-case, no CRUD verbs) and HTTP method semantics (GET, POST 201, PATCH Merge Patch, DELETE 204) enforced in OpenAPI." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/rest-naming-and-methods.html" />
+  <meta property="og:title" content="REST API Naming Conventions &amp; HTTP Method Semantics (2026)" />
+  <meta property="og:description" content="Actionable URI naming rules and RFC 9110 HTTP method contracts with automated OpenAPI validation." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/rest-naming-and-methods.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <style>
+    :root { --bg:#080d1a; --surface:#111c33; --surface-alt:#182644; --border:#263554; --text:#f8fafc; --muted:#94a3b8; --blue:#38bdf8; --accent:#10b981; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.65;overflow-x:clip}
+    .container{max-width:1080px;margin:0 auto;padding:26px 20px 72px}
+    nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:32px;flex-wrap:wrap;gap:12px}
+    .brand{font-weight:700;color:var(--text);text-decoration:none}
+    .nav-links{display:flex;gap:18px;font-size:14px;flex-wrap:wrap}
+    .nav-links a{color:var(--muted);text-decoration:none} .nav-links a:hover{color:var(--text)}
+    h1{font-size:clamp(26px,4vw,38px);line-height:1.2;margin:0 0 14px}
+    .lead{color:var(--muted);font-size:17px;margin:0 0 28px;max-width:74ch}
+    .table-wrap{width:100%;overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:30px}
+    table{width:100%;min-width:720px;border-collapse:collapse;font-size:14px}
+    th,td{padding:12px 14px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+    th{background:var(--surface-alt);color:var(--muted);font-size:12px;text-transform:uppercase}
+    tr:last-child td{border-bottom:none}
+    code{font-family:var(--font-mono);font-size:12.5px;background:rgba(15,23,42,.85);padding:2px 6px;border-radius:5px;color:#93c5fd}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px}
+    .card h3{margin:0 0 8px;color:var(--blue)}
+    footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <a class="brand" href="./">api-design-principles (2026)</a>
+      <div class="nav-links">
+        <a href="./">Live Validator</a>
+        <a href="./pagination-and-filtering.html">Pagination</a>
+        <a href="./error-handling-rfc9457.html">RFC 9457 Errors</a>
+        <a href="./versioning-idempotency-rate-limits.html">Idempotency &amp; Limits</a>
+        <a href="./rest-vs-graphql-vs-grpc.html">REST vs GraphQL vs gRPC</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repo ⭐</a>
+      </div>
+    </nav>
+
+    <h1>REST API Naming Conventions &amp; HTTP Method Semantics (2026)</h1>
+    <p class="lead">Concrete URI and HTTP method standards backed by <strong>RFC 9110</strong> and <strong>RFC 7396</strong>, automatically validated by rules <code>ADP-001</code> through <code>ADP-007</code> and <code>ADP-020</code>.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rule</th><th>Principle</th><th>Bad Pattern</th><th>Good Pattern</th><th>Standard</th></tr></thead>
+        <tbody>
+          <tr><td><code>ADP-001</code></td><td>Plural resource nouns, no CRUD verbs</td><td><code>GET /v1/getUsers</code></td><td><code>GET /v1/users</code></td><td>RFC 9110 §9</td></tr>
+          <tr><td><code>ADP-002</code></td><td>Lowercase <code>kebab-case</code> path segments</td><td><code>/v1/paymentMethods</code></td><td><code>/v1/payment-methods</code></td><td>RFC 3986 / AIP-122</td></tr>
+          <tr><td><code>ADP-003</code></td><td>No trailing slashes</td><td><code>/v1/orders/</code></td><td><code>/v1/orders</code></td><td>HTTP Cache Keys</td></tr>
+          <tr><td><code>ADP-005</code></td><td><code>GET</code>/<code>HEAD</code> must never have <code>requestBody</code></td><td><code>GET /v1/orders</code> + JSON body</td><td><code>GET /v1/orders?status=paid</code></td><td>RFC 9110 §9.3.1</td></tr>
+          <tr><td><code>ADP-006</code></td><td><code>DELETE</code> returns <code>204</code>/<code>202</code>, no required body</td><td><code>DELETE</code> + required body</td><td><code>DELETE /v1/orders/{id}</code> → <code>204</code></td><td>RFC 9110 §9.3.5</td></tr>
+          <tr><td><code>ADP-007</code></td><td><code>POST</code> creation returns <code>201</code> + <code>Location</code></td><td><code>POST /v1/orders</code> → <code>200</code></td><td><code>201 Created</code> + <code>Location</code></td><td>RFC 9110 §15.3.2</td></tr>
+          <tr><td><code>ADP-020</code></td><td><code>PATCH</code> for partial updates + <code>ETag</code>/<code>If-Match</code></td><td>Unconditional <code>PUT</code></td><td><code>PATCH</code> (<code>application/merge-patch+json</code>)</td><td>RFC 7396 / RFC 9110</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Validate Your Endpoints in CI</h3>
+      <p>Run <code>python3 api_validator.py --spec openapi.json</code> or test your spec live in the <a href="./" style="color:var(--blue);">Interactive OpenAPI Validator</a>.</p>
+    </div>
+
+    <footer><a href="./" style="color:var(--blue);">← Back to Interactive OpenAPI Validator</a> • Verified 2026-11-16</footer>
+  </div>
+</body>
+</html>

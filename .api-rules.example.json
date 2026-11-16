@@ -1,0 +1,14 @@
+{
+  "organization": "acme-platform",
+  "ruleset_name": "ACME Core REST API Standard (2026)",
+  "fail_on": "error",
+  "allowed_version_prefixes": ["/v1", "/v2", "/api/v1", "/api/v2"],
+  "ignore_paths": ["/health", "/healthz", "/readyz", "/metrics"],
+  "disabled_rules": [
+    "ADP-018"
+  ],
+  "severity_overrides": {
+    "ADP-011": "error",
+    "ADP-013": "error"
+  }
+}

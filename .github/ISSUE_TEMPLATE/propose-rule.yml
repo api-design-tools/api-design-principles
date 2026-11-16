@@ -1,0 +1,43 @@
+name: Propose or Update an API Design Rule
+description: Suggest a new API design principle, RFC reference, or OpenAPI validator check.
+title: "[Rule]: "
+labels: ["rule-proposal", "enhancement"]
+body:
+  - type: input
+    id: rule_id
+    attributes:
+      label: Rule ID (or "New Rule")
+      placeholder: "e.g. ADP-025 or New Rule"
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - naming
+        - methods
+        - errors
+        - pagination
+        - versioning
+        - idempotency
+        - rate-limiting
+        - security
+        - documentation
+        - evolution
+    validations:
+      required: true
+  - type: input
+    id: standard_ref
+    attributes:
+      label: RFC / Standard Reference
+      placeholder: "e.g. RFC 9457, OWASP API4:2023, Google AIP-158"
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale & Bad vs Good Example
+      description: Explain why this principle prevents production issues and include an HTTP/OpenAPI snippet.
+    validations:
+      required: true

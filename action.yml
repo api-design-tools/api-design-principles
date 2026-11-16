@@ -1,0 +1,79 @@
+name: "API Design Principles OpenAPI Validator"
+description: "Validate OpenAPI 3.0/3.1 specs against 22+ automated REST API design principles (RFC 9457, pagination, idempotency, OWASP API Top 10) and emit a violation report."
+author: "api-design-tools"
+branding:
+  icon: "check-circle"
+  color: "green"
+
+inputs:
+  spec:
+    description: "Path or glob pattern to OpenAPI 3.0/3.1 JSON (or YAML) spec(s)"
+    required: true
+  config:
+    description: "Optional path to team ruleset config JSON (e.g., .api-rules.json)"
+    required: false
+    default: ""
+  fail-on:
+    description: "Severity threshold to fail the workflow: error, warning, or none"
+    required: false
+    default: "error"
+  report-format:
+    description: "Report format: markdown, json, or text"
+    required: false
+    default: "markdown"
+  output-file:
+    description: "Optional file path to save the violation report"
+    required: false
+    default: "api-design-report.md"
+  write-summary:
+    description: "Append the Markdown violation report to GitHub Actions Step Summary"
+    required: false
+    default: "true"
+
+outputs:
+  score:
+    description: "Average API Design Compliance score (0-100)"
+    value: ${{ steps.validate.outputs.score }}
+  errors:
+    description: "Total error violations detected"
+    value: ${{ steps.validate.outputs.errors }}
+  warnings:
+    description: "Total warning violations detected"
+    value: ${{ steps.validate.outputs.warnings }}
+  passed:
+    description: "Whether validation passed the fail-on threshold"
+    value: ${{ steps.validate.outputs.passed }}
+  report-path:
+    description: "Path to the generated violation report file"
+    value: ${{ steps.validate.outputs.report-path }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run API Design Principles Validator
+      id: validate
+      shell: bash
+      run: |
+        set -euo pipefail
+        ARGS=(--spec ${{ inputs.spec }} --fail-on "${{ inputs.fail-on }}" --format "${{ inputs.report-format }}")
+        if [ -n "${{ inputs.config }}" ]; then
+          ARGS+=(--config "${{ inputs.config }}")
+        fi
+        if [ -n "${{ inputs.output-file }}" ]; then
+          ARGS+=(--output "${{ inputs.output-file }}")
+        fi
+
+        set +e
+        python3 "${{ github.action_path }}/api_validator.py" "${ARGS[@]}"
+        EXIT_CODE=$?
+        set -e
+
+        if [ "${{ inputs.write-summary }}" = "true" ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+          if [ "${{ inputs.report-format }}" = "markdown" ] && [ -f "${{ inputs.output-file }}" ]; then
+            cat "${{ inputs.output-file }}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            python3 "${{ github.action_path }}/api_validator.py" --spec ${{ inputs.spec }} --fail-on none --format markdown >> "$GITHUB_STEP_SUMMARY" || true
+          fi
+        fi
+
+        exit "$EXIT_CODE"

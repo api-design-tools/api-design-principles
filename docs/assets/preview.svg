@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#080d1a"/>
+      <stop offset="55%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#14233c"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <circle cx="1150" cy="100" r="240" fill="#10b981" opacity="0.07"/>
+  <circle cx="130" cy="540" r="260" fill="#38bdf8" opacity="0.07"/>
+
+  <rect x="64" y="42" width="560" height="34" rx="17" fill="#064e3b" stroke="#10b981" stroke-width="1.2"/>
+  <text x="86" y="64" fill="#34d399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="13.5" font-weight="700" letter-spacing="1.0">2026 PRACTICAL HANDBOOK • OPENAPI VALIDATOR • GITHUB ACTION</text>
+
+  <text x="64" y="122" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="42" font-weight="800" letter-spacing="-0.8">API Design Principles &amp; OpenAPI Validator</text>
+  <text x="64" y="158" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="19" font-weight="500">32 Standards-Backed Rules (RFC 9457, Idempotency, Pagination, OWASP API) + Automated CI Violation Reports</text>
+
+  <rect x="64" y="188" width="1152" height="376" rx="14" fill="#111c33" stroke="#263554" stroke-width="1.5"/>
+  <rect x="65" y="189" width="1150" height="46" rx="13" fill="#182644"/>
+  <text x="90" y="218" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="700">RULE ID</text>
+  <text x="200" y="218" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="700">SEVERITY</text>
+  <text x="325" y="218" fill="#38bdf8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="700">API DESIGN PRINCIPLE</text>
+  <text x="775" y="218" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="700">STANDARD</text>
+  <text x="990" y="218" fill="#34d399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="700">GOOD PATTERN</text>
+
+  <line x1="65" y1="282" x2="1215" y2="282" stroke="#1e293b" stroke-width="1"/>
+  <text x="90" y="264" fill="#38bdf8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700">ADP-001</text>
+  <text x="200" y="264" fill="#f87171" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5" font-weight="700">ERROR</text>
+  <text x="325" y="264" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="15" font-weight="700">Plural Resource Nouns, No CRUD Verbs</text>
+  <text x="775" y="264" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="13.5">RFC 9110 §9</text>
+  <text x="990" y="264" fill="#34d399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5">POST /v1/orders</text>
+
+  <line x1="65" y1="330" x2="1215" y2="330" stroke="#1e293b" stroke-width="1"/>
+  <text x="90" y="312" fill="#38bdf8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700">ADP-008</text>
+  <text x="200" y="312" fill="#f87171" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5" font-weight="700">ERROR</text>
+  <text x="325" y="312" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="15" font-weight="700">RFC 9457 Problem Details Errors</text>
+  <text x="775" y="312" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="13.5">RFC 9457</text>
+  <text x="990" y="312" fill="#34d399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5">application/problem+json</text>
+
+  <line x1="65" y1="378" x2="1215" y2="378" stroke="#1e293b" stroke-width="1"/>
+  <text x="90" y="360" fill="#38bdf8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700">ADP-010</text>
+  <text x="200" y="360" fill="#f87171" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5" font-weight="700">ERROR</text>
+  <text x="325" y="360" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="15" font-weight="700">Bounded Cursor Pagination on Lists</text>
+  <text x="775" y="360" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="13.5">Google AIP-158</text>
+  <text x="990" y="360" fill="#34d399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5">?cursor=...&amp;limit=25</text>
+
+  <line x1="65" y1="426" x2="1215" y2="426" stroke="#1e293b" stroke-width="1"/>
+  <text x="90" y="408" fill="#38bdf8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700">ADP-012</text>
+  <text x="200" y="408" fill="#f87171" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5" font-weight="700">ERROR</text>
+  <text x="325" y="408" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="15" font-weight="700">Idempotency-Key on POST Mutations</text>
+  <text x="775" y="408" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="13.5">IETF Idempotency</text>
+  <text x="990" y="408" fill="#34d399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5">Idempotency-Key: uuid</text>
+
+  <line x1="65" y1="474" x2="1215" y2="474" stroke="#1e293b" stroke-width="1"/>
+  <text x="90" y="456" fill="#38bdf8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700">ADP-013</text>
+  <text x="200" y="456" fill="#fbbf24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5" font-weight="700">WARN</text>
+  <text x="325" y="456" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="15" font-weight="700">429 Too Many Requests &amp; RateLimit</text>
+  <text x="775" y="456" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="13.5">RFC 6585 / IETF</text>
+  <text x="990" y="456" fill="#34d399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5">RateLimit-Remaining</text>
+
+  <text x="90" y="518" fill="#38bdf8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700">ADP-021</text>
+  <text x="200" y="518" fill="#f87171" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5" font-weight="700">ERROR</text>
+  <text x="325" y="518" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="15" font-weight="700">Bounded Strings &amp; Arrays (OWASP API4)</text>
+  <text x="775" y="518" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="13.5">OWASP API4:2023</text>
+  <text x="990" y="518" fill="#34d399" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5">maxLength / maxItems</text>
+
+  <text x="64" y="606" fill="#64748b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5">github.com/api-design-tools/api-design-principles  •  uses: api-design-tools/api-design-principles@v1</text>
+  <rect x="960" y="584" width="256" height="32" rx="8" fill="#0f293a" stroke="#38bdf8" stroke-width="1"/>
+  <text x="984" y="605" fill="#38bdf8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="700">Score: 100/100 • CI PASS</text>
+</svg>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://api-design-tools.github.io/api-design-principles/sitemap.xml

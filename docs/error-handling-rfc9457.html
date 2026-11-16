@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RFC 9457 Problem Details &amp; HTTP Status Codes Guide (2026)</title>
+  <meta name="description" content="Standardize REST API error payloads with RFC 9457 (application/problem+json). Complete HTTP status code cheat sheet (400 vs 409 vs 412 vs 422 vs 429)." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html" />
+  <meta property="og:title" content="RFC 9457 Problem Details &amp; HTTP Status Codes Guide (2026)" />
+  <meta property="og:description" content="Replace ad-hoc JSON error objects with RFC 9457 application/problem+json enforced by OpenAPI rule ADP-008." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <style>
+    :root { --bg:#080d1a; --surface:#111c33; --surface-alt:#182644; --border:#263554; --text:#f8fafc; --muted:#94a3b8; --blue:#38bdf8; --accent:#10b981; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.65;overflow-x:clip}
+    .container{max-width:1080px;margin:0 auto;padding:26px 20px 72px}
+    nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:32px;flex-wrap:wrap;gap:12px}
+    .brand{font-weight:700;color:var(--text);text-decoration:none}
+    .nav-links{display:flex;gap:18px;font-size:14px;flex-wrap:wrap}
+    .nav-links a{color:var(--muted);text-decoration:none} .nav-links a:hover{color:var(--text)}
+    h1{font-size:clamp(26px,4vw,38px);line-height:1.2;margin:0 0 14px}
+    .lead{color:var(--muted);font-size:17px;margin:0 0 28px;max-width:74ch}
+    .table-wrap{width:100%;overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:30px}
+    table{width:100%;min-width:720px;border-collapse:collapse;font-size:14px}
+    th,td{padding:12px 14px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+    th{background:var(--surface-alt);color:var(--muted);font-size:12px;text-transform:uppercase}
+    tr:last-child td{border-bottom:none}
+    code{font-family:var(--font-mono);font-size:12.5px;background:rgba(15,23,42,.85);padding:2px 6px;border-radius:5px;color:#93c5fd}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-family:var(--font-mono);font-size:13px;color:#e2e8f0}
+    footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <a class="brand" href="./">api-design-principles (2026)</a>
+      <div class="nav-links">
+        <a href="./">Live Validator</a>
+        <a href="./rest-naming-and-methods.html">Naming &amp; Methods</a>
+        <a href="./pagination-and-filtering.html">Pagination</a>
+        <a href="./versioning-idempotency-rate-limits.html">Idempotency &amp; Limits</a>
+        <a href="./rest-vs-graphql-vs-grpc.html">REST vs GraphQL vs gRPC</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repo ⭐</a>
+      </div>
+    </nav>
+
+    <h1>RFC 9457 Problem Details &amp; HTTP Status Codes (2026)</h1>
+    <p class="lead">Every <code>4xx</code> and <code>5xx</code> API response should return <code>Content-Type: application/problem+json</code> following <strong>RFC 9457</strong> (which obsoleted RFC 7807) — automatically checked by OpenAPI rules <code>ADP-008</code> and <code>ADP-009</code>.</p>
+
+    <pre>{
+  "type": "https://api.example.com/errors/validation-error",
+  "title": "Your request parameters did not validate",
+  "status": 422,
+  "detail": "Field 'items[0].quantity' must be an integer >= 1.",
+  "instance": "/v1/orders#req_01J9Z8X2M9K4"
+}</pre>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>HTTP Status</th><th>Meaning</th><th>Typical Cause</th><th>Safe to Retry?</th></tr></thead>
+        <tbody>
+          <tr><td><code>400 Bad Request</code></td><td>Malformed syntax</td><td>Invalid JSON, missing required header, unknown query key</td><td>No (fix payload)</td></tr>
+          <tr><td><code>401 Unauthorized</code></td><td>Unauthenticated</td><td>Missing or expired Bearer JWT / API credential</td><td>After token refresh</td></tr>
+          <tr><td><code>403 Forbidden</code></td><td>Insufficient permissions</td><td>Valid token lacks required OAuth scope or role</td><td>No</td></tr>
+          <tr><td><code>409 Conflict</code></td><td>State / Idempotency clash</td><td>Duplicate unique key or reused <code>Idempotency-Key</code> with different body</td><td>No</td></tr>
+          <tr><td><code>412 Precondition Failed</code></td><td>Optimistic lock mismatch</td><td><code>If-Match</code> ETag is stale after concurrent update</td><td>Re-fetch &amp; retry</td></tr>
+          <tr><td><code>422 Unprocessable Content</code></td><td>Semantic domain error</td><td>Valid JSON schema, invalid business constraint</td><td>No</td></tr>
+          <tr><td><code>429 Too Many Requests</code></td><td>Rate limit exceeded</td><td>Quota hit; pair with <code>Retry-After</code> &amp; <code>RateLimit-*</code></td><td>Yes (after delay)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer><a href="./" style="color:var(--blue);">← Back to Interactive OpenAPI Validator</a> • Verified 2026-11-16</footer>
+  </div>
+</body>
+</html>

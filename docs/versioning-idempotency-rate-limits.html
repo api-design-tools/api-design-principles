@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API Versioning, Idempotency-Key &amp; Rate Limiting Headers (2026)</title>
+  <meta name="description" content="Production API resilience patterns: major URI versioning, RFC 8594 Sunset headers, Idempotency-Key deduplication on POST mutations, and IETF RateLimit headers." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/versioning-idempotency-rate-limits.html" />
+  <meta property="og:title" content="API Versioning, Idempotency-Key &amp; Rate Limiting Headers (2026)" />
+  <meta property="og:description" content="Prevent duplicate charges and thundering herds with Idempotency-Key (ADP-012), 429 RateLimit headers (ADP-013), and RFC 8594 Sunset headers (ADP-018)." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/versioning-idempotency-rate-limits.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <style>
+    :root { --bg:#080d1a; --surface:#111c33; --surface-alt:#182644; --border:#263554; --text:#f8fafc; --muted:#94a3b8; --blue:#38bdf8; --accent:#10b981; --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.65;overflow-x:clip}
+    .container{max-width:1080px;margin:0 auto;padding:26px 20px 72px}
+    nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:32px;flex-wrap:wrap;gap:12px}
+    .brand{font-weight:700;color:var(--text);text-decoration:none}
+    .nav-links{display:flex;gap:18px;font-size:14px;flex-wrap:wrap}
+    .nav-links a{color:var(--muted);text-decoration:none} .nav-links a:hover{color:var(--text)}
+    h1{font-size:clamp(26px,4vw,38px);line-height:1.2;margin:0 0 14px}
+    .lead{color:var(--muted);font-size:17px;margin:0 0 28px;max-width:74ch}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:18px}
+    .card h3{margin:0 0 8px;color:var(--blue)}
+    code{font-family:var(--font-mono);font-size:12.5px;background:rgba(15,23,42,.85);padding:2px 6px;border-radius:5px;color:#93c5fd}
+    pre{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;font-family:var(--font-mono);font-size:13px;color:#e2e8f0}
+    footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <a class="brand" href="./">api-design-principles (2026)</a>
+      <div class="nav-links">
+        <a href="./">Live Validator</a>
+        <a href="./rest-naming-and-methods.html">Naming &amp; Methods</a>
+        <a href="./pagination-and-filtering.html">Pagination</a>
+        <a href="./error-handling-rfc9457.html">RFC 9457 Errors</a>
+        <a href="./rest-vs-graphql-vs-grpc.html">REST vs GraphQL vs gRPC</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repo ⭐</a>
+      </div>
+    </nav>
+
+    <h1>API Versioning, Idempotency-Key &amp; Rate Limiting (2026)</h1>
+    <p class="lead">Resilient APIs survive client retries, traffic spikes, and version migrations without double-charging users or breaking integrations.</p>
+
+    <div class="card">
+      <h3>1. Idempotency-Key on POST Mutations (<code>ADP-012</code>)</h3>
+      <p>Clients pass a UUIDv4/v7 in <code>Idempotency-Key</code>. The server caches the response keyed by <code>(tenant, method, path, key)</code> + request payload hash for 24h+, replaying the original <code>201 Created</code> on network retries and returning <code>409 Conflict</code> if the payload differs.</p>
+      <pre>POST /v1/orders HTTP/1.1
+Idempotency-Key: 019334b2-7d3a-7b8e-91c2-4a8e2e6f1100</pre>
+    </div>
+
+    <div class="card">
+      <h3>2. IETF RateLimit Headers &amp; 429 Backoff (<code>ADP-013</code>)</h3>
+      <p>Return <code>429 Too Many Requests</code> with <code>Retry-After</code> (seconds) and standard <code>RateLimit-Limit</code>, <code>RateLimit-Remaining</code>, and <code>RateLimit-Reset</code> headers.</p>
+      <pre>HTTP/1.1 429 Too Many Requests
+Content-Type: application/problem+json
+Retry-After: 15
+RateLimit-Limit: 120
+RateLimit-Remaining: 0
+RateLimit-Reset: 15</pre>
+    </div>
+
+    <div class="card">
+      <h3>3. Explicit Versioning &amp; RFC 8594 Sunset Headers (<code>ADP-004</code>, <code>ADP-018</code>)</h3>
+      <p>Keep minor releases strictly additive (<code>ADP-027</code>). When retiring a major version, expose <code>Deprecation</code> and <code>Sunset</code> headers plus a <code>Link: &lt;...&gt;; rel="successor-version"</code>.</p>
+    </div>
+
+    <footer><a href="./" style="color:var(--blue);">← Back to Interactive OpenAPI Validator</a> • Verified 2026-11-16</footer>
+  </div>
+</body>
+</html>
