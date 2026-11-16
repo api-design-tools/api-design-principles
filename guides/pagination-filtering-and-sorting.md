@@ -2,7 +2,7 @@
 
 Back to [API Design Principles](../README.md) | Web version: [pagination-and-filtering.html](https://api-design-tools.github.io/api-design-principles/pagination-and-filtering.html)
 
-Unbounded collection endpoints (`GET /v1/orders` returning every row in PostgreSQL) cause memory spikes, slow table scans, and **OWASP API4:2023 (Unrestricted Resource Consumption)** outages. Rules `ADP-010`, `ADP-011`, and `ADP-021` enforce safe pagination bounds in OpenAPI specs.
+Unbounded collection endpoints (`GET /v1/orders` returning every row in PostgreSQL) cause memory spikes, slow table scans, and OWASP API4:2023 (Unrestricted Resource Consumption) outages. Rules `ADP-010`, `ADP-011`, and `ADP-021` enforce safe pagination bounds in OpenAPI specs.
 
 ## 1. Cursor (keyset) pagination vs. offset pagination
 

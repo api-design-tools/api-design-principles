@@ -18,7 +18,7 @@ Modern OpenAPI specs do not just feed Swagger UI and SDK generators. AI coding a
 
 ## 2. Bad vs. agent-ready error handling
 
-When an AI agent sends an invalid quantity, a generic `400 {"error": "bad request"}` triggers blind retries. An **RFC 9457** payload tells both human clients and LLM tool loops exactly how to recover:
+When an AI agent sends an invalid quantity, a generic `400 {"error": "bad request"}` triggers blind retries. An RFC 9457 payload tells both human clients and LLM tool loops how to recover:
 
 ```json
 {

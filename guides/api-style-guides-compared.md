@@ -2,11 +2,11 @@
 
 Back to [API Design Principles](../README.md) | Web version: [api-style-guides-compared.html](https://api-design-tools.github.io/api-design-principles/api-style-guides-compared.html)
 
-Engineering teams adopting REST standards usually look at three well-known references: **Haufe-Lexware API Style Guide**, **Zalando RESTful API and Event Guidelines**, and **Google API Improvement Proposals (AIP)**. Reading a style guide is a good start, yet human code reviewers miss inconsistent error formats, missing `Idempotency-Key` headers, and unbounded arrays under sprint deadlines.
+Engineering teams adopting REST standards usually look at three well-known references: Haufe-Lexware API Style Guide, Zalando RESTful API and Event Guidelines, and Google API Improvement Proposals (AIP). Reading a style guide is a good start, yet human code reviewers miss inconsistent error formats, missing `Idempotency-Key` headers, and unbounded arrays under sprint deadlines.
 
 ## 1. Feature & enforcement comparison
 
-| Criteria | Haufe-Lexware API Style Guide | Zalando RESTful Guidelines | Google AIP | **api-design-tools/api-design-principles** |
+| Criteria | Haufe-Lexware API Style Guide | Zalando RESTful Guidelines | Google AIP | api-design-tools/api-design-principles |
 | :--- | :--- | :--- | :--- | :--- |
 | **Primary Format** | Static Markdown docs | Static docs (+ separate Zally server) | Static AIP docs (+ protobuf `api-linter`) | **Practical handbook + zero-dependency OpenAPI linter** |
 | **OpenAPI 3.0 / 3.1 CLI** | None | Separate Java/Docker service (Zally) | Protobuf/gRPC focused | **Single Python file (`api_validator.py`), JSON + YAML** |

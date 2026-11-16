@@ -2,7 +2,7 @@
 
 Back to [API Design Principles](../README.md) | Web version: [error-handling-rfc9457.html](https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html)
 
-Returning `200 OK` with `{ "success": false, "error": "Invalid" }` breaks HTTP caching, API gateway metrics, and client retry middleware. **RFC 9457** (which obsoletes RFC 7807) defines the standard `application/problem+json` error payload checked by rules `ADP-008` and `ADP-009`.
+Returning `200 OK` with `{ "success": false, "error": "Invalid" }` breaks HTTP caching, API gateway metrics, and client retry middleware. RFC 9457 (which obsoletes RFC 7807) defines the standard `application/problem+json` error payload checked by rules `ADP-008` and `ADP-009`.
 
 ## 1. RFC 9457 Problem Details structure (`ADP-008`)
 

@@ -452,7 +452,7 @@
       "standard_ref": "OpenAPI 3.1 / Model Context Protocol (MCP) Readiness",
       "principle": "Autonomous AI agents and MCP bridges convert OpenAPI operations directly into tool schemas. Clear operationId names, bounded enums, explicit error guidance (RFC 9457 detail), and idempotent retries prevent hallucinated tool calls.",
       "bad_example": "Polymorphic untyped JSON blobs with ambiguous 200 OK error payloads",
-      "good_example": "Strict JSON Schema properties, descriptive enums, operationId, and actionable RFC 9457 error details",
+      "good_example": "Strict JSON Schema properties, descriptive enums, operationId, and specific RFC 9457 error details",
       "remediation": "Treat OpenAPI descriptions, enums, and error messages as first-class instructions for both humans and AI agents.",
       "last_verified": "2026-11-16"
     }

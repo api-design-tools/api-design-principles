@@ -2,7 +2,7 @@
 
 Back to [API Design Principles](../README.md) | Web version: [rest-naming-and-methods.html](https://api-design-tools.github.io/api-design-principles/rest-naming-and-methods.html)
 
-Static API style guides tell developers to use nouns instead of verbs, yet production OpenAPI specs still ship with `/getUserOrders/`, `/createOrder`, and `GET` endpoints carrying JSON request bodies. This reference pairs **RFC 9110** rules with automated OpenAPI checks (`ADP-001` through `ADP-007`, `ADP-020`).
+Static API style guides tell developers to use nouns instead of verbs, yet production OpenAPI specs still ship with `/getUserOrders/`, `/createOrder`, and `GET` endpoints carrying JSON request bodies. This reference pairs RFC 9110 rules with automated OpenAPI checks (`ADP-001` through `ADP-007`, `ADP-020`).
 
 ## 1. Resource naming rules (`ADP-001`, `ADP-002`, `ADP-003`)
 
@@ -13,7 +13,7 @@ Static API style guides tell developers to use nouns instead of verbs, yet produ
 | `ADP-003` | No trailing slashes | `/v1/orders/` | `/v1/orders` | Avoids 301 redirects that drop `POST` bodies |
 | `ADP-004` | Major version prefix | `/orders` | `/v1/orders` | Isolates breaking schema changes cleanly |
 
-When an operation does not map cleanly to `POST`, `PATCH`, or `DELETE` on a resource (such as `cancel`, `refund`, or `search`), use either a sub-resource noun (`POST /v1/orders/{order_id}/cancellations`) or a **Google AIP-136** custom method suffix (`POST /v1/orders/{order_id}:cancel`).
+When an operation does not map cleanly to `POST`, `PATCH`, or `DELETE` on a resource (such as `cancel`, `refund`, or `search`), use either a sub-resource noun (`POST /v1/orders/{order_id}/cancellations`) or a Google AIP-136 custom method suffix (`POST /v1/orders/{order_id}:cancel`).
 
 ## 2. HTTP method semantics
 

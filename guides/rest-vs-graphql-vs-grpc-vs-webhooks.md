@@ -17,4 +17,4 @@ Matching the API style (`ADP-031`) to consumer needs avoids forcing internal gRP
 
 ## 2. Typical multi-protocol architecture
 
-External partner APIs work best as **REST + OpenAPI 3.1** validated in CI with `api_validator.py`. Internal service-to-service hops can stay on **gRPC** with Protobuf breaking-change lint. UI screens that aggregate five or more downstream services can sit behind a **GraphQL** BFF using persisted queries, while outbound notifications use **HMAC-signed webhooks** with exponential backoff.
+External partner APIs work best as REST + OpenAPI 3.1 validated in CI with `api_validator.py`. Internal service-to-service hops can stay on gRPC with Protobuf breaking-change lint. UI screens that aggregate five or more downstream services can sit behind a GraphQL BFF using persisted queries, while outbound notifications use HMAC-signed webhooks with exponential backoff.

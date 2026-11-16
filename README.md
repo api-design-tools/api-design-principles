@@ -2,31 +2,31 @@
 
 # API Design Principles, REST Style Guide & OpenAPI Validator (2026)
 
-**Standards-backed REST API design rules paired with a zero-dependency OpenAPI 3.0/3.1 JSON and YAML validator, breaking-change diff checker, GitHub Action, and CI violation reports.**
+Standards-backed REST API design rules paired with a zero-dependency OpenAPI 3.0/3.1 JSON and YAML validator, breaking-change diff checker, GitHub Action, and CI violation reports.
 
-[![Verified Rules](https://img.shields.io/badge/API_Design_Rules-32_Standards_Backed-10b981?style=flat-square)](#-32-api-design-principles-matrix)
-[![OpenAPI Linter](https://img.shields.io/badge/OpenAPI_Validator-JSON_%26_YAML-3b82f6?style=flat-square)](#-quick-start-validate-an-openapi-spec)
-[![GitHub Action](https://img.shields.io/badge/GitHub_Action-CI_%26_SARIF_Ready-f59e0b?style=flat-square)](#-github-action-for-pull-requests)
+[![Verified Rules](https://img.shields.io/badge/API_Design_Rules-32_Standards_Backed-10b981?style=flat-square)](#32-api-design-principles-matrix)
+[![OpenAPI Linter](https://img.shields.io/badge/OpenAPI_Validator-JSON_%26_YAML-3b82f6?style=flat-square)](#quick-start-validate-an-openapi-spec)
+[![GitHub Action](https://img.shields.io/badge/GitHub_Action-CI_%26_SARIF_Ready-f59e0b?style=flat-square)](#github-action-for-pull-requests)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
-[Quick Start CLI](#-quick-start-validate-an-openapi-spec) • [GitHub Action](#-github-action-for-pull-requests) • [Live Browser Validator](https://api-design-tools.github.io/api-design-principles/) • [32 Core Rules](#-32-api-design-principles-matrix) • [Guides](#-topic-guides-and-web-pages) • [FAQ](#-frequently-asked-questions)
+[Quick Start CLI](#quick-start-validate-an-openapi-spec) | [GitHub Action](#github-action-for-pull-requests) | [Live Browser Validator](https://api-design-tools.github.io/api-design-principles/) | [32 Core Rules](#32-api-design-principles-matrix) | [Guides](#topic-guides-and-web-pages) | [FAQ](#frequently-asked-questions)
 
 </div>
 
-Most **API design principles** repositories (such as *Haufe-Lexware API Style Guide*) publish Markdown checklists for developers to read manually. Code reviewers still miss inconsistent error payloads, missing `Idempotency-Key` headers, and unbounded arrays under deadline pressure.
+Most API design principles repositories (such as *Haufe-Lexware API Style Guide*) publish Markdown checklists for developers to read manually. Code reviewers still miss inconsistent error payloads, missing `Idempotency-Key` headers, and unbounded arrays under deadline pressure.
 
 `api-design-principles` turns those conventions into checks you can run locally and in Pull Requests:
 
-1. **Practical handbook** with 32 rules mapped to `RFC 9110`, `RFC 9457` (Problem Details), `RFC 8594` (Sunset), `IETF Idempotency-Key`, `IETF RateLimit`, `Google AIP`, and the `OWASP API Security Top 10`.
-2. **Zero-dependency OpenAPI 3.0/3.1 validator (`api_validator.py`)** supporting both **JSON and YAML** specs in standard library Python 3.9+, plus a [browser-based validator](https://api-design-tools.github.io/api-design-principles/).
-3. **Breaking-change detector (`--diff`)** to catch removed endpoints, changed property types, newly required parameters, and narrowed enums before merge.
-4. **GitHub Action (`action.yml`)** with built-in industry presets (`google-aip`, `stripe-style`, `owasp-api-top10`, `strict-public-api`), Markdown Job Summaries, and **SARIF 2.1.0** output for GitHub Code Scanning.
+1. Practical handbook with 32 rules mapped to `RFC 9110`, `RFC 9457` (Problem Details), `RFC 8594` (Sunset), `IETF Idempotency-Key`, `IETF RateLimit`, `Google AIP`, and the `OWASP API Security Top 10`.
+2. Zero-dependency OpenAPI 3.0/3.1 validator (`api_validator.py`) supporting both JSON and YAML specs in standard library Python 3.9+, plus a [browser-based validator](https://api-design-tools.github.io/api-design-principles/).
+3. Breaking-change detector (`--diff`) to catch removed endpoints, changed property types, newly required parameters, and narrowed enums before merge.
+4. GitHub Action (`action.yml`) with built-in industry presets (`google-aip`, `stripe-style`, `owasp-api-top10`, `strict-public-api`), Markdown Job Summaries, and SARIF 2.1.0 output for GitHub Code Scanning.
 
 ![API Design Principles Handbook and OpenAPI Validator Preview](docs/assets/preview.svg)
 
 ## Comparison with static style guides and linters
 
-| Capability | Static Style Guides *(Haufe-Lexware, docs)* | Generic Linters *(Spectral CLI)* | **api-design-tools / api-design-principles** |
+| Capability | Static Style Guides *(Haufe-Lexware, docs)* | Generic Linters *(Spectral CLI)* | api-design-tools/api-design-principles |
 | :--- | :---: | :---: | :---: |
 | Handbook with HTTP/JSON examples | Yes (read-only) | No (write your own rules) | 32 RFC-backed rules with bad/good examples |
 | OpenAPI 3.0 / 3.1 CLI (JSON + YAML) | No | Requires Node.js + npm | Zero-dependency Python 3.9+ stdlib |
@@ -98,39 +98,39 @@ All 32 rules live in [`rules.json`](rules.json). Rules marked `Auto` run against
 
 | ID | Mode | Severity | Principle & Standard | Bad Example | Good Example |
 | :--- | :---: | :---: | :--- | :--- | :--- |
-| **ADP-001** | Auto | `ERROR` | Plural resource nouns, no CRUD verbs (`RFC 9110 §9`) | `GET /v1/getOrders` | `GET /v1/orders` |
-| **ADP-002** | Auto | `WARN` | Lowercase `kebab-case` URI segments (`Google AIP-122`) | `/v1/orderItems` | `/v1/order-items` |
-| **ADP-003** | Auto | `WARN` | No trailing slashes (`RFC 3986`) | `GET /v1/orders/` | `GET /v1/orders` |
-| **ADP-004** | Auto | `ERROR` | Explicit major API versioning (`AIP-185`) | `GET /orders` | `GET /v1/orders` |
-| **ADP-005** | Auto | `ERROR` | `GET`/`HEAD` must never declare `requestBody` (`RFC 9110 §9.3.1`) | `GET` + JSON body | `GET ?status=paid` |
-| **ADP-006** | Auto | `WARN` | `DELETE` returns `204`/`202`, no required body (`RFC 9110 §9.3.5`) | `DELETE` + body -> `200` | `DELETE /v1/orders/{id}` -> `204` |
-| **ADP-007** | Auto | `ERROR` | `POST` creation returns `201` (`Location`) or `202` (`RFC 9110`) | `POST /v1/orders` -> `200` | `201 Created` + `Location` |
-| **ADP-018** | Auto | `INFO` | `Deprecation` and `Sunset` headers (`RFC 8594` / `RFC 9745`) | `deprecated: true` only | `Sunset: Wed, 31 Dec 2026...` |
-| **ADP-020** | Auto | `WARN` | `PATCH` for partial updates + `ETag`/`If-Match` (`RFC 7396`) | Unconditional `PUT` | `PATCH` + `If-Match` |
+| `ADP-001` | Auto | `ERROR` | Plural resource nouns, no CRUD verbs (`RFC 9110 §9`) | `GET /v1/getOrders` | `GET /v1/orders` |
+| `ADP-002` | Auto | `WARN` | Lowercase `kebab-case` URI segments (`Google AIP-122`) | `/v1/orderItems` | `/v1/order-items` |
+| `ADP-003` | Auto | `WARN` | No trailing slashes (`RFC 3986`) | `GET /v1/orders/` | `GET /v1/orders` |
+| `ADP-004` | Auto | `ERROR` | Explicit major API versioning (`AIP-185`) | `GET /orders` | `GET /v1/orders` |
+| `ADP-005` | Auto | `ERROR` | `GET`/`HEAD` must never declare `requestBody` (`RFC 9110 §9.3.1`) | `GET` + JSON body | `GET ?status=paid` |
+| `ADP-006` | Auto | `WARN` | `DELETE` returns `204`/`202`, no required body (`RFC 9110 §9.3.5`) | `DELETE` + body -> `200` | `DELETE /v1/orders/{id}` -> `204` |
+| `ADP-007` | Auto | `ERROR` | `POST` creation returns `201` (`Location`) or `202` (`RFC 9110`) | `POST /v1/orders` -> `200` | `201 Created` + `Location` |
+| `ADP-018` | Auto | `INFO` | `Deprecation` and `Sunset` headers (`RFC 8594` / `RFC 9745`) | `deprecated: true` only | `Sunset: Wed, 31 Dec 2026...` |
+| `ADP-020` | Auto | `WARN` | `PATCH` for partial updates + `ETag`/`If-Match` (`RFC 7396`) | Unconditional `PUT` | `PATCH` + `If-Match` |
 
 ### 2. Errors (`RFC 9457`), pagination, idempotency, and rate limiting
 
 | ID | Mode | Severity | Principle & Standard | Bad Example | Good Example |
 | :--- | :---: | :---: | :--- | :--- | :--- |
-| **ADP-008** | Auto | `ERROR` | Use `application/problem+json` for 4xx/5xx (`RFC 9457`) | `{ "msg": "bad" }` | `{ "type": "...", "title": "...", "status": 400 }` |
-| **ADP-009** | Auto | `ERROR` | Explicit 4xx / default error responses (`OpenAPI 3.1`) | Only `200` documented | `200`, `400`, `401`, `404`, `429` |
-| **ADP-010** | Auto | `ERROR` | Collection `GET` must support pagination (`OWASP API4`) | Unbounded array | `?cursor=...&limit=25` |
-| **ADP-011** | Auto | `WARN` | Prefer keyset/cursor over `offset` pagination (`AIP-158`) | `?offset=50000` | `?cursor=ord_01J9Z&limit=25` |
-| **ADP-012** | Auto | `ERROR` | `Idempotency-Key` on `POST` mutations (`IETF Draft`) | `POST /v1/orders` raw | `Idempotency-Key: <uuid>` |
-| **ADP-013** | Auto | `WARN` | `429 Too Many Requests` + `RateLimit-*` headers (`RFC 6585`) | Undocumented throttling | `429` + `Retry-After` + `RateLimit-*` |
+| `ADP-008` | Auto | `ERROR` | Use `application/problem+json` for 4xx/5xx (`RFC 9457`) | `{ "msg": "bad" }` | `{ "type": "...", "title": "...", "status": 400 }` |
+| `ADP-009` | Auto | `ERROR` | Explicit 4xx / default error responses (`OpenAPI 3.1`) | Only `200` documented | `200`, `400`, `401`, `404`, `429` |
+| `ADP-010` | Auto | `ERROR` | Collection `GET` must support pagination (`OWASP API4`) | Unbounded array | `?cursor=...&limit=25` |
+| `ADP-011` | Auto | `WARN` | Prefer keyset/cursor over `offset` pagination (`AIP-158`) | `?offset=50000` | `?cursor=ord_01J9Z&limit=25` |
+| `ADP-012` | Auto | `ERROR` | `Idempotency-Key` on `POST` mutations (`IETF Draft`) | `POST /v1/orders` raw | `Idempotency-Key: <uuid>` |
+| `ADP-013` | Auto | `WARN` | `429 Too Many Requests` + `RateLimit-*` headers (`RFC 6585`) | Undocumented throttling | `429` + `Retry-After` + `RateLimit-*` |
 
 ### 3. Security (`OWASP API Top 10`), schemas, and AI/MCP readiness
 
 | ID | Mode | Severity | Principle & Standard | Bad Example | Good Example |
 | :--- | :---: | :---: | :--- | :--- | :--- |
-| **ADP-014** | Auto | `ERROR` | Enforce `https://` server URLs (`OWASP API8:2023`) | `http://api.example.com` | `https://api.example.com/v1` |
-| **ADP-015** | Auto | `ERROR` | Declare `securitySchemes` and operation auth (`OWASP API2`) | Missing auth definitions | `BearerAuth` (OAuth2/JWT) |
-| **ADP-016** | Auto | `WARN` | Never pass API keys or tokens in query strings (`RFC 6750`) | `?api_key=sk_live_...` | `Authorization: Bearer ...` |
-| **ADP-017** | Auto | `WARN` | Unique `operationId` and concise `summary` (`OpenAPI / MCP`) | Missing/duplicate IDs | `operationId: listOrders` |
-| **ADP-019** | Auto | `WARN` | Concrete `example` on media types/schemas (`OpenAPI 3.1`) | Schema without example | Concrete JSON example |
-| **ADP-021** | Auto | `ERROR` | Bound strings (`maxLength`) and arrays (`maxItems`) (`OWASP API4`) | Unbounded `type: array` | `maxItems: 50`, `maxLength: 128` |
-| **ADP-022** | Auto | `INFO` | ISO 8601 UTC `format: date-time` timestamps (`RFC 3339`) | `created_at: { type: string }` | `format: date-time` |
-| **ADP-023..032** | Arch | `MIXED` | BOLA/IDOR scoping, UUIDv7/ULID IDs, signed webhooks, `202` async jobs, integer minor-unit money, W3C `traceparent`, REST vs GraphQL vs gRPC, MCP readiness | Raw floats, unsigned webhooks | `amount_minor` + HMAC-SHA256 |
+| `ADP-014` | Auto | `ERROR` | Enforce `https://` server URLs (`OWASP API8:2023`) | `http://api.example.com` | `https://api.example.com/v1` |
+| `ADP-015` | Auto | `ERROR` | Declare `securitySchemes` and operation auth (`OWASP API2`) | Missing auth definitions | `BearerAuth` (OAuth2/JWT) |
+| `ADP-016` | Auto | `WARN` | Never pass API keys or tokens in query strings (`RFC 6750`) | `?api_key=sk_live_...` | `Authorization: Bearer ...` |
+| `ADP-017` | Auto | `WARN` | Unique `operationId` and concise `summary` (`OpenAPI / MCP`) | Missing/duplicate IDs | `operationId: listOrders` |
+| `ADP-019` | Auto | `WARN` | Concrete `example` on media types/schemas (`OpenAPI 3.1`) | Schema without example | Concrete JSON example |
+| `ADP-021` | Auto | `ERROR` | Bound strings (`maxLength`) and arrays (`maxItems`) (`OWASP API4`) | Unbounded `type: array` | `maxItems: 50`, `maxLength: 128` |
+| `ADP-022` | Auto | `INFO` | ISO 8601 UTC `format: date-time` timestamps (`RFC 3339`) | `created_at: { type: string }` | `format: date-time` |
+| `ADP-023..032` | Arch | `MIXED` | BOLA/IDOR scoping, UUIDv7/ULID IDs, signed webhooks, `202` async jobs, integer minor-unit money, W3C `traceparent`, REST vs GraphQL vs gRPC, MCP readiness | Raw floats, unsigned webhooks | `amount_minor` + HMAC-SHA256 |
 
 ## Sample violation report
 
@@ -205,4 +205,4 @@ Copy [`.api-rules.example.json`](.api-rules.example.json) as `.api-rules.json` (
 python3 -m unittest discover -s tests -v
 ```
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a Pull Request. Distributed under the **MIT License** ([`LICENSE`](LICENSE)).
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a Pull Request. Distributed under the MIT License ([`LICENSE`](LICENSE)).
