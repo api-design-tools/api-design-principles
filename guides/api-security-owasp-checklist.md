@@ -2,7 +2,7 @@
 
 Back to [API Design Principles](../README.md) | Web version: [api-security-owasp-checklist.html](https://api-design-tools.github.io/api-design-principles/api-security-owasp-checklist.html)
 
-Most API breaches come from missing authorization checks, unbounded inputs, or leaked credentials rather than broken TLS ciphers. This guide maps the highest-risk OWASP API Security Top 10 issues to concrete OpenAPI rules (`ADP-014`, `ADP-015`, `ADP-016`, `ADP-021`, `ADP-023`, `ADP-024`).
+Most API breaches come from missing authorization checks, unbounded inputs, or leaked credentials, not from broken TLS ciphers. This guide maps the highest-risk OWASP API Security Top 10 issues to concrete OpenAPI rules (`ADP-014`, `ADP-015`, `ADP-016`, `ADP-021`, `ADP-023`, `ADP-024`, `ADP-034`, `ADP-035`).
 
 ## 1. Automated OpenAPI security checks (`--preset owasp-api-top10`)
 
@@ -17,7 +17,9 @@ python3 api_validator.py --spec examples/orders-api-good.openapi.json --preset o
 | `ADP-014` | API8:2023 Security Misconfiguration | Rejects non-local `http://` server URLs | Use `https://` with TLS 1.2+ |
 | `ADP-015` | API2:2023 Broken Authentication | Flags missing `components.securitySchemes` or unprotected operations | Declare `BearerAuth` / OAuth 2.1 and apply globally or per route |
 | `ADP-016` | API2:2023 Broken Authentication | Flags `api_key`, `token`, `secret`, `password` in query parameters | Move credentials into `Authorization` headers |
-| `ADP-021` | API4:2023 Unrestricted Resource Consumption | Flags input strings without `maxLength` and arrays without `maxItems` | Add `maxLength`, `maxItems`, and `minimum`/`maximum` |
+| `ADP-021` | API4:2023 Unrestricted Resource Consumption | Flags input strings without `maxLength` and arrays without `maxItems` | Add `maxLength` and `maxItems` |
+| `ADP-034` | API4:2023 Unrestricted Resource Consumption | Flags integer or numeric query parameters and fields without bounds | Add `minimum` and `maximum` |
+| `ADP-035` | API3:2023 Broken Object Property Level Auth | Flags input object schemas without `additionalProperties: false` | Disallow undeclared properties on request DTOs |
 | `ADP-010` | API4:2023 Unrestricted Resource Consumption | Flags collection `GET` endpoints with no pagination parameters | Require `cursor` and bounded `limit` (e.g. `maximum: 100`) |
 
 ## 2. Object-level authorization (BOLA / IDOR, `ADP-023`)

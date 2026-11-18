@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Money, ISO 4217 Currency &amp; ISO 8601 Timestamps in APIs (2026)</title>
+  <meta name="description" content="Avoid floating-point billing bugs by encoding money as integer minor units plus ISO 4217 currency (ADP-029), UTC RFC 3339 timestamps (ADP-022), and consistent JSON casing (ADP-038)." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/money-currency-and-iso8601-data-types.html" />
+  <meta property="og:title" content="Money, ISO 4217 Currency &amp; ISO 8601 Timestamps in APIs (2026)" />
+  <meta property="og:description" content="Zero-float monetary fields, zero-decimal currencies like JPY, RFC 3339 timestamps, and schema casing rules." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/money-currency-and-iso8601-data-types.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&amp;family=Atkinson+Hyperlegible+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Money, ISO 4217 Currency & ISO 8601 Timestamps in APIs (2026)",
+    "datePublished": "2026-11-18",
+    "dateModified": "2026-11-18",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/money-currency-and-iso8601-data-types.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "Money & ISO 8601", "item": "https://api-design-tools.github.io/api-design-principles/money-currency-and-iso8601-data-types.html" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="container site-nav" aria-label="Primary">
+      <a class="brand" href="./">api-design-principles</a>
+      <div class="nav-links">
+        <a href="./">Live validator</a>
+        <a href="./idempotency-keys-implementation-guide.html">Idempotency</a>
+        <a href="./rest-naming-and-methods.html">Naming</a>
+        <a href="./openapi-31-vs-30-migration-guide.html">OpenAPI 3.1</a>
+        <a href="./ai-agent-ready-api-design.html">Agent readiness</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="article-hero">
+      <div class="container">
+        <h1>Money and ISO 8601 types</h1>
+        <p class="lead">Integer minor units, UTC timestamps, and uniform property casing enforced by <code>ADP-029</code>.</p>
+      </div>
+    </section>
+
+    <section class="section section--deep">
+      <div class="container">
+        <div class="section-head">
+          <h2>Primitive representation standards</h2>
+          <p>Eliminate rounding drift and locale timezone bugs across JSON contracts.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="responsive-table">
+            <thead><tr><th>Data type</th><th>Bad representation</th><th>Standard format</th><th>Rule</th></tr></thead>
+            <tbody>
+              <tr><td>Money amount</td><td><code>amount: 19.99</code> (IEEE 754 float)</td><td><code>amount_minor: 1999</code> + <code>currency: "USD"</code></td><td><code>ADP-029</code></td></tr>
+              <tr><td>Zero-decimal currency</td><td>Assumed <code>/ 100</code> everywhere</td><td><code>amount_minor: 5000</code> + <code>currency: "JPY"</code></td><td><code>ADP-029</code></td></tr>
+              <tr><td>Timestamps</td><td>Ambiguous int epoch or local offset</td><td><code>2026-11-18T10:00:00Z</code> (<code>date-time</code>)</td><td><code>ADP-022</code></td></tr>
+              <tr><td>JSON property casing</td><td>Mixing <code>order_id</code> and <code>createdAt</code></td><td>All <code>snake_case</code> or all <code>camelCase</code></td><td><code>ADP-038</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container article-stack">
+        <h2>Validated monetary and timestamp schema</h2>
+        <div class="code-panel"><pre>"amount_minor": { "type": "integer", "minimum": 0, "maximum": 100000000 },
+"currency": { "type": "string", "minLength": 3, "maxLength": 3, "example": "USD" },
+"created_at": { "type": "string", "format": "date-time", "example": "2026-11-18T10:00:00Z" }</pre></div>
+
+        <div class="note-panel">
+          <h2>Automated float detection</h2>
+          <p>The validator rejects <code>type: number</code> on money properties automatically via <a class="inline-link" href="./#rules-explorer">ADP-029</a>.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>api-design-tools / api-design-principles (Verified 2026-11-18)</span>
+      <div class="footer-links">
+        <a href="./">Live validator</a>
+        <a href="./llms.txt">llms.txt</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

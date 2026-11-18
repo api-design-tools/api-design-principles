@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API Deprecation, Sunset Headers &amp; Lifecycle Guide (2026)</title>
+  <meta name="description" content="Manage REST API deprecations with zero surprises using RFC 9745 Deprecation headers, RFC 8594 Sunset dates, migration Link headers, and 410 Gone (ADP-044)." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/api-deprecation-sunset-and-lifecycle.html" />
+  <meta property="og:title" content="API Deprecation, Sunset Headers &amp; Lifecycle Guide (2026)" />
+  <meta property="og:description" content="RFC 9745 Deprecation timestamps, RFC 8594 Sunset headers, brownouts, and final 410 Gone responses." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/api-deprecation-sunset-and-lifecycle.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&amp;family=Atkinson+Hyperlegible+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "API Deprecation, Sunset Headers & Lifecycle Guide (2026)",
+    "datePublished": "2026-11-18",
+    "dateModified": "2026-11-18",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/api-deprecation-sunset-and-lifecycle.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "Deprecation & Sunset", "item": "https://api-design-tools.github.io/api-design-principles/api-deprecation-sunset-and-lifecycle.html" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="container site-nav" aria-label="Primary">
+      <a class="brand" href="./">api-design-principles</a>
+      <div class="nav-links">
+        <a href="./">Live validator</a>
+        <a href="./versioning-idempotency-rate-limits.html">Versioning</a>
+        <a href="./api-breaking-changes-and-contract-diff.html">Contract diff</a>
+        <a href="./openapi-linter-and-style-guide.html">Linter CLI</a>
+        <a href="./api-observability-request-id-and-tracing.html">Observability</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="article-hero">
+      <div class="container">
+        <h1>API deprecation and Sunset headers</h1>
+        <p class="lead">RFC 9745 <code>Deprecation</code> and RFC 8594 <code>Sunset</code> rollout stages under <code>ADP-044</code>.</p>
+      </div>
+    </section>
+
+    <section class="section section--deep">
+      <div class="container">
+        <div class="section-head">
+          <h2>Deprecation rollout timeline</h2>
+          <p>Give integrators machine-readable headers months before turning off routes.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="responsive-table">
+            <thead><tr><th>Stage</th><th>Lead window</th><th>Action &amp; HTTP response</th><th>Rule</th></tr></thead>
+            <tbody>
+              <tr><td>Deprecation notice</td><td>T minus 6 to 12 months</td><td>Mark <code>deprecated: true</code> and send <code>Deprecation</code> + <code>Sunset</code></td><td><code>ADP-018</code></td></tr>
+              <tr><td>Consumer outreach</td><td>T minus 90 days</td><td>Query traffic logs by API key and notify active callers</td><td><code>ADP-044</code></td></tr>
+              <tr><td>Scheduled brownouts</td><td>T minus 14 days</td><td>Short <code>410 Gone</code> maintenance windows flush stale cron jobs</td><td><code>ADP-044</code></td></tr>
+              <tr><td>Permanent shutdown</td><td>Sunset date</td><td>Return <code>410 Gone</code> with migration <code>Link</code> header</td><td><code>ADP-044</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container article-stack">
+        <h2>Standard deprecation headers</h2>
+        <div class="code-panel"><pre>Deprecation: @1794873600
+Sunset: Sat, 15 May 2027 00:00:00 GMT
+Link: &lt;https://api.example.com/docs/migrate-v2&gt;; rel="deprecation"</pre></div>
+
+        <div class="note-panel">
+          <h2>Lint deprecated routes automatically</h2>
+          <p><code>ADP-018</code> flags any operation marked <code>deprecated: true</code> without documented headers in the <a class="inline-link" href="./#validator">OpenAPI Validator</a>.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>api-design-tools / api-design-principles (Verified 2026-11-18)</span>
+      <div class="footer-links">
+        <a href="./">Live validator</a>
+        <a href="./llms.txt">llms.txt</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

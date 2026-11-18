@@ -8,12 +8,12 @@ Engineering teams adopting REST standards usually look at three well-known refer
 
 | Criteria | Haufe-Lexware API Style Guide | Zalando RESTful Guidelines | Google AIP | api-design-tools/api-design-principles |
 | :--- | :--- | :--- | :--- | :--- |
-| **Primary Format** | Static Markdown docs | Static docs (+ separate Zally server) | Static AIP docs (+ protobuf `api-linter`) | **Practical handbook + zero-dependency OpenAPI linter** |
-| **OpenAPI 3.0 / 3.1 CLI** | None | Separate Java/Docker service (Zally) | Protobuf/gRPC focused | **Single Python file (`api_validator.py`), JSON + YAML** |
-| **GitHub Action Built-in** | No | No | Custom setup | **Yes (`action.yml` + Step Summary + SARIF)** |
-| **Breaking Change Diff** | No | No | `buf` / proto only | **Yes (`--diff base head`)** |
-| **Browser Validator** | No | No | No | **Yes (client-side GitHub Pages UI)** |
-| **Industry Presets** | Single house style | Single house style | Google Cloud style | **`google-aip`, `stripe-style`, `owasp-api-top10`, `strict-public-api`** |
+| Primary Format | Static Markdown docs | Static docs (+ separate Zally server) | Static AIP docs (+ protobuf `api-linter`) | Practical handbook + zero-dependency OpenAPI linter |
+| OpenAPI 3.0 / 3.1 CLI | None | Separate Java/Docker service (Zally) | Protobuf/gRPC focused | Single Python file (`api_validator.py`), JSON + YAML |
+| GitHub Action Built-in | No | No | Custom setup | Yes (`action.yml` + Step Summary + SARIF) |
+| Breaking Change Diff | No | No | `buf` / proto only | Yes (`--diff base head`) |
+| Browser Validator | No | No | No | Yes (client-side GitHub Pages UI) |
+| Industry Presets | Single house style | Single house style | Google Cloud style | `google-aip`, `stripe-style`, `owasp-api-top10`, `strict-public-api`, `zalando` |
 
 ## 2. How to migrate from static Markdown style guides
 

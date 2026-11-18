@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Idempotency Keys Guide: Safe Retries &amp; PostgreSQL Pattern (2026)</title>
+  <meta name="description" content="How to implement Idempotency-Key headers on POST APIs using request hashing, atomic PostgreSQL locks, 409/422 conflicts, and cached 201 replays (ADP-012)." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/idempotency-keys-implementation-guide.html" />
+  <meta property="og:title" content="Idempotency Keys Guide: Safe Retries &amp; SQL Pattern (2026)" />
+  <meta property="og:description" content="Atomic database pattern, payload fingerprinting, and status codes for idempotent POST retries." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/idempotency-keys-implementation-guide.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&amp;family=Atkinson+Hyperlegible+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Idempotency Keys Guide: Safe Retries & PostgreSQL Pattern (2026)",
+    "datePublished": "2026-11-18",
+    "dateModified": "2026-11-18",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/idempotency-keys-implementation-guide.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "Idempotency Keys", "item": "https://api-design-tools.github.io/api-design-principles/idempotency-keys-implementation-guide.html" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="container site-nav" aria-label="Primary">
+      <a class="brand" href="./">api-design-principles</a>
+      <div class="nav-links">
+        <a href="./">Live validator</a>
+        <a href="./versioning-idempotency-rate-limits.html">Versioning</a>
+        <a href="./error-handling-rfc9457.html">RFC 9457</a>
+        <a href="./webhook-design-and-async-apis.html">Webhooks</a>
+        <a href="./money-currency-and-iso8601-data-types.html">Money types</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="article-hero">
+      <div class="container">
+        <h1>Idempotency keys implementation</h1>
+        <p class="lead">Safe <code>POST</code> retries using payload hashing and database uniqueness under <code>ADP-012</code>.</p>
+      </div>
+    </section>
+
+    <section class="section section--deep">
+      <div class="container">
+        <div class="section-head">
+          <h2>Key state transitions</h2>
+          <p>Enforce deterministic outcomes across first attempts, concurrent races, and replays.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="responsive-table">
+            <thead><tr><th>Request state</th><th>HTTP status</th><th>Server action</th><th>Header</th></tr></thead>
+            <tbody>
+              <tr><td>First request (inserted row)</td><td><code>201 Created</code></td><td>Execute handler and save serialized response</td><td><code>Location</code></td></tr>
+              <tr><td>Completed duplicate, same SHA-256</td><td>Cached <code>201 Created</code></td><td>Return stored JSON without side effects</td><td><code>Idempotent-Replayed: true</code></td></tr>
+              <tr><td>Concurrent duplicate in progress</td><td><code>409 Conflict</code></td><td>Abort duplicate and signal client backoff</td><td><code>Retry-After</code></td></tr>
+              <tr><td>Same key reused with different body</td><td><code>422 Unprocessable Content</code></td><td>Block accidental parameter mutation</td><td><code>application/problem+json</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container article-stack">
+        <h2>Atomic insert guard in PostgreSQL</h2>
+        <div class="code-panel"><pre>INSERT INTO idempotency_records (tenant_id, idempotency_key, request_hash, state, expires_at)
+VALUES ($1, $2, $3, 'in_progress', NOW() + INTERVAL '24 hours')
+ON CONFLICT (tenant_id, idempotency_key) DO NOTHING;</pre></div>
+
+        <div class="note-panel">
+          <h2>Check POST operations in OpenAPI</h2>
+          <p>Rule <code>ADP-012</code> verifies every mutation route declares an <code>Idempotency-Key</code> header parameter in the <a class="inline-link" href="./#validator">OpenAPI Validator</a>.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>api-design-tools / api-design-principles (Verified 2026-11-18)</span>
+      <div class="footer-links">
+        <a href="./">Live validator</a>
+        <a href="./llms.txt">llms.txt</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

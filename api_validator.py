@@ -45,6 +45,15 @@ PAGINATION_PARAMS = {
 CURSOR_PARAMS = {"cursor", "after", "before", "page_token", "pageToken", "starting_after"}
 OFFSET_PARAMS = {"offset", "skip"}
 TIMESTAMP_NAMES = ("_at", "timestamp", "createdat", "updatedat", "deletedat", "expiresat")
+MONEY_FIELD_NAMES = {
+    "amount", "price", "unit_price", "total", "subtotal", "balance", "fee", "tax", "discount", "refund"
+}
+MONEY_FIELD_SUFFIXES = ("_amount", "_price", "_total", "_fee", "_balance", "_tax")
+CORRELATION_HEADERS = {"x-request-id", "request-id", "traceparent", "x-correlation-id"}
+PASCAL_CASE_RE = re.compile(r"^[A-Z][A-Za-z0-9]*$")
+SNAKE_CASE_KEY_RE = re.compile(r"^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$")
+CAMEL_CASE_KEY_RE = re.compile(r"^[a-z][a-z0-9]*[A-Z][A-Za-z0-9]*$")
+PATH_VAR_RE = re.compile(r"\{([^}]+)\}")
 
 
 def _strip_yaml_comment(line: str) -> str:
@@ -454,6 +463,21 @@ def validate_spec(
             }
         )
 
+    info_obj = doc.get("info", {})
+    if isinstance(info_obj, dict):
+        if not isinstance(info_obj.get("contact"), dict) or not info_obj.get("contact"):
+            add_finding(
+                "ADP-033",
+                "info.contact",
+                "Specification info.contact metadata is missing; add an owning team email or portal URL.",
+            )
+        if not isinstance(info_obj.get("license"), dict) or not info_obj.get("license"):
+            add_finding(
+                "ADP-033",
+                "info.license",
+                "Specification info.license metadata is missing; declare API usage or license terms.",
+            )
+
     servers = doc.get("servers", [])
     server_has_version = False
     if isinstance(servers, list):
@@ -488,6 +512,26 @@ def validate_spec(
 
     seen_operation_ids: Dict[str, str] = {}
     operation_count = 0
+    snake_prop_samples: Set[str] = set()
+    camel_prop_samples: Set[str] = set()
+
+    schemas_comp = components.get("schemas", {})
+    if isinstance(schemas_comp, dict):
+        for schema_name, raw_schema in schemas_comp.items():
+            if not PASCAL_CASE_RE.match(str(schema_name)):
+                add_finding(
+                    "ADP-038",
+                    f"components.schemas.{schema_name}",
+                    f"Schema name '{schema_name}' is not PascalCase; rename to PascalCase for SDK generation.",
+                )
+            for _ptr, s_node in iter_schema_nodes(doc, raw_schema, f"components.schemas.{schema_name}"):
+                if isinstance(s_node.get("properties"), dict):
+                    for k_name in s_node["properties"].keys():
+                        ks = str(k_name)
+                        if SNAKE_CASE_KEY_RE.match(ks):
+                            snake_prop_samples.add(ks)
+                        elif CAMEL_CASE_KEY_RE.match(ks):
+                            camel_prop_samples.add(ks)
 
     if isinstance(paths, dict):
         for path_str, raw_path_item in paths.items():
@@ -559,6 +603,14 @@ def validate_spec(
                 if not isinstance(summary, str) or not summary.strip():
                     add_finding("ADP-017", op_loc, "Missing concise operation summary.")
 
+                tags = raw_op.get("tags")
+                if not isinstance(tags, list) or not [t for t in tags if isinstance(t, str) and t.strip()]:
+                    add_finding(
+                        "ADP-033",
+                        op_loc,
+                        "Operation defines no domain tags; add at least one tag for portal grouping and SDK client splitting.",
+                    )
+
                 if "security" not in raw_op and not global_security:
                     if isinstance(security_schemes, dict) and security_schemes:
                         add_finding(
@@ -575,6 +627,20 @@ def validate_spec(
                     if str(p.get("in", "")).lower() == "header"
                 }
 
+                path_param_map = {
+                    str(p.get("name", "")): p
+                    for p in params
+                    if str(p.get("in", "")).lower() == "path"
+                }
+                for path_var in PATH_VAR_RE.findall(path_str):
+                    p_def = path_param_map.get(path_var)
+                    if not p_def or p_def.get("required") is not True:
+                        add_finding(
+                            "ADP-036",
+                            op_loc,
+                            f"Path placeholder '{{{path_var}}}' must have an in: 'path' parameter with required: true.",
+                        )
+
                 for p in params:
                     p_in = str(p.get("in", "")).lower()
                     p_name = str(p.get("name", ""))
@@ -584,6 +650,14 @@ def validate_spec(
                             f"{op_loc} (query:{p_name})",
                             f"Sensitive credential parameter '{p_name}' passed in URL query string; move to Authorization header.",
                         )
+                    p_schema = resolve_ref(doc, p.get("schema"))
+                    if p_in == "query" and isinstance(p_schema, dict) and p_schema.get("type") in {"integer", "number"}:
+                        if "minimum" not in p_schema or "maximum" not in p_schema:
+                            add_finding(
+                                "ADP-034",
+                                f"{op_loc} (query:{p_name})",
+                                f"Numeric query parameter '{p_name}' lacks explicit minimum and maximum bounds.",
+                            )
 
                 req_body = resolve_ref(doc, raw_op.get("requestBody"))
                 if method in {"GET", "HEAD"} and isinstance(req_body, dict):
@@ -615,10 +689,21 @@ def validate_spec(
                             "POST mutation does not declare an Idempotency-Key header parameter for safe client retries.",
                         )
 
+                is_batch_op = method == "POST" and (
+                    ":batch" in path_str.lower() or path_str.lower().endswith("/batch")
+                )
+
                 if isinstance(req_body, dict) and isinstance(req_body.get("content"), dict):
                     for media_type, media_obj in req_body["content"].items():
                         if not isinstance(media_obj, dict):
                             continue
+                        mt_clean = str(media_type).split(";")[0].strip().lower()
+                        if mt_clean in {"*/*", "text/plain"}:
+                            add_finding(
+                                "ADP-037",
+                                f"{op_loc} requestBody ({media_type})",
+                                f"Request body uses ambiguous media type '{media_type}'; use application/json or a structured media type.",
+                            )
                         if not has_example(doc, media_obj):
                             add_finding(
                                 "ADP-019",
@@ -629,12 +714,21 @@ def validate_spec(
                             doc, media_obj.get("schema"), f"{op_loc}.requestBody"
                         ):
                             n_type = node.get("type")
+                            leaf_name = ptr.split(".")[-1].replace("[]", "").lower()
                             if n_type == "array" and "maxItems" not in node:
                                 add_finding(
                                     "ADP-021",
                                     ptr,
                                     "Input array schema has no maxItems bound (OWASP API4:2023 risk).",
                                 )
+                            if is_batch_op and n_type == "array":
+                                max_items = node.get("maxItems")
+                                if not isinstance(max_items, int) or max_items > 100:
+                                    add_finding(
+                                        "ADP-039",
+                                        ptr,
+                                        "Batch endpoint array input must enforce maxItems <= 100.",
+                                    )
                             if (
                                 n_type == "string"
                                 and "maxLength" not in node
@@ -645,6 +739,38 @@ def validate_spec(
                                     "ADP-021",
                                     ptr,
                                     "Input string schema has no maxLength or enum bound (OWASP API4:2023 risk).",
+                                )
+                            if n_type in {"integer", "number"} and (
+                                "minimum" not in node or "maximum" not in node
+                            ):
+                                add_finding(
+                                    "ADP-034",
+                                    ptr,
+                                    f"Numeric input schema at '{ptr}' lacks minimum or maximum bounds.",
+                                )
+                            if (
+                                n_type == "object"
+                                and isinstance(node.get("properties"), dict)
+                                and node.get("properties")
+                                and node.get("additionalProperties") is not False
+                                and not isinstance(node.get("additionalProperties"), dict)
+                            ):
+                                add_finding(
+                                    "ADP-035",
+                                    ptr,
+                                    "Input object schema omits additionalProperties: false (OWASP API3:2023 mass-assignment risk).",
+                                )
+                            is_money_prop = (
+                                leaf_name in MONEY_FIELD_NAMES
+                                or leaf_name.endswith(MONEY_FIELD_SUFFIXES)
+                            ) and not leaf_name.endswith(("_minor", "_cents"))
+                            if is_money_prop and (
+                                n_type == "number" or node.get("format") in {"float", "double"}
+                            ):
+                                add_finding(
+                                    "ADP-029",
+                                    ptr,
+                                    f"Monetary field '{leaf_name}' uses floating-point number; represent money as integer minor units plus currency.",
                                 )
 
                 responses = raw_op.get("responses", {})
@@ -744,6 +870,44 @@ def validate_spec(
                             "Deprecated operation lacks Deprecation or Sunset headers (RFC 8594 / RFC 9745).",
                         )
 
+                has_corr_header = False
+                for rc, raw_r in responses.items():
+                    r_obj = resolve_ref(doc, raw_r)
+                    if not isinstance(r_obj, dict):
+                        continue
+                    r_hdrs = r_obj.get("headers")
+                    if isinstance(r_hdrs, dict):
+                        r_hdrs_lower = {h.lower() for h in r_hdrs.keys()}
+                        if r_hdrs_lower & CORRELATION_HEADERS:
+                            has_corr_header = True
+                        if method == "GET" and rc == "200":
+                            if "cache-control" not in r_hdrs_lower and "etag" not in r_hdrs_lower:
+                                add_finding(
+                                    "ADP-028",
+                                    f"{op_loc} (200)",
+                                    "GET 200 response declares neither Cache-Control nor ETag header.",
+                                )
+                    elif method == "GET" and rc == "200":
+                        add_finding(
+                            "ADP-028",
+                            f"{op_loc} (200)",
+                            "GET 200 response declares neither Cache-Control nor ETag header.",
+                        )
+
+                if not has_corr_header:
+                    add_finding(
+                        "ADP-030",
+                        op_loc,
+                        "Operation responses do not declare X-Request-Id or traceparent correlation headers.",
+                    )
+
+                if is_batch_op and "207" not in resp_codes and "202" not in resp_codes:
+                    add_finding(
+                        "ADP-039",
+                        op_loc,
+                        "Batch POST operation should document 207 Multi-Status (or 202 Accepted) for partial item results.",
+                    )
+
                 for rc, raw_r in responses.items():
                     if not rc.startswith("2"):
                         continue
@@ -753,6 +917,13 @@ def validate_spec(
                     for media_type, media_obj in r_obj["content"].items():
                         if not isinstance(media_obj, dict):
                             continue
+                        mt_clean = str(media_type).split(";")[0].strip().lower()
+                        if mt_clean in {"*/*", "text/plain"}:
+                            add_finding(
+                                "ADP-037",
+                                f"{op_loc} {rc} ({media_type})",
+                                f"Response uses ambiguous media type '{media_type}'; return application/json.",
+                            )
                         if not has_example(doc, media_obj):
                             add_finding(
                                 "ADP-019",
@@ -762,7 +933,7 @@ def validate_spec(
                         for ptr, node in iter_schema_nodes(
                             doc, media_obj.get("schema"), f"{op_loc}.{rc}"
                         ):
-                            leaf_name = ptr.split(".")[-1].lower()
+                            leaf_name = ptr.split(".")[-1].replace("[]", "").lower()
                             if (
                                 any(leaf_name.endswith(ts) for ts in TIMESTAMP_NAMES)
                                 and node.get("type") == "string"
@@ -773,6 +944,32 @@ def validate_spec(
                                     ptr,
                                     f"Timestamp property '{leaf_name}' should specify format: date-time (ISO 8601 UTC).",
                                 )
+                            is_money_prop = (
+                                leaf_name in MONEY_FIELD_NAMES
+                                or leaf_name.endswith(MONEY_FIELD_SUFFIXES)
+                            ) and not leaf_name.endswith(("_minor", "_cents"))
+                            if is_money_prop and (
+                                node.get("type") == "number" or node.get("format") in {"float", "double"}
+                            ):
+                                add_finding(
+                                    "ADP-029",
+                                    ptr,
+                                    f"Monetary field '{leaf_name}' uses floating-point number; represent money as integer minor units plus currency.",
+                                )
+                            if isinstance(node.get("properties"), dict):
+                                for k_name in node["properties"].keys():
+                                    ks = str(k_name)
+                                    if SNAKE_CASE_KEY_RE.match(ks):
+                                        snake_prop_samples.add(ks)
+                                    elif CAMEL_CASE_KEY_RE.match(ks):
+                                        camel_prop_samples.add(ks)
+
+    if snake_prop_samples and camel_prop_samples:
+        add_finding(
+            "ADP-038",
+            "components.schemas",
+            f"Mixed property casing detected: snake_case ({', '.join(sorted(snake_prop_samples)[:3])}) alongside camelCase ({', '.join(sorted(camel_prop_samples)[:3])}).",
+        )
 
     errors = sum(1 for f in findings if f["severity"] == "error")
     warnings = sum(1 for f in findings if f["severity"] == "warning")
@@ -873,6 +1070,23 @@ def diff_specs(
                     hp = h_params[pk]
                     if not bp.get("required") and hp.get("required"):
                         add_change("breaking", op_loc, f"Optional parameter '{pk[1]}' became required.")
+                    b_ps = resolve_ref(base_doc, bp.get("schema"))
+                    h_ps = resolve_ref(head_doc, hp.get("schema"))
+                    if isinstance(b_ps, dict) and isinstance(h_ps, dict):
+                        if b_ps.get("type") and h_ps.get("type") and b_ps.get("type") != h_ps.get("type"):
+                            add_change(
+                                "breaking",
+                                f"{op_loc}.param.{pk[1]}",
+                                f"Parameter '{pk[1]}' type changed from '{b_ps.get('type')}' to '{h_ps.get('type')}'.",
+                            )
+                        if isinstance(b_ps.get("enum"), list) and isinstance(h_ps.get("enum"), list):
+                            removed_p_vals = set(b_ps["enum"]) - set(h_ps["enum"])
+                            if removed_p_vals:
+                                add_change(
+                                    "breaking",
+                                    f"{op_loc}.param.{pk[1]}",
+                                    f"Parameter '{pk[1]}' enum values removed: {sorted(map(str, removed_p_vals))}.",
+                                )
 
             for pk, hp in h_params.items():
                 if pk not in b_params and hp.get("required"):
@@ -1142,7 +1356,7 @@ def print_checklist(rules_data: Dict[str, Any]) -> None:
     print("# Pre-Production API Design Review Checklist (2026)\n")
     for r in rules_data["rules"]:
         tag = "OpenAPI Lint" if r["automatable"] else "Architecture Review"
-        print(f"- [ ] **{r['id']}** ({r['severity'].upper()}, {tag}): {r['title']} ({r['standard_ref']})")
+        print(f"- [ ] {r['id']} ({r['severity'].upper()}, {tag}): {r['title']} ({r['standard_ref']})")
 
 
 def print_paradigm_comparison() -> None:
@@ -1193,7 +1407,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--preset",
-        choices=["google-aip", "stripe-style", "owasp-api-top10", "strict-public-api"],
+        choices=["google-aip", "stripe-style", "owasp-api-top10", "strict-public-api", "zalando"],
         help="Apply a built-in industry preset from presets/.",
     )
     parser.add_argument(

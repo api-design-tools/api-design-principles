@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Batch &amp; Bulk API Design: Array Caps &amp; HTTP 207 Multi-Status (2026)</title>
+  <meta name="description" content="Design synchronous batch API endpoints cleanly using :batch custom methods, maxItems <= 100 caps, and HTTP 207 Multi-Status per-item envelopes (ADP-039)." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/batch-bulk-apis-and-partial-failures.html" />
+  <meta property="og:title" content="Batch &amp; Bulk API Design: HTTP 207 Multi-Status (2026)" />
+  <meta property="og:description" content="Bounded batch inputs, ordered per-item results, and 202 async job cutoffs for bulk operations." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/batch-bulk-apis-and-partial-failures.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&amp;family=Atkinson+Hyperlegible+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Batch & Bulk API Design: Array Caps & HTTP 207 Multi-Status (2026)",
+    "datePublished": "2026-11-18",
+    "dateModified": "2026-11-18",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/batch-bulk-apis-and-partial-failures.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "Batch & 207 Multi-Status", "item": "https://api-design-tools.github.io/api-design-principles/batch-bulk-apis-and-partial-failures.html" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="container site-nav" aria-label="Primary">
+      <a class="brand" href="./">api-design-principles</a>
+      <div class="nav-links">
+        <a href="./">Live validator</a>
+        <a href="./rest-naming-and-methods.html">Naming</a>
+        <a href="./error-handling-rfc9457.html">RFC 9457</a>
+        <a href="./webhook-design-and-async-apis.html">Webhooks</a>
+        <a href="./idempotency-keys-implementation-guide.html">Idempotency</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="article-hero">
+      <div class="container">
+        <h1>Batch APIs and 207 Multi-Status</h1>
+        <p class="lead">Bounded bulk requests and item-level error reporting enforced by <code>ADP-039</code>.</p>
+      </div>
+    </section>
+
+    <section class="section section--deep">
+      <div class="container">
+        <div class="section-head">
+          <h2>Synchronous vs asynchronous bulk patterns</h2>
+          <p>Avoid gateway timeouts and silent partial writes.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="responsive-table">
+            <thead><tr><th>Batch mode</th><th>Endpoint &amp; response</th><th>Bounds &amp; correlation</th><th>Rule</th></tr></thead>
+            <tbody>
+              <tr><td>Micro-batch mutation</td><td><code>POST /v1/orders:batch</code> -&gt; <code>207</code></td><td><code>maxItems &lt;= 100</code> + <code>client_ref</code></td><td><code>ADP-039</code></td></tr>
+              <tr><td>Large async import</td><td><code>POST /v1/order-imports</code> -&gt; <code>202</code></td><td><code>Location: /v1/jobs/{job_id}</code></td><td><code>ADP-026</code></td></tr>
+              <tr><td>Array payload cap</td><td>Every request array schema</td><td>Explicit <code>maxItems</code> bound</td><td><code>ADP-021</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container article-stack">
+        <h2>Ordered 207 Multi-Status envelope</h2>
+        <div class="code-panel"><pre>{
+  "succeeded": 1,
+  "failed": 1,
+  "results": [
+    { "index": 0, "client_ref": "row_1", "status": 201, "id": "ord_01J9Z" },
+    { "index": 1, "client_ref": "row_2", "status": 422, "error": { "title": "Validation Failed", "status": 422 } }
+  ]
+}</pre></div>
+
+        <div class="note-panel">
+          <h2>Validate :batch paths automatically</h2>
+          <p>Rule <code>ADP-039</code> inspects any <code>:batch</code> or <code>/batch</code> endpoint in <a class="inline-link" href="./#validator">api_validator.py</a> for <code>maxItems &lt;= 100</code> and <code>207</code> status coverage.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>api-design-tools / api-design-principles (Verified 2026-11-18)</span>
+      <div class="footer-links">
+        <a href="./">Live validator</a>
+        <a href="./llms.txt">llms.txt</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

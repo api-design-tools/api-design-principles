@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GraphQL API Design Principles &amp; Security Controls (2026)</title>
+  <meta name="description" content="Practical GraphQL API design rules: Relay cursor pagination, query depth limits, complexity cost caps, persisted queries, and union error types (ADP-041)." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/graphql-api-design-principles.html" />
+  <meta property="og:title" content="GraphQL API Design Principles &amp; Security Controls (2026)" />
+  <meta property="og:description" content="Cursor connections, depth budgets, complexity costs, and persisted operations for GraphQL APIs." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/graphql-api-design-principles.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&amp;family=Atkinson+Hyperlegible+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "GraphQL API Design Principles & Security Controls (2026)",
+    "datePublished": "2026-11-18",
+    "dateModified": "2026-11-18",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/graphql-api-design-principles.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "GraphQL Design", "item": "https://api-design-tools.github.io/api-design-principles/graphql-api-design-principles.html" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="container site-nav" aria-label="Primary">
+      <a class="brand" href="./">api-design-principles</a>
+      <div class="nav-links">
+        <a href="./">Live validator</a>
+        <a href="./rest-vs-graphql-vs-grpc.html">Paradigms</a>
+        <a href="./pagination-and-filtering.html">Pagination</a>
+        <a href="./api-security-owasp-checklist.html">Security</a>
+        <a href="./openapi-linter-and-style-guide.html">Linter CLI</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="article-hero">
+      <div class="container">
+        <h1>GraphQL API design and limits</h1>
+        <p class="lead">Relay connections, depth limits, and persisted queries under <code>ADP-041</code>.</p>
+      </div>
+    </section>
+
+    <section class="section section--deep">
+      <div class="container">
+        <div class="section-head">
+          <h2>Execution guards before running queries</h2>
+          <p>Prevent nested list amplification on public or mobile GraphQL servers.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="responsive-table">
+            <thead><tr><th>Control</th><th>Threshold</th><th>Attack blocked</th><th>Rule</th></tr></thead>
+            <tbody>
+              <tr><td>Query depth cap</td><td>Max 8 to 10 nesting levels</td><td>Cyclic <code>user.orders.user.orders</code> recursion</td><td><code>ADP-041</code></td></tr>
+              <tr><td>Complexity cost budget</td><td>Weighted list multipliers</td><td>Product of nested <code>first: 100</code> lists</td><td><code>ADP-041</code></td></tr>
+              <tr><td>Persisted queries</td><td>SHA-256 operation allowlist</td><td>Unbounded ad-hoc client query execution</td><td><code>ADP-041</code></td></tr>
+              <tr><td>Relay cursors</td><td><code>first &lt;= 100</code> + <code>after</code></td><td>Deep offset SQL scans</td><td><code>ADP-010</code></td></tr>
+              <tr><td>Production introspection</td><td>Disabled on public traffic</td><td>Automated type graph enumeration</td><td><code>ADP-041</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container article-stack">
+        <h2>Relay connection and typed error union</h2>
+        <div class="code-panel"><pre>type Query {
+  orders(first: Int = 25, after: String): OrderConnection!
+}
+
+union CancelOrderResult = OrderCancelled | OrderAlreadyShipped | ValidationProblem</pre></div>
+
+        <div class="note-panel">
+          <h2>Pair with DataLoader batching</h2>
+          <p>Use per-request DataLoader keys for foreign references, and keep <a class="inline-link" href="./rest-vs-graphql-vs-grpc.html">REST vs GraphQL vs gRPC</a> trade-offs clear across public endpoints.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>api-design-tools / api-design-principles (Verified 2026-11-18)</span>
+      <div class="footer-links">
+        <a href="./">Live validator</a>
+        <a href="./llms.txt">llms.txt</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

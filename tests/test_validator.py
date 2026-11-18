@@ -27,7 +27,9 @@ class TestAPIDesignValidator(unittest.TestCase):
 
     def test_rules_catalog_integrity(self) -> None:
         rules = self.rules_data["rules"]
-        self.assertGreaterEqual(len(rules), 30)
+        self.assertEqual(len(rules), 44)
+        self.assertEqual(self.rules_data["metadata"]["total_rules"], 44)
+        self.assertEqual(sum(1 for r in rules if r["automatable"]), 32)
         seen_ids = set()
         for rule in rules:
             self.assertIn("id", rule)
@@ -70,6 +72,8 @@ class TestAPIDesignValidator(unittest.TestCase):
             "ADP-006", "ADP-007", "ADP-008", "ADP-009", "ADP-010",
             "ADP-012", "ADP-013", "ADP-014", "ADP-015", "ADP-016",
             "ADP-017", "ADP-018", "ADP-020", "ADP-021", "ADP-022",
+            "ADP-028", "ADP-029", "ADP-030", "ADP-033", "ADP-034",
+            "ADP-035",
         }
         self.assertTrue(expected_ids.issubset(found_ids), f"Missing rules: {expected_ids - found_ids}")
 
@@ -128,6 +132,92 @@ class TestAPIDesignValidator(unittest.TestCase):
 
             code_good = main(["--spec", str(self.good_yaml), "--preset", "strict-public-api"])
             self.assertEqual(code_good, 0)
+
+    def test_new_core_rules_and_zalando_preset(self) -> None:
+        spec = {
+            "openapi": "3.1.0",
+            "info": {"title": "Mixed API", "version": "1.0.0"},
+            "servers": [{"url": "https://api.example.com/v1"}],
+            "security": [{"BearerAuth": []}],
+            "paths": {
+                "/v1/orders/{order_id}/items:batch": {
+                    "post": {
+                        "operationId": "batchOrderItems",
+                        "summary": "Batch add order items",
+                        "parameters": [
+                            {"name": "Idempotency-Key", "in": "header", "required": True, "schema": {"type": "string", "format": "uuid"}}
+                        ],
+                        "requestBody": {
+                            "required": True,
+                            "content": {
+                                "text/plain": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "orderId": {"type": "string", "maxLength": 64},
+                                            "items": {
+                                                "type": "array",
+                                                "maxItems": 500,
+                                                "items": {"type": "string", "maxLength": 64},
+                                            },
+                                        },
+                                    },
+                                    "example": {"orderId": "1", "items": ["sku_1"]},
+                                }
+                            },
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "OK",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "created_at": {"type": "string", "format": "date-time"}
+                                            },
+                                        },
+                                        "example": {"created_at": "2026-11-16T10:00:00Z"},
+                                    }
+                                },
+                            },
+                            "400": {"$ref": "#/components/responses/Problem"},
+                            "429": {"$ref": "#/components/responses/Problem"},
+                        },
+                    }
+                }
+            },
+            "components": {
+                "securitySchemes": {"BearerAuth": {"type": "http", "scheme": "bearer"}},
+                "schemas": {"order_dto": {"type": "object"}},
+                "responses": {
+                    "Problem": {
+                        "description": "Error",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {"type": "object"},
+                                "example": {"title": "Err", "status": 400},
+                            }
+                        },
+                    }
+                },
+            },
+        }
+        zalando_cfg = load_config(None, preset="zalando")
+        res = validate_spec(spec, self.rules_by_id, zalando_cfg)
+        found = {f["rule_id"] for f in res["findings"]}
+        for expected in ("ADP-033", "ADP-035", "ADP-036", "ADP-037", "ADP-038", "ADP-039"):
+            self.assertIn(expected, found, f"Missing {expected} in {found}")
+
+    def test_diff_detects_parameter_type_and_enum_changes(self) -> None:
+        base_doc = load_spec(self.good_spec)
+        head_doc = json.loads(json.dumps(base_doc))
+        params = head_doc["paths"]["/v1/orders"]["get"]["parameters"]
+        params[1]["schema"]["type"] = "string"
+        params[2]["schema"]["enum"] = ["pending", "paid"]
+        diff_res = diff_specs(base_doc, head_doc)
+        self.assertFalse(diff_res["passed"])
+        self.assertGreaterEqual(diff_res["breaking_changes"], 2)
 
 
 if __name__ == "__main__":

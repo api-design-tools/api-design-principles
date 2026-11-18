@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API Rate Limiting Algorithms &amp; HTTP 429 Headers (2026)</title>
+  <meta name="description" content="Compare token bucket vs sliding window rate limiters and document RateLimit-Limit, RateLimit-Remaining, Retry-After, and 429 RFC 9457 responses (ADP-013)." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/api-rate-limiting-algorithms-and-headers.html" />
+  <meta property="og:title" content="API Rate Limiting Algorithms &amp; HTTP 429 Headers (2026)" />
+  <meta property="og:description" content="Standard RateLimit and Retry-After headers paired with token bucket and sliding window algorithms." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/api-rate-limiting-algorithms-and-headers.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&amp;family=Atkinson+Hyperlegible+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "API Rate Limiting Algorithms & HTTP 429 Headers (2026)",
+    "datePublished": "2026-11-18",
+    "dateModified": "2026-11-18",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/api-rate-limiting-algorithms-and-headers.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "Rate Limiting", "item": "https://api-design-tools.github.io/api-design-principles/api-rate-limiting-algorithms-and-headers.html" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="container site-nav" aria-label="Primary">
+      <a class="brand" href="./">api-design-principles</a>
+      <div class="nav-links">
+        <a href="./">Live validator</a>
+        <a href="./versioning-idempotency-rate-limits.html">Versioning</a>
+        <a href="./api-caching-etag-and-304-guide.html">Caching</a>
+        <a href="./error-handling-rfc9457.html">RFC 9457</a>
+        <a href="./api-security-owasp-checklist.html">Security</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="article-hero">
+      <div class="container">
+        <h1>Rate limiting algorithms and headers</h1>
+        <p class="lead">Standard <code>RateLimit</code> headers, <code>Retry-After</code>, and <code>429</code> responses under <code>ADP-013</code>.</p>
+      </div>
+    </section>
+
+    <section class="section section--deep">
+      <div class="container">
+        <div class="section-head">
+          <h2>Comparing limiter algorithms</h2>
+          <p>Select storage footprint and burst handling per route class.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="responsive-table">
+            <thead><tr><th>Algorithm</th><th>State per key</th><th>Boundary burst risk</th><th>Typical workload</th></tr></thead>
+            <tbody>
+              <tr><td>Token bucket</td><td>2 fields (tokens, timestamp)</td><td>Controlled burst capacity</td><td>Webhooks, CLI sync, SDK retries</td></tr>
+              <tr><td>Sliding window counter</td><td>2 minute buckets</td><td>Minimal boundary spike</td><td>Per-tenant REST quotas</td></tr>
+              <tr><td>Fixed window counter</td><td>1 counter</td><td>2x spike at window boundary</td><td>Edge DDoS protection</td></tr>
+              <tr><td>Concurrency semaphore</td><td>Active in-flight counter</td><td>Zero timed queue backlog</td><td>Heavy exports and LLM calls</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container article-stack">
+        <h2>Standard HTTP 429 response with RFC 9457 payload</h2>
+        <div class="code-panel"><pre>HTTP/1.1 429 Too Many Requests
+Content-Type: application/problem+json
+Retry-After: 12
+RateLimit-Limit: 120
+RateLimit-Remaining: 0
+RateLimit-Reset: 12</pre></div>
+
+        <div class="note-panel">
+          <h2>Validate 429 coverage automatically</h2>
+          <p>Check whether every endpoint declares a <code>429</code> response or quota headers in the <a class="inline-link" href="./#validator">Stripe-style preset</a>.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>api-design-tools / api-design-principles (Verified 2026-11-18)</span>
+      <div class="footer-links">
+        <a href="./">Live validator</a>
+        <a href="./llms.txt">llms.txt</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

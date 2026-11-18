@@ -73,6 +73,8 @@
                 "type": "object",
                 "properties": {
                   "notes": { "type": "string" },
+                  "amount": { "type": "number", "format": "double" },
+                  "createdAt": { "type": "string" },
                   "tags": {
                     "type": "array",
                     "items": { "type": "string" }

@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>API Design Principles &amp; Free OpenAPI Validator (2026) | REST Rules &amp; CI Linter</title>
-  <meta name="description" content="Practical 2026 API design principles handbook and free OpenAPI 3.0/3.1 JSON &amp; YAML validator. Check 32 RFC 9457, pagination, idempotency, rate-limit, and OWASP API rules in your browser or GitHub Actions." />
+  <meta name="description" content="Practical 2026 API design principles handbook and free OpenAPI 3.0/3.1 JSON &amp; YAML validator. Check 44 RFC 9457, pagination, idempotency, rate-limit, and OWASP API rules in your browser or GitHub Actions." />
   <meta name="google-site-verification" content="HqgfQrEQATXaycciOAu8GzuJP8BSRHtaR1JrgBtnApU" />
   <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/" />
   <meta property="og:title" content="API Design Principles &amp; Free OpenAPI Validator (2026)" />
-  <meta property="og:description" content="Validate OpenAPI JSON or YAML specs in-browser or via GitHub Action against 32 standards-backed REST API design principles with instant Markdown &amp; JSON violation reports." />
+  <meta property="og:description" content="Validate OpenAPI JSON or YAML specs in-browser or via GitHub Action against 44 standards-backed API design principles with Markdown, JSON &amp; SARIF reports." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/" />
   <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
@@ -25,7 +25,7 @@
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Web",
     "offers": { "@type": "Offer", "price": "0.00", "priceCurrency": "USD" },
-    "description": "Free browser-based and CLI OpenAPI 3.0/3.1 JSON and YAML validator enforcing 22 automated REST API design rules across naming, RFC 9457 errors, cursor pagination, idempotency, rate limiting, and OWASP API security.",
+    "description": "Free browser-based and CLI OpenAPI 3.0/3.1 JSON and YAML validator enforcing 32 automated API design rules across naming, RFC 9457 errors, cursor pagination, idempotency, caching, money types, rate limiting, and OWASP API security.",
     "url": "https://api-design-tools.github.io/api-design-principles/"
   }
   </script>
@@ -35,7 +35,7 @@
     "@type": "ItemList",
     "name": "API Design Principles Guides (2026)",
     "url": "https://api-design-tools.github.io/api-design-principles/",
-    "numberOfItems": 10,
+    "numberOfItems": 22,
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "REST API Naming & HTTP Method Semantics", "url": "https://api-design-tools.github.io/api-design-principles/rest-naming-and-methods.html" },
       { "@type": "ListItem", "position": 2, "name": "Pagination, Filtering & Sorting", "url": "https://api-design-tools.github.io/api-design-principles/pagination-and-filtering.html" },
@@ -46,7 +46,19 @@
       { "@type": "ListItem", "position": 7, "name": "Webhook Design & Async APIs", "url": "https://api-design-tools.github.io/api-design-principles/webhook-design-and-async-apis.html" },
       { "@type": "ListItem", "position": 8, "name": "AI-Agent & MCP Ready API Design", "url": "https://api-design-tools.github.io/api-design-principles/ai-agent-ready-api-design.html" },
       { "@type": "ListItem", "position": 9, "name": "OpenAPI Linter, Diff & GitHub Action", "url": "https://api-design-tools.github.io/api-design-principles/openapi-linter-and-style-guide.html" },
-      { "@type": "ListItem", "position": 10, "name": "API Style Guides Compared", "url": "https://api-design-tools.github.io/api-design-principles/api-style-guides-compared.html" }
+      { "@type": "ListItem", "position": 10, "name": "API Style Guides Compared", "url": "https://api-design-tools.github.io/api-design-principles/api-style-guides-compared.html" },
+      { "@type": "ListItem", "position": 11, "name": "GraphQL API Design Principles", "url": "https://api-design-tools.github.io/api-design-principles/graphql-api-design-principles.html" },
+      { "@type": "ListItem", "position": 12, "name": "gRPC and Protobuf Contracts", "url": "https://api-design-tools.github.io/api-design-principles/grpc-and-protobuf-api-design.html" },
+      { "@type": "ListItem", "position": 13, "name": "Idempotency Keys Implementation Guide", "url": "https://api-design-tools.github.io/api-design-principles/idempotency-keys-implementation-guide.html" },
+      { "@type": "ListItem", "position": 14, "name": "API Rate Limiting Algorithms & Headers", "url": "https://api-design-tools.github.io/api-design-principles/api-rate-limiting-algorithms-and-headers.html" },
+      { "@type": "ListItem", "position": 15, "name": "HTTP Caching with ETag and 304", "url": "https://api-design-tools.github.io/api-design-principles/api-caching-etag-and-304-guide.html" },
+      { "@type": "ListItem", "position": 16, "name": "OAuth 2.1, PKCE, JWTs and API Keys", "url": "https://api-design-tools.github.io/api-design-principles/oauth2-pkce-jwt-and-api-keys.html" },
+      { "@type": "ListItem", "position": 17, "name": "OpenAPI 3.1 vs 3.0 Migration Guide", "url": "https://api-design-tools.github.io/api-design-principles/openapi-31-vs-30-migration-guide.html" },
+      { "@type": "ListItem", "position": 18, "name": "Breaking Changes & OpenAPI Contract Diff", "url": "https://api-design-tools.github.io/api-design-principles/api-breaking-changes-and-contract-diff.html" },
+      { "@type": "ListItem", "position": 19, "name": "Batch APIs & 207 Multi-Status", "url": "https://api-design-tools.github.io/api-design-principles/batch-bulk-apis-and-partial-failures.html" },
+      { "@type": "ListItem", "position": 20, "name": "Money, ISO 4217 Currency & ISO 8601 Types", "url": "https://api-design-tools.github.io/api-design-principles/money-currency-and-iso8601-data-types.html" },
+      { "@type": "ListItem", "position": 21, "name": "API Deprecation & Sunset Headers", "url": "https://api-design-tools.github.io/api-design-principles/api-deprecation-sunset-and-lifecycle.html" },
+      { "@type": "ListItem", "position": 22, "name": "API Observability, X-Request-Id & Tracing", "url": "https://api-design-tools.github.io/api-design-principles/api-observability-request-id-and-tracing.html" }
     ]
   }
   </script>
@@ -68,7 +80,7 @@
         "name": "Which standards does the OpenAPI validator enforce?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "The validator checks 22 automated rules mapped to RFC 9110 HTTP Semantics, RFC 9457 Problem Details, RFC 8594 Sunset headers, IETF Idempotency-Key, IETF RateLimit headers, Google AIP-158 pagination, and OWASP API Security Top 10."
+          "text": "The validator checks 32 automated rules out of 44 total principles mapped to RFC 9110 HTTP Semantics, RFC 9457 Problem Details, RFC 8594 Sunset headers, RFC 9111 caching, IETF Idempotency-Key, IETF RateLimit headers, ISO 4217 minor currency units, Google AIP-158 pagination, and OWASP API Security Top 10."
         }
       }
     ]
@@ -82,7 +94,7 @@
       <div class="nav-links">
         <a href="#validator">Validator</a>
         <a href="#cli-workflows">Command line</a>
-        <a href="#rules">32 Rules</a>
+        <a href="#rules">44 Rules</a>
         <a href="#guides">Guides</a>
         <a href="./openapi-linter-and-style-guide.html">Diff &amp; SARIF</a>
         <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
@@ -95,7 +107,7 @@
       <div class="container hero-grid">
         <div class="hero-copy">
           <h1>API design principles checked in CI</h1>
-          <p class="lead">Lint OpenAPI specs against 32 RFC, pagination, idempotency, and OWASP rules.</p>
+          <p class="lead">Lint OpenAPI specs against 44 RFC, pagination, idempotency, and OWASP rules.</p>
           <div class="hero-actions">
             <a class="btn" href="#validator">Open spec validator</a>
             <a class="btn" href="#cli-workflows">Install GitHub Action</a>
@@ -106,7 +118,7 @@
         <div class="panels" aria-label="Sample OpenAPI violation diff">
           <div class="panel-head">
             <span class="panel-title">orders-api.openapi.yaml</span>
-            <span class="panel-meta">22 automated checks</span>
+            <span class="panel-meta">32 automated checks</span>
           </div>
           <div class="audit-rows">
             <div class="audit-row audit-row--bad">
@@ -184,7 +196,7 @@
                 </tr>
               </thead>
               <tbody id="violations-body">
-                <tr><td colspan="5">Select Validate OpenAPI Spec to run all 22 automated checks.</td></tr>
+                <tr><td colspan="5">Select Validate OpenAPI Spec to run all 32 automated checks.</td></tr>
               </tbody>
             </table>
           </div>
@@ -231,7 +243,7 @@ with:
 
           <section role="tabpanel" id="wf-presets" aria-labelledby="tab-presets" class="code-panel" hidden>
             <pre>python3 api_validator.py --spec openapi.json --preset owasp-api-top10 --format sarif --output api-lint.sarif</pre>
-            <p class="code-caption">Built-in presets in presets/: google-aip, stripe-style, owasp-api-top10, and strict-public-api.</p>
+            <p class="code-caption">Built-in presets in presets/: google-aip, stripe-style, owasp-api-top10, strict-public-api, and zalando.</p>
           </section>
         </div>
       </div>
@@ -240,7 +252,7 @@ with:
     <section class="section section--deep" id="rules">
       <div class="container">
         <div class="section-head">
-          <h2>32 API design principles</h2>
+          <h2>44 API design principles</h2>
           <p>Filter the complete ruleset by RFC standard, category, or enforcement mode.</p>
         </div>
 
@@ -260,9 +272,9 @@ with:
             <option value="evolution">Webhooks &amp; architecture</option>
           </select>
           <select id="rule-auto" aria-label="Filter by enforcement mode">
-            <option value="all">All rules (32)</option>
-            <option value="auto">Automated in validator (22)</option>
-            <option value="arch">Architecture principles (10)</option>
+            <option value="all">All rules (44)</option>
+            <option value="auto">Automated in validator (32)</option>
+            <option value="arch">Architecture principles (12)</option>
           </select>
         </div>
 
@@ -291,16 +303,28 @@ with:
         </div>
 
         <div class="guide-rows">
-          <a class="guide-row" href="./rest-naming-and-methods.html"><strong>REST Naming &amp; HTTP Methods</strong><span>Plural nouns, kebab-case paths, 201 Created, Merge Patch, and ETag concurrency</span></a>
-          <a class="guide-row" href="./pagination-and-filtering.html"><strong>Pagination, Filtering &amp; Sorting</strong><span>O(1) keyset cursor pagination vs SQL OFFSET and OWASP API4 bounds</span></a>
-          <a class="guide-row" href="./error-handling-rfc9457.html"><strong>RFC 9457 Error Handling</strong><span>application/problem+json payloads and HTTP 400/409/412/422/429 matrix</span></a>
-          <a class="guide-row" href="./versioning-idempotency-rate-limits.html"><strong>Versioning, Idempotency &amp; Rate Limits</strong><span>Idempotency-Key deduplication, Sunset headers, and IETF RateLimit fields</span></a>
-          <a class="guide-row" href="./rest-vs-graphql-vs-grpc.html"><strong>REST vs GraphQL vs gRPC</strong><span>Protocol trade-offs across edge caching, Protobuf RPC, and hybrid stacks</span></a>
-          <a class="guide-row" href="./api-security-owasp-checklist.html"><strong>OWASP API Security Top 10</strong><span>BOLA/IDOR database scoping, prefixed ULIDs, and input bounds</span></a>
-          <a class="guide-row" href="./webhook-design-and-async-apis.html"><strong>Webhooks &amp; Async APIs</strong><span>HMAC-SHA256 replay protection and 202 Accepted job polling</span></a>
-          <a class="guide-row" href="./ai-agent-ready-api-design.html"><strong>AI-Agent &amp; MCP Ready APIs</strong><span>Deterministic operationId, strict enums, and self-correcting errors</span></a>
-          <a class="guide-row" href="./openapi-linter-and-style-guide.html"><strong>OpenAPI Linter, Diff &amp; GitHub Action</strong><span>Zero-dependency YAML checks, built-in presets, and SARIF 2.1.0 upload</span></a>
-          <a class="guide-row" href="./api-style-guides-compared.html"><strong>API Style Guides Compared</strong><span>Haufe-Lexware vs Zalando vs Google AIP vs executable CI rules</span></a>
+          <a class="guide-row" href="./rest-naming-and-methods.html"><strong>REST naming and methods</strong><span>Plural nouns, Merge Patch</span></a>
+          <a class="guide-row" href="./pagination-and-filtering.html"><strong>Pagination and filtering</strong><span>Cursors, OWASP bounds</span></a>
+          <a class="guide-row" href="./error-handling-rfc9457.html"><strong>RFC 9457 errors</strong><span>problem+json payloads</span></a>
+          <a class="guide-row" href="./versioning-idempotency-rate-limits.html"><strong>Versioning and rate limits</strong><span>Idempotency-Key, Sunset</span></a>
+          <a class="guide-row" href="./rest-vs-graphql-vs-grpc.html"><strong>REST vs GraphQL vs gRPC</strong><span>Protocol trade-offs</span></a>
+          <a class="guide-row" href="./api-security-owasp-checklist.html"><strong>OWASP API top 10</strong><span>BOLA scoping, ULIDs</span></a>
+          <a class="guide-row" href="./webhook-design-and-async-apis.html"><strong>Webhooks and async jobs</strong><span>HMAC signing, 202 polling</span></a>
+          <a class="guide-row" href="./ai-agent-ready-api-design.html"><strong>Agent and MCP readiness</strong><span>operationId, enums</span></a>
+          <a class="guide-row" href="./openapi-linter-and-style-guide.html"><strong>Linter, diff, and CI</strong><span>YAML checks, SARIF</span></a>
+          <a class="guide-row" href="./api-style-guides-compared.html"><strong>Style guides compared</strong><span>Haufe-Lexware, Zalando, AIP</span></a>
+          <a class="guide-row" href="./graphql-api-design-principles.html"><strong>GraphQL design</strong><span>Cursors, depth budgets</span></a>
+          <a class="guide-row" href="./grpc-and-protobuf-api-design.html"><strong>gRPC and Protobuf</strong><span>Reserved tags, deadlines</span></a>
+          <a class="guide-row" href="./idempotency-keys-implementation-guide.html"><strong>Idempotency keys</strong><span>SQL locks, 201 replays</span></a>
+          <a class="guide-row" href="./api-rate-limiting-algorithms-and-headers.html"><strong>Rate limit algorithms</strong><span>Token bucket, 429 headers</span></a>
+          <a class="guide-row" href="./api-caching-etag-and-304-guide.html"><strong>Caching and ETag</strong><span>Cache-Control, If-Match</span></a>
+          <a class="guide-row" href="./oauth2-pkce-jwt-and-api-keys.html"><strong>OAuth 2.1 and API keys</strong><span>PKCE S256, short JWTs</span></a>
+          <a class="guide-row" href="./openapi-31-vs-30-migration-guide.html"><strong>OpenAPI 3.1 migration</strong><span>JSON Schema, webhooks</span></a>
+          <a class="guide-row" href="./api-breaking-changes-and-contract-diff.html"><strong>Breaking change diff</strong><span>Tolerant Reader, enums</span></a>
+          <a class="guide-row" href="./batch-bulk-apis-and-partial-failures.html"><strong>Batch and 207 status</strong><span>maxItems caps, partial errors</span></a>
+          <a class="guide-row" href="./money-currency-and-iso8601-data-types.html"><strong>Money and timestamps</strong><span>Minor units, UTC dates</span></a>
+          <a class="guide-row" href="./api-deprecation-sunset-and-lifecycle.html"><strong>Deprecation and Sunset</strong><span>RFC 9745, 410 Gone</span></a>
+          <a class="guide-row" href="./api-observability-request-id-and-tracing.html"><strong>Observability and traces</strong><span>traceparent, X-Request-Id</span></a>
         </div>
       </div>
     </section>
@@ -363,7 +387,12 @@ with:
 
     const GOOD_DEMO = {
       openapi: "3.1.0",
-      info: { title: "Orders Reference API", version: "1.2.0" },
+      info: {
+        title: "Orders Reference API",
+        version: "1.2.0",
+        contact: { name: "Orders Platform Team", email: "api-platform@example.com" },
+        license: { name: "MIT" }
+      },
       servers: [{ url: "https://api.example.com/v1" }],
       security: [{ BearerAuth: [] }],
       components: {
@@ -375,7 +404,7 @@ with:
             properties: {
               type: { type: "string", format: "uri", maxLength: 256 },
               title: { type: "string", maxLength: 128 },
-              status: { type: "integer" }
+              status: { type: "integer", minimum: 400, maximum: 599 }
             }
           }
         },
@@ -406,6 +435,7 @@ with:
           get: {
             operationId: "listOrders",
             summary: "List paginated customer orders",
+            tags: ["Orders"],
             parameters: [
               { name: "cursor", in: "query", schema: { type: "string", maxLength: 128 } },
               { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 100 } }
@@ -413,6 +443,10 @@ with:
             responses: {
               "200": {
                 description: "Paginated orders",
+                headers: {
+                  "Cache-Control": { schema: { type: "string" } },
+                  "X-Request-Id": { schema: { type: "string", format: "uuid" } }
+                },
                 content: {
                   "application/json": {
                     schema: { type: "object", properties: { created_at: { type: "string", format: "date-time" } } },
@@ -427,6 +461,7 @@ with:
           post: {
             operationId: "createOrder",
             summary: "Create an order idempotently",
+            tags: ["Orders"],
             parameters: [
               { name: "Idempotency-Key", in: "header", required: true, schema: { type: "string", format: "uuid" } }
             ],
@@ -434,7 +469,7 @@ with:
               required: true,
               content: {
                 "application/json": {
-                  schema: { type: "object", properties: { sku: { type: "string", maxLength: 64 } } },
+                  schema: { type: "object", additionalProperties: false, properties: { sku: { type: "string", maxLength: 64 } } },
                   example: { sku: "SKU-PRO" }
                 }
               }
@@ -442,6 +477,7 @@ with:
             responses: {
               "201": {
                 description: "Created",
+                headers: { "X-Request-Id": { schema: { type: "string", format: "uuid" } } },
                 content: { "application/json": { schema: { type: "object" }, example: { id: "ord_01J9Z" } } }
               },
               "400": { $ref: "#/components/responses/ProblemBadRequest" },
@@ -456,6 +492,11 @@ with:
 info:
   title: Orders Reference API (YAML)
   version: 1.2.0
+  contact:
+    name: Orders Platform Team
+    email: api-platform@example.com
+  license:
+    name: MIT
 servers:
   - url: https://api.example.com/v1
 security:
@@ -465,6 +506,8 @@ paths:
     get:
       operationId: listOrders
       summary: List paginated customer orders
+      tags:
+        - Orders
       parameters:
         - name: cursor
           in: query
@@ -481,6 +524,12 @@ paths:
         "200":
           description: Paginated orders
           headers:
+            Cache-Control:
+              schema:
+                type: string
+            X-Request-Id:
+              schema:
+                type: string
             RateLimit-Remaining:
               schema:
                 type: integer
@@ -721,6 +770,14 @@ components:
         findings.push({ rule_id: id, severity: r.severity, location, message, standard_ref: r.standard_ref });
       };
 
+      const info = doc.info || {};
+      if (!info.contact || typeof info.contact !== "object" || Object.keys(info.contact).length === 0) {
+        add("ADP-033", "info.contact", "Specification info.contact metadata is missing.");
+      }
+      if (!info.license || typeof info.license !== "object" || Object.keys(info.license).length === 0) {
+        add("ADP-033", "info.license", "Specification info.license metadata is missing.");
+      }
+
       const servers = Array.isArray(doc.servers) ? doc.servers : [];
       let serverHasVer = false;
       servers.forEach((s, i) => {
@@ -731,10 +788,33 @@ components:
         if (/\/v\d+(?:\/|$)/i.test(u)) serverHasVer = true;
       });
 
-      const secSchemes = doc.components && doc.components.securitySchemes;
+      const comp = doc.components || {};
+      const secSchemes = comp.securitySchemes;
       if (!secSchemes || typeof secSchemes !== "object" || Object.keys(secSchemes).length === 0) {
         add("ADP-015", "components.securitySchemes", "No securitySchemes declared in components.");
       }
+
+      const snakeKeys = new Set(), camelKeys = new Set();
+      if (comp.schemas && typeof comp.schemas === "object") {
+        for (const [sn, sv] of Object.entries(comp.schemas)) {
+          if (!/^[A-Z][A-Za-z0-9]*$/.test(sn)) {
+            add("ADP-038", `components.schemas.${sn}`, `Schema name '${sn}' is not PascalCase.`);
+          }
+          const rs = resolveRef(doc, sv);
+          if (rs && rs.properties) {
+            for (const k of Object.keys(rs.properties)) {
+              if (/^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/.test(k)) snakeKeys.add(k);
+              else if (/^[a-z][a-z0-9]*[A-Z][A-Za-z0-9]*$/.test(k)) camelKeys.add(k);
+            }
+          }
+        }
+      }
+
+      const isMoneyKey = (n) => {
+        const l = n.toLowerCase();
+        if (l.endsWith("_minor") || l.endsWith("_cents")) return false;
+        return /^(amount|price|unit_price|total|subtotal|balance|fee|tax|discount|refund)$/.test(l) || /_(amount|price|total|fee|balance|tax)$/.test(l);
+      };
 
       const paths = doc.paths || {};
       const seenOpIds = new Map();
@@ -759,6 +839,7 @@ components:
           const segs = pStr.split("/").filter(Boolean);
           return segs.length > 0 && !(segs[segs.length - 1].startsWith("{") && segs[segs.length - 1].endsWith("}"));
         })();
+        const pathVars = [...pStr.matchAll(/\{([^}]+)\}/g)].map(m => m[1]);
 
         for (const m of ["get", "post", "put", "patch", "delete", "head"]) {
           const op = pItem[m];
@@ -766,11 +847,13 @@ components:
           ops += 1;
           const M = m.toUpperCase();
           const opLoc = `${M} ${pStr}`;
+          const isBatch = M === "POST" && (/(:batch|\/batch)$/i.test(pStr));
 
           if (!op.operationId) add("ADP-017", opLoc, "Missing operationId.");
           else if (seenOpIds.has(op.operationId)) add("ADP-017", opLoc, `Duplicate operationId '${op.operationId}'.`);
           else seenOpIds.set(op.operationId, opLoc);
           if (!op.summary) add("ADP-017", opLoc, "Missing concise operation summary.");
+          if (!Array.isArray(op.tags) || op.tags.length === 0) add("ADP-033", opLoc, "Operation defines no domain tags.");
 
           if (!op.security && !doc.security && secSchemes && Object.keys(secSchemes).length > 0) {
             add("ADP-015", opLoc, "Operation has no security applied.");
@@ -779,10 +862,22 @@ components:
           const params = [...(pItem.parameters || []), ...(op.parameters || [])].map(x => resolveRef(doc, x)).filter(Boolean);
           const pNames = new Set(params.map(x => String(x.name || "")));
           const hdrsLower = new Set(params.filter(x => String(x.in || "").toLowerCase() === "header").map(x => String(x.name || "").toLowerCase()));
+          const pathParams = Object.fromEntries(params.filter(x => String(x.in || "").toLowerCase() === "path").map(x => [x.name, x]));
+          for (const pv of pathVars) {
+            if (!pathParams[pv] || pathParams[pv].required !== true) {
+              add("ADP-036", opLoc, `Path variable '{${pv}}' lacks an in: path parameter with required: true.`);
+            }
+          }
 
           for (const prm of params) {
             if (String(prm.in || "").toLowerCase() === "query" && SENSITIVE_Q.has(String(prm.name || "").toLowerCase())) {
               add("ADP-016", `${opLoc} (query:${prm.name})`, `Sensitive credential '${prm.name}' in query string; move to Authorization header.`);
+            }
+            const ps = resolveRef(doc, prm.schema);
+            if (String(prm.in || "").toLowerCase() === "query" && ps && (ps.type === "integer" || ps.type === "number")) {
+              if (ps.minimum === undefined || ps.maximum === undefined) {
+                add("ADP-034", `${opLoc} (query:${prm.name})`, `Numeric query parameter '${prm.name}' lacks minimum/maximum bounds.`);
+              }
             }
           }
 
@@ -803,16 +898,34 @@ components:
           if (reqBody && reqBody.content) {
             for (const [mt, mObj] of Object.entries(reqBody.content)) {
               if (!mObj || typeof mObj !== "object") continue;
+              const mtClean = mt.split(";")[0].trim().toLowerCase();
+              if (mtClean === "*/*" || mtClean === "text/plain") {
+                add("ADP-037", `${opLoc} requestBody (${mt})`, `Use structured media types instead of '${mt}'.`);
+              }
               const sch = resolveRef(doc, mObj.schema);
               if (!("example" in mObj) && !("examples" in mObj) && !(sch && ("example" in sch || "examples" in sch))) {
                 add("ADP-019", `${opLoc} requestBody (${mt})`, "Request body lacks an example payload.");
               }
+              if (sch && sch.type === "object" && sch.properties && Object.keys(sch.properties).length > 0 && sch.additionalProperties !== false) {
+                add("ADP-035", `${opLoc}.requestBody`, "Input object schema omits additionalProperties: false.");
+              }
               if (sch && sch.properties) {
                 for (const [pk, pvRaw] of Object.entries(sch.properties)) {
                   const pv = resolveRef(doc, pvRaw);
+                  if (/^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/.test(pk)) snakeKeys.add(pk);
+                  else if (/^[a-z][a-z0-9]*[A-Z][A-Za-z0-9]*$/.test(pk)) camelKeys.add(pk);
                   if (pv && pv.type === "array" && pv.maxItems === undefined) add("ADP-021", `${opLoc}.requestBody.${pk}`, "Unbounded input array (missing maxItems).");
+                  if (isBatch && pv && pv.type === "array" && (typeof pv.maxItems !== "number" || pv.maxItems > 100)) {
+                    add("ADP-039", `${opLoc}.requestBody.${pk}`, "Batch array input must enforce maxItems <= 100.");
+                  }
                   if (pv && pv.type === "string" && pv.maxLength === undefined && !pv.enum && !["uuid","date","date-time","email"].includes(pv.format)) {
                     add("ADP-021", `${opLoc}.requestBody.${pk}`, "Unbounded input string (missing maxLength).");
+                  }
+                  if (pv && (pv.type === "integer" || pv.type === "number") && (pv.minimum === undefined || pv.maximum === undefined)) {
+                    add("ADP-034", `${opLoc}.requestBody.${pk}`, `Numeric field '${pk}' lacks minimum/maximum bounds.`);
+                  }
+                  if (pv && isMoneyKey(pk) && (pv.type === "number" || pv.format === "float" || pv.format === "double")) {
+                    add("ADP-029", `${opLoc}.requestBody.${pk}`, `Money field '${pk}' uses float/number; use integer minor units.`);
                   }
                 }
               }
@@ -826,6 +939,9 @@ components:
           }
           if (M === "DELETE" && !codes.includes("204") && !codes.includes("202")) {
             add("ADP-006", opLoc, "DELETE should document 204 No Content or 202 Accepted.");
+          }
+          if (isBatch && !codes.includes("207") && !codes.includes("202")) {
+            add("ADP-039", opLoc, "Batch POST should document 207 Multi-Status for partial failures.");
           }
           if (!codes.some(c => c.startsWith("4") || c === "4XX" || c === "default")) {
             add("ADP-009", opLoc, "No explicit 4xx or default error responses documented.");
@@ -848,6 +964,21 @@ components:
             add("ADP-013", opLoc, "Missing 429 Too Many Requests or RateLimit/Retry-After headers.");
           }
 
+          const hasCorr = codes.some(c => {
+            const ro = resolveRef(doc, resps[c]);
+            return ro && ro.headers && Object.keys(ro.headers).some(h => /^(x-request-id|request-id|traceparent|x-correlation-id)$/i.test(h));
+          });
+          if (!hasCorr) {
+            add("ADP-030", opLoc, "Operation responses lack X-Request-Id or traceparent correlation headers.");
+          }
+          if (M === "GET" && codes.includes("200")) {
+            const r200 = resolveRef(doc, resps["200"]);
+            const hdrs200 = (r200 && r200.headers) ? Object.keys(r200.headers).map(h => h.toLowerCase()) : [];
+            if (!hdrs200.includes("cache-control") && !hdrs200.includes("etag")) {
+              add("ADP-028", `${opLoc} (200)`, "GET 200 response declares neither Cache-Control nor ETag header.");
+            }
+          }
+
           if (M === "GET" && isColl) {
             const hasPage = [...pNames].some(n => PAGE_P.has(n));
             if (!hasPage) add("ADP-010", opLoc, "Collection GET lacks pagination parameters (cursor/limit).");
@@ -864,6 +995,10 @@ components:
             if (!hasSunset) add("ADP-018", opLoc, "Deprecated operation lacks Sunset/Deprecation headers (RFC 8594).");
           }
         }
+      }
+
+      if (snakeKeys.size > 0 && camelKeys.size > 0) {
+        add("ADP-038", "components.schemas", "Mixed snake_case and camelCase JSON property naming detected.");
       }
 
       const errors = findings.filter(f => f.severity === "error").length;
@@ -894,7 +1029,7 @@ components:
 
       const tbody = document.getElementById("violations-body");
       if (res.findings.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5"><span class="pill pill-pass">Pass</span> Zero violations detected across all 22 automated API design checks.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5"><span class="pill pill-pass">Pass</span> Zero violations detected across all 32 automated API design checks.</td></tr>`;
         return;
       }
       tbody.innerHTML = res.findings.map(f => `
@@ -964,12 +1099,12 @@ components:
       if (!lastReport) return;
       const lines = [
         `## API Design Principles Validation Report: ${lastReport.title}`,
-        `- Score: \`${lastReport.score}/100\` (**${lastReport.passed ? "PASS" : "FAIL"}**)`,
+        `- Score: \`${lastReport.score}/100\` (${lastReport.passed ? "PASS" : "FAIL"})`,
         `- Errors: ${lastReport.errors}, Warnings: ${lastReport.warnings}`,
         "",
         "| Severity | Rule | Location | Violation | Standard |",
         "| :--- | :--- | :--- | :--- | :--- |",
-        ...lastReport.findings.map(f => `| \`${f.severity.toUpperCase()}\` | **${f.rule_id}** | \`${f.location}\` | ${f.message} | ${f.standard_ref} |`)
+        ...lastReport.findings.map(f => `| \`${f.severity.toUpperCase()}\` | \`${f.rule_id}\` | \`${f.location}\` | ${f.message} | ${f.standard_ref} |`)
       ];
       const blob = new Blob([lines.join("\n")], { type: "text/markdown" });
       const a = document.createElement("a");

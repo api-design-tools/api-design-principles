@@ -3,6 +3,11 @@ info:
   title: Orders Reference API (YAML)
   version: 1.2.0
   description: YAML OpenAPI 3.1 specification parsed with zero external dependencies.
+  contact:
+    name: Orders Platform Team
+    email: api-platform@example.com
+  license:
+    name: MIT
 servers:
   - url: https://api.example.com/v1
     description: Production API v1
@@ -13,6 +18,8 @@ paths:
     get:
       operationId: listOrders
       summary: List paginated customer orders
+      tags:
+        - Orders
       parameters:
         - name: cursor
           in: query
@@ -31,6 +38,12 @@ paths:
         "200":
           description: Paginated list of orders
           headers:
+            Cache-Control:
+              schema:
+                type: string
+            X-Request-Id:
+              schema:
+                type: string
             RateLimit-Remaining:
               schema:
                 type: integer
@@ -52,6 +65,8 @@ paths:
     post:
       operationId: createOrder
       summary: Create a new order idempotently
+      tags:
+        - Orders
       parameters:
         - name: Idempotency-Key
           in: header
@@ -65,6 +80,7 @@ paths:
           application/json:
             schema:
               type: object
+              additionalProperties: false
               required:
                 - currency
               properties:
@@ -77,6 +93,10 @@ paths:
       responses:
         "201":
           description: Order created
+          headers:
+            X-Request-Id:
+              schema:
+                type: string
           content:
             application/json:
               schema:

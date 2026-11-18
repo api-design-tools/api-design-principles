@@ -1,0 +1,15 @@
+{
+  "organization": "preset:zalando",
+  "ruleset_name": "Zalando RESTful API Guidelines Profile (2026)",
+  "fail_on": "error",
+  "allowed_version_prefixes": ["/v1", "/v2"],
+  "ignore_paths": ["/health", "/healthz", "/metrics"],
+  "disabled_rules": [],
+  "severity_overrides": {
+    "ADP-002": "error",
+    "ADP-008": "error",
+    "ADP-030": "warning",
+    "ADP-033": "error",
+    "ADP-038": "warning"
+  }
+}

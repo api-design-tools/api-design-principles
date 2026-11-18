@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OAuth 2.1, PKCE, Short-Lived JWTs &amp; API Keys (2026)</title>
+  <meta name="description" content="Modern API authentication architecture: RFC 9700 OAuth 2.1 Authorization Code with S256 PKCE, short-lived JWT access tokens, JWKS rotation, and prefixed API keys (ADP-043)." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/oauth2-pkce-jwt-and-api-keys.html" />
+  <meta property="og:title" content="OAuth 2.1, PKCE, Short-Lived JWTs &amp; API Keys (2026)" />
+  <meta property="og:description" content="Authorization Code + PKCE, rotating refresh tokens, JWKS verification, and SHA-256 hashed API keys." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/oauth2-pkce-jwt-and-api-keys.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&amp;family=Atkinson+Hyperlegible+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "OAuth 2.1, PKCE, Short-Lived JWTs & API Keys (2026)",
+    "datePublished": "2026-11-18",
+    "dateModified": "2026-11-18",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/oauth2-pkce-jwt-and-api-keys.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "OAuth 2.1 & API Keys", "item": "https://api-design-tools.github.io/api-design-principles/oauth2-pkce-jwt-and-api-keys.html" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="container site-nav" aria-label="Primary">
+      <a class="brand" href="./">api-design-principles</a>
+      <div class="nav-links">
+        <a href="./">Live validator</a>
+        <a href="./api-security-owasp-checklist.html">Security</a>
+        <a href="./webhook-design-and-async-apis.html">Webhooks</a>
+        <a href="./idempotency-keys-implementation-guide.html">Idempotency</a>
+        <a href="./openapi-linter-and-style-guide.html">Linter CLI</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="article-hero">
+      <div class="container">
+        <h1>OAuth 2.1, PKCE, and API keys</h1>
+        <p class="lead">RFC 9700 user flows, short-lived JWTs, and hashed machine credentials under <code>ADP-043</code>.</p>
+      </div>
+    </section>
+
+    <section class="section section--deep">
+      <div class="container">
+        <div class="section-head">
+          <h2>Credential design defaults</h2>
+          <p>Separate interactive user delegation from server-to-server integration keys.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="responsive-table">
+            <thead><tr><th>Mechanism</th><th>Recommended standard</th><th>Lifetime &amp; storage</th><th>Rule</th></tr></thead>
+            <tbody>
+              <tr><td>User-facing OAuth flow</td><td>Auth Code + S256 PKCE</td><td>Access token 5 to 15 min</td><td><code>ADP-043</code></td></tr>
+              <tr><td>Refresh tokens</td><td>Single-use rotation</td><td>Reuse triggers family revocation</td><td><code>ADP-043</code></td></tr>
+              <tr><td>JWT verification</td><td>EdDSA or RS256 JWKS</td><td>Key rotation via <code>kid</code> claim</td><td><code>ADP-043</code></td></tr>
+              <tr><td>Machine API keys</td><td>Prefixed token + scopes</td><td>Salted SHA-256 hash in DB</td><td><code>ADP-016</code></td></tr>
+              <tr><td>Transport security</td><td>Bearer or header auth only</td><td>No query string secrets</td><td><code>ADP-015</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container article-stack">
+        <h2>OpenAPI 3.1 security scheme block</h2>
+        <div class="code-panel"><pre>"securitySchemes": {
+  "BearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" },
+  "ApiKeyHeader": { "type": "apiKey", "in": "header", "name": "X-API-Key" }
+}</pre></div>
+
+        <div class="note-panel">
+          <h2>Pair auth with tenant scoping</h2>
+          <p>Run <code>--preset owasp-api-top10</code> and follow object authorization rules in the <a class="inline-link" href="./api-security-owasp-checklist.html">OWASP API Security Checklist</a>.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>api-design-tools / api-design-principles (Verified 2026-11-18)</span>
+      <div class="footer-links">
+        <a href="./">Live validator</a>
+        <a href="./llms.txt">llms.txt</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

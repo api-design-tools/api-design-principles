@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API Breaking Changes &amp; OpenAPI Contract Diff Guide (2026)</title>
+  <meta name="description" content="Classify breaking vs additive OpenAPI schema changes automatically in pull requests using Tolerant Reader rules and api_validator.py --diff (ADP-027)." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/api-breaking-changes-and-contract-diff.html" />
+  <meta property="og:title" content="API Breaking Changes &amp; OpenAPI Contract Diff Guide (2026)" />
+  <meta property="og:description" content="Detect removed routes, narrowed enums, new required fields, and type changes in OpenAPI pull requests." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/api-breaking-changes-and-contract-diff.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&amp;family=Atkinson+Hyperlegible+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "API Breaking Changes & OpenAPI Contract Diff Guide (2026)",
+    "datePublished": "2026-11-18",
+    "dateModified": "2026-11-18",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/api-breaking-changes-and-contract-diff.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "Contract Diff", "item": "https://api-design-tools.github.io/api-design-principles/api-breaking-changes-and-contract-diff.html" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="container site-nav" aria-label="Primary">
+      <a class="brand" href="./">api-design-principles</a>
+      <div class="nav-links">
+        <a href="./">Live validator</a>
+        <a href="./versioning-idempotency-rate-limits.html">Versioning</a>
+        <a href="./api-deprecation-sunset-and-lifecycle.html">Deprecation</a>
+        <a href="./openapi-31-vs-30-migration-guide.html">OpenAPI 3.1</a>
+        <a href="./openapi-linter-and-style-guide.html">Linter CLI</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="article-hero">
+      <div class="container">
+        <h1>Breaking changes and contract diff</h1>
+        <p class="lead">Tolerant Reader guarantees enforced with <code>--diff</code> under <code>ADP-027</code>.</p>
+      </div>
+    </section>
+
+    <section class="section section--deep">
+      <div class="container">
+        <div class="section-head">
+          <h2>Classification matrix in api_validator.py --diff</h2>
+          <p>Guard minor releases so existing typed SDKs never break on upgrade.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="responsive-table">
+            <thead><tr><th>Schema edit</th><th>Classification</th><th>Impact on clients</th></tr></thead>
+            <tbody>
+              <tr><td>Delete path or HTTP method</td><td>Breaking</td><td>Existing routes return <code>404</code> or <code>405</code></td></tr>
+              <tr><td>Add required query/header/body field</td><td>Breaking</td><td>Unchanged client requests rejected with <code>400</code></td></tr>
+              <tr><td>Change property or parameter type</td><td>Breaking</td><td>Generated JSON decoders raise type errors</td></tr>
+              <tr><td>Remove enum value on input</td><td>Breaking</td><td>Previously valid enum choices fail validation</td></tr>
+              <tr><td>Add optional response property or new route</td><td>Non-breaking</td><td>Tolerant JSON parsers ignore new fields</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container article-stack">
+        <h2>Pull request diff gate</h2>
+        <div class="code-panel"><pre>git show origin/main:openapi.json &gt; /tmp/base.openapi.json
+python3 api_validator.py --diff /tmp/base.openapi.json openapi.json --format markdown</pre></div>
+
+        <div class="note-panel">
+          <h2>Version breaking shifts cleanly</h2>
+          <p>Move unavoidable type or contract breaks onto a new major prefix such as <code>/v2</code> and publish a <a class="inline-link" href="./api-deprecation-sunset-and-lifecycle.html">Sunset lifecycle plan</a>.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>api-design-tools / api-design-principles (Verified 2026-11-18)</span>
+      <div class="footer-links">
+        <a href="./">Live validator</a>
+        <a href="./llms.txt">llms.txt</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

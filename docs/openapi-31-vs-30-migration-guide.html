@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenAPI 3.1 vs 3.0 Migration Guide: JSON Schema &amp; Webhooks (2026)</title>
+  <meta name="description" content="Upgrade from OpenAPI 3.0.x to 3.1.0: replace nullable with type arrays, adopt JSON Schema 2020-12 keywords, and document top-level webhooks (ADP-040)." />
+  <link rel="canonical" href="https://api-design-tools.github.io/api-design-principles/openapi-31-vs-30-migration-guide.html" />
+  <meta property="og:title" content="OpenAPI 3.1 vs 3.0 Migration Guide (2026)" />
+  <meta property="og:description" content="JSON Schema 2020-12 alignment, type nullable arrays, numeric exclusiveMinimum, and top-level webhooks." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://api-design-tools.github.io/api-design-principles/openapi-31-vs-30-migration-guide.html" />
+  <meta property="og:image" content="https://api-design-tools.github.io/api-design-principles/assets/preview.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&amp;family=Atkinson+Hyperlegible+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "OpenAPI 3.1 vs 3.0 Migration Guide: JSON Schema & Webhooks (2026)",
+    "datePublished": "2026-11-18",
+    "dateModified": "2026-11-18",
+    "author": { "@type": "Organization", "name": "api-design-tools" },
+    "mainEntityOfPage": "https://api-design-tools.github.io/api-design-principles/openapi-31-vs-30-migration-guide.html"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "API Design Principles", "item": "https://api-design-tools.github.io/api-design-principles/" },
+      { "@type": "ListItem", "position": 2, "name": "OpenAPI 3.1 Migration", "item": "https://api-design-tools.github.io/api-design-principles/openapi-31-vs-30-migration-guide.html" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="container site-nav" aria-label="Primary">
+      <a class="brand" href="./">api-design-principles</a>
+      <div class="nav-links">
+        <a href="./">Live validator</a>
+        <a href="./openapi-linter-and-style-guide.html">Linter CLI</a>
+        <a href="./webhook-design-and-async-apis.html">Webhooks</a>
+        <a href="./api-breaking-changes-and-contract-diff.html">Contract diff</a>
+        <a href="./ai-agent-ready-api-design.html">Agent readiness</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="article-hero">
+      <div class="container">
+        <h1>OpenAPI 3.1 vs 3.0 migration</h1>
+        <p class="lead">JSON Schema 2020-12 alignment, nullable arrays, and top-level webhooks under <code>ADP-040</code>.</p>
+      </div>
+    </section>
+
+    <section class="section section--deep">
+      <div class="container">
+        <div class="section-head">
+          <h2>Breaking syntax shifts in 3.1</h2>
+          <p>Update these fields when changing the top-level version to <code>3.1.0</code>.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="responsive-table">
+            <thead><tr><th>Feature</th><th>OpenAPI 3.0.x</th><th>OpenAPI 3.1.0</th><th>Rule</th></tr></thead>
+            <tbody>
+              <tr><td>Nullable types</td><td><code>nullable: true</code></td><td><code>type: ["string", "null"]</code></td><td><code>ADP-038</code></td></tr>
+              <tr><td>Exclusive minimum</td><td><code>exclusiveMinimum: true</code> + <code>minimum</code></td><td><code>exclusiveMinimum: 0</code></td><td><code>ADP-034</code></td></tr>
+              <tr><td>Constants</td><td>Single-item <code>enum</code></td><td><code>const: "v1"</code></td><td><code>ADP-032</code></td></tr>
+              <tr><td>Async webhook events</td><td>Ad-hoc callbacks or markdown docs</td><td>Top-level <code>webhooks:</code> map</td><td><code>ADP-040</code></td></tr>
+              <tr><td>Ownership metadata</td><td><code>info.contact</code>, <code>info.license</code></td><td>Adds <code>info.summary</code> + SPDX <code>identifier</code></td><td><code>ADP-033</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container article-stack">
+        <h2>Top-level webhook declaration</h2>
+        <div class="code-panel"><pre>openapi: 3.1.0
+webhooks:
+  orderPaid:
+    post:
+      operationId: onOrderPaid
+      summary: Emitted when order settlement finishes</pre></div>
+
+        <div class="note-panel">
+          <h2>Validate 3.0 and 3.1 side by side</h2>
+          <p><code>api_validator.py</code> validates both OpenAPI 3.0.x and 3.1.0 specs in JSON or YAML via the <a class="inline-link" href="./#validator">Browser Validator</a>.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>api-design-tools / api-design-principles (Verified 2026-11-18)</span>
+      <div class="footer-links">
+        <a href="./">Live validator</a>
+        <a href="./llms.txt">llms.txt</a>
+        <a href="https://github.com/api-design-tools/api-design-principles">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

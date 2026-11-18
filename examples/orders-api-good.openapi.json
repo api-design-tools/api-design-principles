@@ -3,7 +3,16 @@
   "info": {
     "title": "Orders Reference API",
     "version": "1.2.0",
-    "description": "Reference OpenAPI 3.1 specification compliant with all 22 automated API Design Principles rules."
+    "description": "Reference OpenAPI 3.1 specification compliant with all 32 automated API Design Principles rules.",
+    "contact": {
+      "name": "Orders Platform Team",
+      "email": "api-platform@example.com",
+      "url": "https://api.example.com/support"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
   },
   "servers": [
     {
@@ -48,6 +57,8 @@
           "200": {
             "description": "Paginated list of orders",
             "headers": {
+              "Cache-Control": { "schema": { "type": "string" } },
+              "X-Request-Id": { "schema": { "type": "string", "format": "uuid" } },
               "RateLimit-Limit": { "schema": { "type": "integer" } },
               "RateLimit-Remaining": { "schema": { "type": "integer" } },
               "RateLimit-Reset": { "schema": { "type": "integer" } }
@@ -112,6 +123,9 @@
               },
               "ETag": {
                 "schema": { "type": "string" }
+              },
+              "X-Request-Id": {
+                "schema": { "type": "string", "format": "uuid" }
               }
             },
             "content": {
@@ -151,7 +165,9 @@
           "200": {
             "description": "Order details",
             "headers": {
-              "ETag": { "schema": { "type": "string" } }
+              "Cache-Control": { "schema": { "type": "string" } },
+              "ETag": { "schema": { "type": "string" } },
+              "X-Request-Id": { "schema": { "type": "string", "format": "uuid" } }
             },
             "content": {
               "application/json": {
@@ -203,7 +219,8 @@
           "200": {
             "description": "Updated order",
             "headers": {
-              "ETag": { "schema": { "type": "string" } }
+              "ETag": { "schema": { "type": "string" } },
+              "X-Request-Id": { "schema": { "type": "string", "format": "uuid" } }
             },
             "content": {
               "application/json": {
@@ -238,7 +255,10 @@
         ],
         "responses": {
           "204": {
-            "description": "Order cancelled and archived"
+            "description": "Order cancelled and archived",
+            "headers": {
+              "X-Request-Id": { "schema": { "type": "string", "format": "uuid" } }
+            }
           },
           "401": { "$ref": "#/components/responses/ProblemUnauthorized" },
           "404": { "$ref": "#/components/responses/ProblemNotFound" },
@@ -281,6 +301,7 @@
       },
       "OrderItemInput": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["sku", "quantity", "unit_price_minor"],
         "properties": {
           "sku": { "type": "string", "minLength": 1, "maxLength": 64 },
@@ -290,6 +311,7 @@
       },
       "CreateOrderRequest": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["currency", "items"],
         "properties": {
           "currency": { "type": "string", "minLength": 3, "maxLength": 3, "example": "USD" },
@@ -303,6 +325,7 @@
       },
       "UpdateOrderRequest": {
         "type": "object",
+        "additionalProperties": false,
         "properties": {
           "status": { "type": "string", "enum": ["cancelled"] }
         }
