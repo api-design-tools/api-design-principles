@@ -1,8 +1,8 @@
-# REST API Naming Conventions & HTTP Method Semantics (2026)
+# REST API naming conventions and HTTP method semantics (2026)
 
 Back to [API Design Principles](../README.md) | Web version: [rest-naming-and-methods.html](https://api-design-tools.github.io/api-design-principles/rest-naming-and-methods.html)
 
-Static API style guides tell developers to use nouns instead of verbs, yet production OpenAPI specs still ship with `/getUserOrders/`, `/createOrder`, and `GET` endpoints carrying JSON request bodies. This reference pairs RFC 9110 rules with automated OpenAPI checks (`ADP-001` through `ADP-007`, `ADP-020`).
+Static style guides recommend resource nouns in prose, yet production OpenAPI specs still ship with `/getUserOrders/`, `/createOrder`, and `GET` endpoints carrying JSON request bodies. This reference pairs RFC 9110 rules with automated OpenAPI checks (`ADP-001` through `ADP-007`, `ADP-020`).
 
 ## 1. Resource naming rules (`ADP-001`, `ADP-002`, `ADP-003`)
 

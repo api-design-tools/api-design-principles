@@ -1,4 +1,4 @@
-# API Error Handling with RFC 9457 Problem Details & HTTP Status Codes (2026)
+# Error handling with RFC 9457 problem details and HTTP status codes (2026)
 
 Back to [API Design Principles](../README.md) | Web version: [error-handling-rfc9457.html](https://api-design-tools.github.io/api-design-principles/error-handling-rfc9457.html)
 

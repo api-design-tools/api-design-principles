@@ -1,4 +1,4 @@
-# Webhook Design & Async API Patterns (2026)
+# Webhook design and async API patterns (2026)
 
 Back to [API Design Principles](../README.md) | Web version: [webhook-design-and-async-apis.html](https://api-design-tools.github.io/api-design-principles/webhook-design-and-async-apis.html)
 

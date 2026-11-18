@@ -1,6 +1,6 @@
 <div align="center">
 
-# API Design Principles, REST Style Guide & OpenAPI Validator (2026)
+# API design principles, REST style guide, and OpenAPI validator (2026)
 
 Standards-backed REST API design rules paired with a zero-dependency OpenAPI 3.0/3.1 JSON and YAML validator, breaking-change diff checker, GitHub Action, and CI violation reports.
 
@@ -149,7 +149,7 @@ Running `python3 api_validator.py --spec examples/orders-api-bad.openapi.json --
 ```markdown
 ## API Design Principles Validation Report
 
-### `examples/orders-api-bad.openapi.json` (Legacy Anti-Pattern Orders API): **FAIL**, Score `0/100`
+### `examples/orders-api-bad.openapi.json` (Legacy Anti-Pattern Orders API): FAIL, Score `0/100`
 
 - OpenAPI Version: `3.0.3` | Operations Checked: `4`
 ```
@@ -206,7 +206,7 @@ Static style guides document rules for human reading. This repository ships both
 ### Does the OpenAPI validator require Node.js, Docker, or pip packages?
 No. `api_validator.py` runs on Python 3.9+ standard library alone for both JSON and YAML OpenAPI specs (and uses `PyYAML` automatically if already installed).
 
-### Why use RFC 9457 instead of RFC 7807?
+### Why upgrade from RFC 7807 to RFC 9457?
 RFC 9457 (published in 2023) obsoleted RFC 7807. It keeps the `application/problem+json` media type and `type`/`title`/`status`/`detail`/`instance` members while clarifying multiple problem types and extension fields.
 
 ### How can a team enforce custom rules across multiple repositories?

@@ -1,4 +1,4 @@
-# REST vs GraphQL vs gRPC vs Webhooks & SSE (2026)
+# REST vs GraphQL vs gRPC vs webhooks and SSE (2026)
 
 Back to [API Design Principles](../README.md) | Web version: [rest-vs-graphql-vs-grpc.html](https://api-design-tools.github.io/api-design-principles/rest-vs-graphql-vs-grpc.html)
 

@@ -1,4 +1,4 @@
-# OpenAPI Linter, Breaking-Change Diff & GitHub Action Guide (2026)
+# OpenAPI linter, contract diff, and GitHub Action guide (2026)
 
 Back to [API Design Principles](../README.md) | Web version: [openapi-linter-and-style-guide.html](https://api-design-tools.github.io/api-design-principles/openapi-linter-and-style-guide.html)
 
@@ -22,12 +22,13 @@ python3 api_validator.py --spec openapi.json --format sarif --output api-lint.sa
 
 ## 2. Built-in rule presets (`presets/`)
 
-| Preset (`--preset`) | Focus | Key Overrides |
+| Preset (`--preset`) | Focus | Rule overrides |
 | :--- | :--- | :--- |
 | `google-aip` | URI & resource consistency | Promotes `ADP-002` (kebab-case), `ADP-011` (cursor pagination), `ADP-017` (`operationId`) to `error` |
 | `stripe-style` | Payments & developer UX | Promotes `ADP-012` (`Idempotency-Key`), `ADP-013` (`429`), `ADP-019` (examples) to `error` |
-| `owasp-api-top10` | Security-only gate | Enforces HTTPS (`ADP-014`), auth (`ADP-015`/`016`), pagination (`ADP-010`), bounded inputs (`ADP-021`) |
+| `owasp-api-top10` | Security-only gate | Enforces HTTPS (`ADP-014`), auth (`ADP-015`/`016`), pagination (`ADP-010`), bounded inputs (`ADP-021`, `ADP-034`, `ADP-035`) |
 | `strict-public-api` | Public SaaS / release gate | Fails on warnings (`fail_on: warning`) and promotes naming/docs checks to `error` |
+| `zalando` | Zalando RESTful style | Promotes `ADP-002`, `ADP-008`, `ADP-033`, `ADP-038` (`X-Request-Id` warning) |
 
 ## 3. GitHub Action with SARIF upload & PR diff
 

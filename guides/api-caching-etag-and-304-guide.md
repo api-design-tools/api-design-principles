@@ -29,4 +29,4 @@ ETag: "v3-8a9d2f1c"
 Cache-Control: private, max-age=0, must-revalidate
 ```
 
-On updates, require the client to send `If-Match: "v3-8a9d2f1c"` on `PATCH` or `PUT`. If another worker modified the row in between, return `412 Precondition Failed` (`application/problem+json`) instead of silently overwriting newer fields.
+On updates, require the client to send `If-Match: "v3-8a9d2f1c"` on `PATCH` or `PUT`. If another worker modified the row in between, return `412 Precondition Failed` (`application/problem+json`) so older requests never overwrite newer fields.

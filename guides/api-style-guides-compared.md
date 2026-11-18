@@ -1,8 +1,8 @@
-# API Style Guides Compared: Haufe-Lexware vs Zalando vs Google AIP vs Executable Rules (2026)
+# Comparing public REST API style guides and linters (2026)
 
 Back to [API Design Principles](../README.md) | Web version: [api-style-guides-compared.html](https://api-design-tools.github.io/api-design-principles/api-style-guides-compared.html)
 
-Engineering teams adopting REST standards usually look at three well-known references: Haufe-Lexware API Style Guide, Zalando RESTful API and Event Guidelines, and Google API Improvement Proposals (AIP). Reading a style guide is a good start, yet human code reviewers miss inconsistent error formats, missing `Idempotency-Key` headers, and unbounded arrays under sprint deadlines.
+Engineering teams adopting REST standards usually look at three public references: Haufe-Lexware API Style Guide, Zalando RESTful API and Event Guidelines, and Google API Improvement Proposals (AIP). Reading a style guide helps during onboarding, though human reviewers still miss inconsistent error formats, missing `Idempotency-Key` headers, and unbounded arrays under sprint deadlines.
 
 ## 1. Feature & enforcement comparison
 
@@ -20,4 +20,4 @@ Engineering teams adopting REST standards usually look at three well-known refer
 1. Pick the preset closest to your architecture (`--preset google-aip` or `--preset stripe-style`).
 2. Copy [`.api-rules.example.json`](../.api-rules.example.json) as `.api-rules.json` in your platform repository and list any intentional legacy exceptions in `disabled_rules` or `ignore_paths`.
 3. Add `uses: api-design-tools/api-design-principles@v1` with `fail-on: warning` for new services and `fail-on: error` for existing APIs.
-4. Review the generated `api-design-report.md` in Pull Requests instead of arguing about casing and status codes in code review comments.
+4. Review the generated `api-design-report.md` in Pull Requests while automated checks catch casing and status-code drift.

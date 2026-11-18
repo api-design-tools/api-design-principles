@@ -1,4 +1,4 @@
-# Contributing to API Design Principles & OpenAPI Validator
+# Contributing to api-design-principles
 
 Thank you for helping keep API Design Principles (`api-design-principles`) practical, standards-backed, and enforceable in CI/CD.
 

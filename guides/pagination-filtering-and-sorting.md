@@ -1,4 +1,4 @@
-# API Pagination, Filtering & Sorting Design Guide (2026)
+# API pagination, filtering, and sorting design (2026)
 
 Back to [API Design Principles](../README.md) | Web version: [pagination-and-filtering.html](https://api-design-tools.github.io/api-design-principles/pagination-and-filtering.html)
 
@@ -56,4 +56,4 @@ Authorization: Bearer <token>
 
 ## 3. Filtering and deterministic sorting
 
-Use clear query keys with explicit operator suffixes for range filters (`?status=paid&created_after=2026-11-01T00:00:00Z`), bound multi-value enums with `maxItems`, and always include a unique tie-breaker column in `ORDER BY` (`?sort=-created_at,id`). Reject unknown query keys with `400 Bad Request` (`application/problem+json`) instead of silently ignoring typos like `?stauts=paid`.
+Use clear query keys with explicit operator suffixes for range filters (`?status=paid&created_after=2026-11-01T00:00:00Z`), bound multi-value enums with `maxItems`, and include a unique tie-breaker column in `ORDER BY` (`?sort=-created_at,id`). Reject unknown query keys with `400 Bad Request` (`application/problem+json`) so typos like `?stauts=paid` fail fast.

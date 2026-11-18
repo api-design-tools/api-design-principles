@@ -1,4 +1,4 @@
-# API Versioning, Idempotency Keys & Rate Limiting (2026)
+# API versioning, idempotency keys, and rate limiting (2026)
 
 Back to [API Design Principles](../README.md) | Web version: [versioning-idempotency-rate-limits.html](https://api-design-tools.github.io/api-design-principles/versioning-idempotency-rate-limits.html)
 

@@ -55,7 +55,7 @@
   <main>
     <section class="article-hero">
       <div class="container">
-        <h1>gRPC and Protobuf contracts</h1>
+        <h1>gRPC and Protobuf compatibility rules</h1>
         <p class="lead">Wire-compatible tag reservation, deadlines, and typed status errors under <code>ADP-042</code>.</p>
       </div>
     </section>
@@ -64,7 +64,7 @@
       <div class="container">
         <div class="section-head">
           <h2>Protobuf compatibility rules</h2>
-          <p>Binary Protobuf encodes field numbers instead of JSON keys.</p>
+          <p>Binary Protobuf serializes compact integer field tags directly on the wire.</p>
         </div>
 
         <div class="table-wrap">

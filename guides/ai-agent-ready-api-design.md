@@ -1,8 +1,8 @@
-# Designing APIs for AI Agents & MCP Tools (2026)
+# Designing APIs for AI agents and MCP tools (2026)
 
 Back to [API Design Principles](../README.md) | Web version: [ai-agent-ready-api-design.html](https://api-design-tools.github.io/api-design-principles/ai-agent-ready-api-design.html)
 
-Modern OpenAPI specs do not just feed Swagger UI and SDK generators. AI coding assistants and Model Context Protocol (MCP) bridges convert OpenAPI operations directly into callable tools (`ADP-017`, `ADP-019`, `ADP-032`). Ambiguous contracts cause agents to guess parameter names, retry non-idempotent writes, or misread error payloads.
+OpenAPI specs feed Swagger UI, SDK generators, AI coding assistants, and Model Context Protocol (MCP) adapters (`ADP-017`, `ADP-019`, `ADP-032`). Ambiguous contracts cause agents to guess parameter names, retry non-idempotent writes, or misread error payloads.
 
 ## 1. What makes an OpenAPI spec deterministic for LLM tool calling
 

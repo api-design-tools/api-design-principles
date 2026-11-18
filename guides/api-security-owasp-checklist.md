@@ -1,4 +1,4 @@
-# OWASP API Security Top 10 & Auth Design Checklist (2026)
+# OWASP API security top 10 and auth design checklist (2026)
 
 Back to [API Design Principles](../README.md) | Web version: [api-security-owasp-checklist.html](https://api-design-tools.github.io/api-design-principles/api-security-owasp-checklist.html)
 

@@ -33,7 +33,7 @@ Put a major version suffix in every Protobuf package (`orders.v1`, `orders.v2`),
 | :--- | :--- | :--- |
 | RPC deadline | Caller budget (for example `1500ms`) minus hop overhead | Cascading thread exhaustion across service hops |
 | Enum zero value | `ORDER_STATUS_UNSPECIFIED = 0` | Distinguishes unset proto3 default from a valid domain state |
-| Error mapping | `google.rpc.Status` + `ErrorInfo` metadata | Propagates machine-readable codes instead of raw stack traces |
+| Error mapping | `google.rpc.Status` + `ErrorInfo` metadata | Propagates machine-readable codes without leaking raw stack traces |
 | Money fields | `int64 units` + `int32 nanos` or `int64 amount_minor` + ISO 4217 string | Avoids IEEE 754 float drift (`ADP-029`) |
 
 ## 3. When to expose REST alongside gRPC

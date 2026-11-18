@@ -4,7 +4,7 @@ Back to [API Design Principles](../README.md) | Web version: [graphql-api-design
 
 GraphQL fits multi-entity UI aggregators and mobile backends where a single screen pulls nested data across several services (`ADP-031`). Because HTTP caches and URL firewalls cannot inspect GraphQL selection sets by path alone, public GraphQL endpoints need strict query budgets and schema discipline (`ADP-041`).
 
-## 1. Relay cursor connections instead of offset lists
+## 1. Relay cursor connections for ordered lists
 
 Never expose raw unbounded lists like `orders(offset: Int, limit: Int): [Order!]!`. Use cursor connections with bounded `first` arguments so clients traverse ordered sets in constant database time (`ADP-010`):
 
@@ -32,7 +32,7 @@ An attacker can turn recursive relationships into an exponential database fan-ou
 | Persisted operations | SHA-256 query allowlist in production | Eliminates ad-hoc arbitrary AST parsing on public APIs |
 | Introspection guard | Disabled on public unauthenticated traffic | Hides internal type graph structure from automated scanners |
 
-## 3. Typed union errors instead of top-level null ambiguity
+## 3. Typed union errors for domain failures
 
 Keep transport failures (`401`, `429`, `503`) at the HTTP layer, and model domain validation or state conflicts inside mutation return unions so typed clients handle failures explicitly:
 

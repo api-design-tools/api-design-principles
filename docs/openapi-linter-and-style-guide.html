@@ -54,7 +54,7 @@
   <main>
     <section class="article-hero">
       <div class="container">
-        <h1>OpenAPI linter and diff CLI</h1>
+        <h1>OpenAPI CLI linter and CI action</h1>
         <p class="lead">Lint JSON or YAML specs, check diffs, and export SARIF in Python.</p>
       </div>
     </section>
@@ -88,7 +88,7 @@ python3 api_validator.py --spec openapi.json --format sarif --output api-lint.sa
 
         <div class="table-wrap">
           <table class="responsive-table">
-            <thead><tr><th>Preset</th><th>Primary focus</th><th>Key rules promoted to error</th></tr></thead>
+            <thead><tr><th>Preset</th><th>Primary focus</th><th>Promoted error rules</th></tr></thead>
             <tbody>
               <tr><td><code>google-aip</code></td><td>URI and resource consistency</td><td><code>ADP-002</code> (kebab-case), <code>ADP-011</code> (cursors), <code>ADP-017</code> (<code>operationId</code>)</td></tr>
               <tr><td><code>stripe-style</code></td><td>Payments and developer UX</td><td><code>ADP-012</code> (<code>Idempotency-Key</code>), <code>ADP-013</code> (<code>429</code>), <code>ADP-019</code> (examples)</td></tr>

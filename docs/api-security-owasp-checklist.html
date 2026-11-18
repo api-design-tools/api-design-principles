@@ -55,7 +55,7 @@
   <main>
     <section class="article-hero">
       <div class="container">
-        <h1>OWASP API security checklist</h1>
+        <h1>OWASP API top 10 security checklist</h1>
         <p class="lead">Enforce OWASP API Top 10 checks with <code>--preset owasp-api-top10</code> and tenant scoping.</p>
       </div>
     </section>
@@ -86,7 +86,7 @@
       <div class="container article-stack">
         <div class="note-panel">
           <h2>Prevent BOLA / IDOR (<code>ADP-023</code>) and ID enumeration (<code>ADP-024</code>)</h2>
-          <p>Scope every single-record database query by the authenticated tenant (<code>WHERE id = $1 AND tenant_id = $2</code>) and use prefixed ULID or UUIDv7 identifiers such as <code>ord_01J9Z4K8M2</code> instead of sequential integers.</p>
+          <p>Scope every single-record database query by the authenticated tenant (<code>WHERE id = $1 AND tenant_id = $2</code>) and use prefixed ULID or UUIDv7 identifiers such as <code>ord_01J9Z4K8M2</code> to stop ID enumeration.</p>
         </div>
       </div>
     </section>

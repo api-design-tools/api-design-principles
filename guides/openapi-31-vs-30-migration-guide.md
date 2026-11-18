@@ -4,7 +4,7 @@ Back to [API Design Principles](../README.md) | Web version: [openapi-31-vs-30-m
 
 OpenAPI 3.1.0 aligns completely with JSON Schema Draft 2020-12 and adds top-level webhook contracts (`ADP-040`), removing the awkward schema subset incompatibilities present in OpenAPI 3.0.x. Both `3.0.x` and `3.1.0` run cleanly in `api_validator.py`.
 
-## 1. Key schema syntax changes between 3.0 and 3.1
+## 1. Schema syntax changes between 3.0 and 3.1
 
 | Construct | OpenAPI 3.0.3 | OpenAPI 3.1.0 | Notes |
 | :--- | :--- | :--- | :--- |
